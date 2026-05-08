@@ -1,0 +1,95 @@
+.card {
+  transition: transform 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+/* รองรับตารางบนมือถือ */
+.table-responsive{
+  width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* บังคับให้ตารางไม่บีบตัวเอง */
+.table-responsive table{
+  min-width:900px;
+}
+
+/* กันข้อความยุบ */
+.table-responsive th,
+.table-responsive td{
+  white-space:nowrap;
+}
+
+.admin-page{
+  width:100%;
+  max-width:100%;
+}
+
+.admin-card{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 18px rgba(0,0,0,.05);
+  overflow:hidden;
+}
+
+.admin-table-scroll{
+  width:100%;
+  overflow-x:auto;
+}
+
+.admin-table-scroll table{
+  min-width:1000px;
+}
+
+.btn.btn-outline-orange {
+  color: #fd7e14 !important;
+  border-color: #fd7e14 !important;
+  background-color: transparent !important;
+}
+
+.btn.btn-outline-orange:hover {
+  color: #fff !important;
+  background-color: #fd7e14 !important;
+  border-color: #fd7e14 !important;
+}
+
+.btn.btn-outline-orange:focus,
+.btn.btn-outline-orange:active {
+  color: #fff !important;
+  background-color: #fd7e14 !important;
+  border-color: #fd7e14 !important;
+  box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25) !important;
+}
+
+.btn.btn-outline-orange:disabled {
+  color: #fd7e14 !important;
+  border-color: #fd7e14 !important;
+  background-color: transparent !important;
+  opacity: 0.5;
+}
+
+.section-title{
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  border-left: 5px solid #22c55e;
+  padding-left: 12px;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+.card-body .table th,
+.card-body .table td {
+  padding: 0.45rem 0.6rem;
+  vertical-align: middle;
+}
+
+.dashboard-card-title {
+  min-height: 56px;
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.35;
+}

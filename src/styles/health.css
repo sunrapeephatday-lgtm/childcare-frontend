@@ -1,0 +1,22 @@
+.health-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.health-table-wrapper table {
+  min-width: 820px;
+}
+
+.health-table-wrapper th,
+.health-table-wrapper td {
+  white-space: nowrap;
+}
+
+.health-table-wrapper select {
+  min-width: 120px;
+}
+
+.health-table-wrapper input {
+  min-width: 150px;
+}
+

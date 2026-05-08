@@ -1,0 +1,117 @@
+/* =========================
+   PAGE
+========================= */
+.container {
+  font-family: "Noto Sans Thai", sans-serif;
+  padding-bottom: 40px;
+}
+
+/* =========================
+   TITLE
+========================= */
+h4 {
+  font-weight: 700;
+  color: #14532d;
+  margin-bottom: 16px;
+}
+
+/* =========================
+   CARD
+========================= */
+.card {
+  border-radius: 14px;
+  border: 1px solid #bbf7d0;
+  box-shadow: 0 12px 28px rgba(0,0,0,.08);
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* =========================
+   TABLE BASE
+========================= */
+.table {
+  margin-bottom: 0;
+  font-size: 14px;
+  background: #ffffff;
+  border-collapse: collapse;
+}
+
+/* =========================
+   HEADER (เขียวทั้งแถบ ไม่มีขาว)
+========================= */
+/* =========================
+   HEADER (เขียวไล่เฉด)
+========================= */
+.table thead {
+  background: linear-gradient(
+    135deg,
+    #34d399,   /* เขียวอ่อน */
+    #22c55e,   /* เขียวกลาง */
+    #16a34a    /* เขียวเข้ม */
+  );
+}
+
+.table thead th {
+  background: transparent;   /* ให้เห็น gradient จาก thead */
+  color: #000000;            /* ตัวหนังสือดำ */
+  font-weight: 700;
+  text-align: center;
+  padding: 14px 10px;
+  border: 1px solid #16a34a;
+}
+
+
+/* =========================
+   BODY CELLS (เส้น)
+========================= */
+.table tbody td {
+  border: 1px solid #dcfce7;
+  padding: 12px 10px;
+  text-align: center;
+  color: #064e3b;
+}
+
+/* =========================
+   BODY BACKGROUND (เขียวอ่อนล้วน)
+========================= */
+.table-striped > tbody > tr > * {
+  background-color: #f0fdf4 !important;
+}
+
+/* =========================
+   HOVER
+========================= */
+.table tbody tr:hover > * {
+  background-color: #dcfce7 !important;
+  transition: .15s;
+}
+
+/* =========================
+   NAME COLUMN
+========================= */
+.children-table td:nth-child(3) {
+  font-weight: 600;
+  color: #14532d;
+}
+
+/* =========================
+   EMPTY ROW
+========================= */
+.table td[colspan] {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* =========================
+   ALERT
+========================= */
+.alert-danger {
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 0.45rem 0.6rem;
+  vertical-align: middle;
+}

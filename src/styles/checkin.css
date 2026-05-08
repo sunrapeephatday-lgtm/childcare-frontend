@@ -1,0 +1,32 @@
+/* ตารางเลื่อนในมือถือ */
+.table-responsive{
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* กันตารางโดนบีบ */
+.table-responsive table{
+  min-width: 820px;
+}
+
+/* ไม่ให้ข้อความหักบรรทัด */
+.table-responsive th,
+.table-responsive td{
+  white-space: nowrap;
+}
+
+/* select */
+.form-select-sm{
+  min-width: 120px;
+}
+
+/* ช่องหมายเหตุ */
+.form-control-sm{
+  min-width: 180px;
+}
+
+.table th,
+.table td {
+  padding: 0.45rem 0.6rem;
+  vertical-align: middle;
+}

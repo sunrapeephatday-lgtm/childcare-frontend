@@ -1,0 +1,95 @@
+/* ===== layout ===== */
+.desired-traits {
+  font-family: Tahoma, Arial, sans-serif;
+  font-size: 14px;
+
+  /* 🔴 สำคัญ: กัน background ทะลุ */
+  background: #ffffff;
+  padding: 16px;
+}
+
+/* ===== header ===== */
+.desired-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.desired-section {
+  margin-bottom: 4px;
+}
+
+/* ===== table ===== */
+.desired-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  /* 🔴 สำคัญ: พื้นหลังตาราง */
+  background: #ffffff;
+}
+
+.desired-table th,
+.desired-table td {
+  border: 1px solid #000;
+  padding: 6px;
+  text-align: center;
+
+  /* 🔴 สำคัญ: ทุกช่องต้องมีพื้นขาว */
+  background: #ffffff;
+}
+
+.desired-table td.left {
+  text-align: left;
+}
+
+/* ===== vertical header ===== */
+.rotate {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+/* ===== colors (เหมือน Excel) ===== */
+.bg-sum {
+  background: #c9f7ff !important;
+}
+
+.bg-avg {
+  background: #ffd7b5 !important;
+}
+
+.bg-quality {
+  background: #e5c6ff !important;
+}
+
+.bg-footer-avg {
+  background: #fff6b3 !important;
+  font-weight: bold;
+}
+
+.bg-footer-quality {
+  background: #ffd7b5 !important;
+  font-weight: bold;
+}
+
+/* ===== print ===== */
+@media print {
+  body,
+  .site-wrapper {
+    background: #ffffff !important;
+  }
+
+  .desired-traits {
+    background: #ffffff;
+    padding: 0;
+    margin: 0;
+  }
+
+  select {
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: none;
+  }
+}

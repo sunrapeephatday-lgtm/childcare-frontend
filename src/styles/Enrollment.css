@@ -1,0 +1,179 @@
+/* =========================
+   PAGE BASE
+========================= */
+.container {
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+/* =========================
+   CARD STYLE
+========================= */
+.card {
+  border-radius: 16px;
+  border: 1px solid #dcfce7;
+  box-shadow: 0 8px 25px rgba(0,0,0,.06);
+}
+
+.card-body h5 {
+  color: #166534;
+  font-weight: 700;
+  margin-bottom: 16px;
+  border-left: 5px solid #22c55e;
+  padding-left: 10px;
+}
+
+/* =========================
+   INPUT / SELECT / TEXTAREA
+========================= */
+.form-control,
+.form-select {
+  border-radius: 10px;
+  border: 1px solid #86efac;
+  background: #f0fdf4;
+  color: #064e3b;
+  font-size: 14px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34,197,94,.25);
+  background: #ecfdf5;
+}
+
+.enrollment-page label:not(.form-check-label),
+.enrollment-page .form-label {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.enrollment-page .field-label-error {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* =========================
+   RADIO / CHECKBOX
+========================= */
+.form-check-input {
+  border-color: #22c55e;
+}
+
+.form-check-input:checked {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}
+
+/* =========================
+   INVALID (ERROR)
+========================= */
+.is-invalid {
+  border-color: #ef4444 !important;
+  background: #fff5f5;
+}
+
+.invalid-feedback {
+  font-size: 12px;
+  color: #dc2626;
+}
+
+/* =========================
+   ALERT
+========================= */
+.alert-success {
+  background: #dcfce7;
+  border: 1px solid #22c55e;
+  color: #166534;
+}
+
+.alert-danger {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+}
+
+.alert-warning {
+  background: #fef9c3;
+  border: 1px solid #facc15;
+  color: #854d0e;
+}
+
+.alert-info {
+  background: #e0f2fe;
+  border: 1px solid #38bdf8;
+  color: #075985;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn-success {
+  background: linear-gradient(135deg, #34d399, #16a34a);
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  padding: 10px 28px;
+}
+
+.btn-success:hover {
+  filter: brightness(1.05);
+}
+
+.btn-outline-primary {
+  border-radius: 999px;
+  border-color: #22c55e;
+  color: #166534;
+}
+
+.btn-outline-primary:hover {
+  background: #22c55e;
+  color: #fff;
+}
+
+/* =========================
+   FILE INPUT
+========================= */
+input[type="file"] {
+  background: #f0fdf4;
+  border-radius: 10px;
+  border: 1px dashed #22c55e;
+}
+
+/* =========================
+   SECTION SPACING
+========================= */
+.card + .card {
+  margin-top: 20px;
+}
+
+/* =========================
+   HEADINGS
+========================= */
+h2 {
+  font-weight: 800;
+  color: #14532d;
+}
+
+h6 {
+  color: #166534;
+  font-weight: 600;
+}
+
+.enroll-header{
+  background: linear-gradient(135deg,#e8f5e9,#f1f8e9);
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.header-line{
+  width: 120px;
+  height: 4px;
+  background: #22c55e;
+  margin: 10px auto 15px;
+  border-radius: 10px;
+}

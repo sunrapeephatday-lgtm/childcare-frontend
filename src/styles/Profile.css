@@ -1,0 +1,59 @@
+.profile-wrapper {
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-card {
+  width: 360px;
+  background: white;
+  border-radius: 18px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.profile-avatar img {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #4caf50;
+  margin-bottom: 15px;
+}
+
+.profile-title {
+  margin-bottom: 20px;
+  color: #2e7d32;
+}
+
+.profile-info div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.profile-info label {
+  font-weight: bold;
+  color: #555;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  color: white;
+  font-size: 13px;
+}
+
+.role-parent {
+  background: #607d8b;
+}
+
+.role-teacher {
+  background: #4caf50;
+}
+
+.role-admin {
+  background: #f44336;
+}

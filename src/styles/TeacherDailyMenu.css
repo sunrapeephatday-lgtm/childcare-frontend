@@ -1,0 +1,131 @@
+/* =========================
+   PAGE
+========================= */
+.container {
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+/* =========================
+   TITLE
+========================= */
+h4, h5 {
+  font-weight: 700;
+  color: #14532d;
+}
+
+/* =========================
+   CARD
+========================= */
+.card {
+  border-radius: 14px;
+  border: 1px solid #bbf7d0;
+  box-shadow: 0 10px 26px rgba(0,0,0,.08);
+  background: #ffffff;
+}
+
+/* =========================
+   FORM
+========================= */
+.form-control {
+  border-radius: 10px;
+  border: 1px solid #bbf7d0;
+  font-size: 14px;
+}
+
+.form-control:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34,197,94,.2);
+}
+
+/* ปุ่มบันทึก */
+.btn-primary {
+  background: linear-gradient(135deg, #34d399, #16a34a);
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  opacity: .9;
+}
+
+/* =========================
+   TABLE BASE
+========================= */
+.table {
+  font-size: 14px;
+  border-collapse: collapse;
+}
+
+/* =========================
+   HEADER (เขียวไล่เฉด)
+========================= */
+.table thead {
+  background: linear-gradient(
+    135deg,
+    #bbf7d0,
+    #4ade80,
+    #22c55e
+  );
+}
+
+.table thead th {
+  background: transparent;
+  color: #000000;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px;
+  border: 1px solid #16a34a;
+}
+
+/* =========================
+   BODY CELLS
+========================= */
+.table tbody td {
+  border: 1px solid #dcfce7;
+  padding: 10px;
+  color: #064e3b;
+}
+
+/* =========================
+   BODY BACKGROUND (เขียวอ่อน)
+========================= */
+.table tbody tr > * {
+  background-color: #f0fdf4;
+}
+
+/* =========================
+   HOVER
+========================= */
+.table tbody tr:hover > * {
+  background-color: #dcfce7;
+  transition: .15s;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn-success {
+  background: #22c55e;
+  border: none;
+  border-radius: 999px;
+}
+
+.btn-warning {
+  background: #facc15;
+  border: none;
+  border-radius: 999px;
+  color: #000;
+}
+
+.btn-warning:hover {
+  background: #eab308;
+}
+
+/* =========================
+   ALERT
+========================= */
+.alert {
+  border-radius: 10px;
+  font-size: 14px;
+}

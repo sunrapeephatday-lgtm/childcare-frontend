@@ -1,0 +1,442 @@
+import React, { useEffect, useState } from "react";
+import API from "../api/api";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import "../styles/checkin.css";
+
+/* ===== helper ===== */
+function formatThaiDate(d) {
+  if (!d) return "-";
+  const date = new Date(d);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear() + 543;
+  return `${day}/${month}/${year}`;
+}
+
+export default function CheckinPage() {
+
+  const [rows, setRows] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [date, setDate] = useState("");
+  const [teacherId, setTeacherId] = useState(null);
+  const [msg, setMsg] = useState(null);
+
+  const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
+  const [exportYear, setExportYear] = useState(new Date().getFullYear());
+
+  const [keyword, setKeyword] = useState("");
+  const [filteredRows, setFilteredRows] = useState([]);
+
+  const thaiDate = formatThaiDate(date);
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  async function init() {
+    const res = await API.get("/checkins/me");
+    const tid = res.data.teacher_id;
+
+    setTeacherId(tid);
+    loadToday(tid);
+    loadHistory(tid);
+  }
+
+  async function loadToday(tid) {
+    const res = await API.get("/checkins/today", {
+      params: { teacher_id: tid }
+    });
+    setRows(res.data.rows || []);
+    setFilteredRows(res.data.rows || []);
+    setDate(res.data.date);
+  }
+
+  async function loadHistory(tid) {
+    const res = await API.get("/checkins/history", {
+      params: { teacher_id: tid }
+    });
+    setHistory(res.data.rows || []);
+  }
+
+  function handleSearch(e) {
+  e.preventDefault();
+
+  const k = keyword.toLowerCase();
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const result = rows.map((r) => {
+    // 🔥 หา history ของเด็กคนนี้ "วันนี้"
+    const h = history.find(
+      (x) =>
+        x.first_name + " " + x.last_name === r.name.replace(/^(เด็กชาย|เด็กหญิง)/, "").trim() &&
+        new Date(x.record_date).toISOString().slice(0, 10) === today
+    );
+
+    return {
+      ...r,
+      checkedToday: !!h,   // ✅ เช็คแล้วหรือยัง
+      realStatus: h?.status || "ยังไม่เช็ค"
+    };
+  }).filter((r) =>
+    (r.name || "").toLowerCase().includes(k) ||
+    (r.nickname || "").toLowerCase().includes(k)
+  );
+
+  setFilteredRows(result);
+}
+
+  function handleReload() {
+    setKeyword("");
+    loadToday(teacherId);
+  }
+
+  function mark(id, status) {
+  setRows(r =>
+    r.map(x => (x.child_id === id ? { ...x, status } : x))
+  );
+
+  setFilteredRows(r =>
+    r.map(x => (x.child_id === id ? { ...x, status } : x))
+  );
+
+}
+function setNote(id, note) {
+  setRows(r =>
+    r.map(x => (x.child_id === id ? { ...x, note } : x))
+  );
+
+  setFilteredRows(r =>
+    r.map(x => (x.child_id === id ? { ...x, note } : x))
+  );
+}
+
+  async function saveAll() {
+    for (const r of rows) {
+      await API.post("/checkins", {
+        child_id: r.child_id,
+        status: r.status,
+        note: r.note,
+        teacher_id: teacherId
+      });
+    }
+    loadHistory(teacherId);
+    setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
+  }
+
+  /* ================= EXPORT ================= */
+function exportExcel() {
+  if (!history.length) {
+    alert("ไม่มีข้อมูล");
+    return;
+  }
+
+  const thaiMonths = [
+    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+    "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+  ];
+
+  const shortMonths = [
+    "ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
+    "ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."
+  ];
+
+  const month = exportMonth - 1;
+  const year = exportYear;
+  const days = new Date(year, month + 1, 0).getDate();
+
+  /* ===== map ข้อมูลเด็ก ===== */
+  const map = {};
+
+  history.forEach(h => {
+    const d = new Date(h.record_date);
+
+    if (d.getMonth() !== month || d.getFullYear() !== year) return;
+
+    const name = `${h.first_name} ${h.last_name}`;
+    const day = d.getDate();
+
+    if (!map[name]) {
+      map[name] = {};
+    }
+
+    map[name][day] = h.status;
+  });
+
+  /* ===== header ===== */
+  const header = [
+    "ลำดับ",
+    "ชื่อ-นามสกุล",
+    ...Array.from(
+      { length: days },
+      (_, i) => `${i + 1}${shortMonths[month]}`
+    ),
+    "มา",
+    "ขาด",
+    "ลา"
+  ];
+
+  const title =
+    `บันทึกการเช็คการมาเรียนประจำเดือน ${thaiMonths[month]} พ.ศ. ${year + 543}`;
+
+  const center =
+    "ศูนย์พัฒนาเด็ก อบต.หนองน้ำแดง สังกัดองค์การบริหารส่วนตำบลหนองน้ำแดง";
+
+  const aoa = [
+    [title],
+    [center],
+    [],
+    header
+  ];
+
+  let index = 1;
+
+  Object.keys(map).forEach(name => {
+    const rowExcel = aoa.length + 1;
+
+    const cells = [];
+
+    for (let d = 1; d <= days; d++) {
+      const st = map[name][d];
+
+      if (st === "มา") {
+        cells.push("✓");
+      } else if (st === "ขาด") {
+        cells.push("ข");
+      } else if (st === "ลา") {
+        cells.push("ล");
+      } else {
+        cells.push("");
+      }
+    }
+
+    // วันเริ่มคอลัมน์ C
+    const startCol = 2;
+    const endCol = startCol + days - 1;
+
+    const startLetter = XLSX.utils.encode_col(startCol);
+    const endLetter = XLSX.utils.encode_col(endCol);
+
+    aoa.push([
+      index++,
+      name,
+      ...cells,
+      {
+  t: "n",
+  f: `COUNTIF(${startLetter}${rowExcel}:${endLetter}${rowExcel},"✓")`
+},
+{
+  t: "n",
+  f: `COUNTIF(${startLetter}${rowExcel}:${endLetter}${rowExcel},"ข")`
+},
+{
+  t: "n",
+  f: `COUNTIF(${startLetter}${rowExcel}:${endLetter}${rowExcel},"ล")`
+}
+    ]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  /* ===== merge หัวข้อ ===== */
+  ws["!merges"] = [
+    {
+      s: { r: 0, c: 0 },
+      e: { r: 0, c: header.length - 1 }
+    },
+    {
+      s: { r: 1, c: 0 },
+      e: { r: 1, c: header.length - 1 }
+    }
+  ];
+
+  /* ===== ความกว้างคอลัมน์ ===== */
+  ws["!cols"] = [
+    { wch: 8 },
+    { wch: 30 },
+    ...Array.from({ length: days }, () => ({ wch: 5 })),
+    { wch: 6 },
+    { wch: 6 },
+    { wch: 6 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "รายงานเช็คชื่อ");
+
+  XLSX.writeFile(
+    wb,
+    `รายงานเช็คชื่อ_${thaiMonths[month]}_${year + 543}.xlsx`
+  );
+}
+  return (
+    <div className="container my-4">
+
+  {/* ===== หัวข้อ ===== */}
+  <h3 className="mb-3 fw-bold text-success section-title">
+    บันทึกการเช็คชื่อ (วันที่ {thaiDate})
+  </h3>
+      {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
+  <div className="d-flex justify-content-end gap-2">
+
+    <form onSubmit={handleSearch} className="d-flex gap-2 flex-grow-1">
+      <input
+        type="text"
+        className="form-control"
+        placeholder="ค้นหาชื่อ / ชื่อเล่น"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+      />
+      
+      <button className="btn btn-success">
+        ค้นหา
+      </button>
+    </form>
+
+    <button
+      className="btn btn-outline-secondary"
+      onClick={handleReload}
+    >
+      รีโหลด
+    </button>
+    
+  </div>
+
+  {/* ===== ปุ่ม ===== */}
+ <div className="row mb-3 align-items-end">
+  <div className="col-md-3">
+    <label className="form-label">เดือน</label>
+    <select
+      className="form-select"
+      value={exportMonth}
+      onChange={(e) => setExportMonth(Number(e.target.value))}
+    >
+      {[
+        "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+        "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+      ].map((m, i) => (
+        <option key={i} value={i + 1}>
+          {m}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div className="col-md-2">
+    <label className="form-label">ปี</label>
+    <select
+      className="form-select"
+      value={exportYear}
+      onChange={(e) => setExportYear(Number(e.target.value))}
+    >
+      {[2568, 2569, 2570].map((y) => (
+        <option key={y} value={y - 543}>
+          {y}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div className="col-12 col-md-7 mt-2 mt-md-0">
+    <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+    <button
+      className="btn btn-primary px-3"
+      onClick={saveAll}
+    >
+      บันทึกทั้งหมด
+    </button>
+
+    <button
+      className="btn btn-primary me-2"
+      onClick={exportExcel}
+    >
+      Export Excel
+    </button>
+    </div>
+  </div>
+</div>
+  <div className="table-responsive">
+
+      <table
+  className="table table-bordered table-sm align-middle"
+  style={{ fontSize: "14px" }}
+>
+        <thead>
+          <tr>
+           <th style={{ width: 60 }}>ลำดับ</th>
+          <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
+          <th style={{ width: 120 }}>ชื่อเล่น</th>
+          <th style={{ width: 120 }}>สถานะ</th>
+          <th style={{ width: 120 }}>หมายเหตุ</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {filteredRows.map((r, i) => (
+            <tr key={r.child_id}>
+              <td>{i + 1}</td>
+              <td className="text-start ps-3">
+                {r.name}
+              </td>
+              <td>{r.nickname}</td>
+
+              <td>
+                <select
+                  value={r.status}
+                  onChange={e => mark(r.child_id, e.target.value)}
+                >
+                  <option value="มา">มา</option>
+                  <option value="ขาด">ขาด</option>
+                  <option value="ลา">ลา</option>
+                </select>
+              </td>
+
+              <td>
+                <input
+                  value={r.note || ""}
+                  onChange={e => setNote(r.child_id, e.target.value)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+      <hr />
+
+      <h4 className="mb-3 fw-bold text-success section-title">
+        ประวัติการเช็คชื่อ
+      </h4>
+<div className="table-responsive">
+      <table
+  className="table table-bordered table-sm align-middle"
+  style={{ fontSize: "14px" }}
+>
+        <thead>
+          <tr>
+            <th style={{ width: 60 }}>ลำดับ</th>
+            <th style={{ width: 120 }}>วันที่</th>
+            <th style={{ width: 220 }}>ชื่อ-นามสกุล</th>
+            <th style={{ width: 120 }}>สถานะ</th>
+            <th style={{ width: 220 }}>หมายเหตุ</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {history.map((h, i) => (
+            <tr key={i}>
+              <td>{i + 1}</td>
+              <td>{formatThaiDate(h.record_date)}</td>
+              <td className="text-start ps-3">
+  {h.prefix}{h.first_name} {h.last_name}
+</td>
+              <td>{h.status}</td>
+              <td>{h.note || "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+          </div>
+    </div>
+  );
+}

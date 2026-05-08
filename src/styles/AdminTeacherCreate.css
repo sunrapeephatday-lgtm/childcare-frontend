@@ -1,0 +1,11 @@
+.btn-outline-orange {
+  color: #fd7e14;
+  border-color: #fd7e14;
+  background-color: transparent;
+}
+
+.btn-outline-orange:hover {
+  color: #fff;
+  background-color: #fd7e14;
+  border-color: #fd7e14;
+}

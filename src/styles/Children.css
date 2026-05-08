@@ -1,0 +1,211 @@
+/* =========================
+   PAGE
+========================= */
+.children-page {
+  background: #f4f7fb;
+  min-height: 100vh;
+  padding: 20px 0;
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+/* =========================
+   TITLE
+========================= */
+.children-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #14532d;
+  margin-bottom: 20px;
+}
+
+/* =========================
+   EMPTY
+========================= */
+.children-empty {
+  background: #fff3cd;
+  color: #856404;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+
+/* =========================
+   CARD
+========================= */
+.child-card {
+  border-radius: 18px;
+  border: none;
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
+  transition: all .25s ease;
+  background: #ffffff;
+}
+
+.child-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.12);
+}
+
+/* =========================
+   NAME
+========================= */
+.child-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #14532d;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #bbf7d0;
+  padding-bottom: 6px;
+}
+
+/* =========================
+   INFO
+========================= */
+.child-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #334155;
+}
+
+/* =========================
+   ADDRESS
+========================= */
+.child-address {
+  font-size: 13px;
+  color: #475569;
+  background: #f8fafc;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+/* =========================
+   PARENT BOX
+========================= */
+.parent-box {
+  background: #ecfdf5;
+  border-left: 4px solid #22c55e;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #065f46;
+}
+
+/* =========================
+   BUTTON (ประเมินพัฒนาการ)
+========================= */
+.child-btn {
+  background: linear-gradient(135deg,#34d399,#16a34a);
+  color: #ffffff !important;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 0;
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  transition: all .2s ease;
+}
+
+.child-btn:hover {
+  background: linear-gradient(135deg,#22c55e,#15803d);
+  transform: scale(1.04);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .children-title {
+    font-size: 20px;
+  }
+
+  .child-name {
+    font-size: 16px;
+  }
+}
+.teacher-card {
+  min-height: 300px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.teacher-box {
+  background: #ecfdf5;
+  border-left: 6px solid #22c55e;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #065f46;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.score-item {
+  background: #f4fbf6;
+  border: 1px solid #d7ead8;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.score-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.08);
+}
+
+.score-item span {
+  display: block;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.score-item strong {
+  color: #0c8f4f;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.child-note-box {
+  background: #eef8f0;
+  border-left: 4px solid #22c55e;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 16px;
+}
+
+.note-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #15803d;
+  margin-bottom: 8px;
+}
+
+.note-content {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 992px) {
+  .score-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .score-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .score-item strong {
+    font-size: 18px;
+  }
+}

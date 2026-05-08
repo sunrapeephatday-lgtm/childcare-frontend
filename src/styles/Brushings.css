@@ -1,0 +1,146 @@
+/* =========================
+   PAGE
+========================= */
+.container {
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+/* =========================
+   TITLE
+========================= */
+h3, h5 {
+  font-weight: 700;
+  color: #14532d;
+}
+
+/* =========================
+   TABLE BASE
+========================= */
+.table {
+  font-size: 14px;
+  border-collapse: collapse;
+
+  /* กรอบการ์ด */
+  border-radius: 14px;
+  overflow: hidden;              /* สำคัญมาก */
+  border: 2px solid #22c55e;
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+}
+
+/* =========================
+   HEADER (เขียวไล่เฉด)
+========================= */
+.table thead {
+  background: linear-gradient(135deg, #bbf7d0, #4ade80, #22c55e);
+}
+
+.table thead th {
+  background: transparent;
+  color: #000;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px;
+  border: 1px solid #16a34a;
+}
+
+/* มุมบน */
+.table thead th:first-child {
+  border-top-left-radius: 14px;
+}
+
+.table thead th:last-child {
+  border-top-right-radius: 14px;
+}
+
+/* =========================
+   BODY CELLS
+========================= */
+.table tbody td {
+  border: 1px solid #dcfce7;
+  padding: 10px;
+  text-align: center;
+  color: #064e3b;
+}
+
+/* =========================
+   BODY BACKGROUND
+========================= */
+.table tbody tr > * {
+  background-color: #f0fdf4;
+}
+
+/* =========================
+   HOVER
+========================= */
+.table tbody tr:hover > * {
+  background-color: #dcfce7;
+  transition: .15s;
+}
+
+/* มุมล่าง */
+.table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 14px;
+}
+
+.table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 14px;
+}
+
+/* =========================
+   SELECT (สถานะ)
+========================= */
+select {
+  border: 1px solid #22c55e;
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: #ecfdf5;
+  color: #064e3b;
+  font-weight: 600;
+}
+
+select:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(34,197,94,.25);
+}
+
+/* =========================
+   INPUT NOTE
+========================= */
+input {
+  border: 1px solid #22c55e;
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: #ecfdf5;
+  color: #064e3b;
+}
+
+input:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(34,197,94,.25);
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn-primary {
+  background: linear-gradient(135deg, #34d399, #16a34a) !important;
+  border: none !important;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+
+.btn-success {
+  background: #22c55e;
+  border: none;
+  border-radius: 999px;
+}
+
+.btn-warning {
+  background: #facc15;
+  border: none;
+  border-radius: 999px;
+  color: #000;
+}
