@@ -49,7 +49,9 @@ export default function Children() {
         latest_toenail: c.latest_toenail,
         note: c.note,
         // ⭐ พ่อแม่ (string -> array)
-        parents: c.parents_info ? c.parents_info.split("||") : [],
+        parents: c.parents_info
+  ? [...new Set(c.parents_info.split("||"))]
+  : [],
 
         // teacher
         teacher: {
