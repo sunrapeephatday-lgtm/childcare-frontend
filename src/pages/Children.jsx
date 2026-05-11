@@ -199,7 +199,7 @@ export default function Children() {
                         </div>
 
                         <div className="score-item">
-                          <span>สุขภาพ</span>
+                          <span>สุขภาพ(รายเดือน)</span>
                           <strong>
                             {[
                               c.latest_hair_condition,
@@ -227,12 +227,12 @@ export default function Children() {
                         </div>
 
                         <div className="score-item">
-                          <span>น้ำหนักล่าสุด</span>
+                          <span>น้ำหนักล่าสุด(รายเดือน)</span>
                           <strong>{c.latest_weight || "-"} กก.</strong>
                         </div>
 
                         <div className="score-item">
-                          <span>ส่วนสูงล่าสุด</span>
+                          <span>ส่วนสูงล่าสุด(รายเดือน)</span>
                           <strong>{c.latest_height || "-"} ซม.</strong>
                         </div>
                       </div>
