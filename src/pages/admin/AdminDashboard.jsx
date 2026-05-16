@@ -154,10 +154,10 @@ const totalPages = Math.ceil(searchResults.length / rowsPerPage);
               <thead>
                 <tr>
                   <th>ชื่อ</th>
-                  <th>ห้อง</th>
+                  <th>ห้อเรียนง</th>
                   <th>เช็คชื่อ</th>
-                  <th>นม</th>
-                  <th>อาหาร</th>
+                  <th>ดื่มนม</th>
+                  <th>รับประทานอาหาร</th>
                   <th>แปรงฟัน</th>
                   <th>สุขภาพ</th>
                   <th>น้ำหนัก</th>
