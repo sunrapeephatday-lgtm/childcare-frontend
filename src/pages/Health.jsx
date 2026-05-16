@@ -376,9 +376,80 @@ const checkinTotalPages = Math.ceil(
 </div>
         </div>
       </div>
+{showHistory && (
+  <>
+      {/* 🔴 ประวัติ */}
+      <h5 className="mb-3 fw-bold text-success section-title">
+        ประวัติการบันทึกสุขภาพ
+      </h5>
 
+      <div className="health-table-wrapper">
+        <table className="table table-bordered">
+          <thead className="table-light">
+            <tr>
+              <th style={{ width: "60px" }}>ลำดับ</th>
+              <th style={{ width: "120px" }}>วันที่</th>
+              <th style={{ width: "220px" }}>ชื่อ-นามสกุล</th>
+              <th style={{ width: "120px" }}>ผม</th>
+              <th style={{ width: "120px" }}>ช่องปาก</th>
+              <th style={{ width: "120px" }}>เล็บมือ</th>
+              <th style={{ width: "120px" }}>เล็บเท้า</th>
+              <th style={{ width: "180px" }}>หมายเหตุ</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {currentHistory.map((h, i) => (
+              <tr key={i}>
+                <td>{historyFirstRow + i + 1}</td>
+                <td style={{ width: "120px" }}>
+  {formatThaiDate(h.evaluation_date)}
+</td>
+
+<td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
+  {h.prefix}{h.first_name} {h.last_name}
+</td>
+                <td>{h.hair_condition}</td>
+                <td>{h.oral_cavity}</td>
+                <td>{h.fingernail}</td>
+                <td>{h.toenail}</td>
+                <td>{h.note || "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+
+  <button
+    type="button"
+    className="btn btn-outline-success btn-sm"
+    disabled={historyPage === 1}
+    onClick={() => setHistoryPage(historyPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {historyPage} / {historyTotalPages || 1}
+  </span>
+
+  <button
+    type="button"
+    className="btn btn-outline-success btn-sm"
+    disabled={
+      historyPage === historyTotalPages ||
+      historyTotalPages === 0
+    }
+    onClick={() => setHistoryPage(historyPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
+        </>
+)}
       
-
       {/* 🔴 ตารางวันนี้ (เลื่อนซ้ายขวาได้) */}
       <div className="health-table-wrapper">
         <table className="table table-bordered">
@@ -470,81 +541,6 @@ const checkinTotalPages = Math.ceil(
 
 </div>
       </div>
-
-      <hr />
-{showHistory && (
-  <>
-      {/* 🔴 ประวัติ */}
-      <h5 className="mb-3 fw-bold text-success section-title">
-        ประวัติการบันทึกสุขภาพ
-      </h5>
-
-      <div className="health-table-wrapper">
-        <table className="table table-bordered">
-          <thead className="table-light">
-            <tr>
-              <th style={{ width: "60px" }}>ลำดับ</th>
-              <th style={{ width: "120px" }}>วันที่</th>
-              <th style={{ width: "220px" }}>ชื่อ-นามสกุล</th>
-              <th style={{ width: "120px" }}>ผม</th>
-              <th style={{ width: "120px" }}>ช่องปาก</th>
-              <th style={{ width: "120px" }}>เล็บมือ</th>
-              <th style={{ width: "120px" }}>เล็บเท้า</th>
-              <th style={{ width: "180px" }}>หมายเหตุ</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {currentHistory.map((h, i) => (
-              <tr key={i}>
-                <td>{historyFirstRow + i + 1}</td>
-                <td style={{ width: "120px" }}>
-  {formatThaiDate(h.evaluation_date)}
-</td>
-
-<td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
-  {h.prefix}{h.first_name} {h.last_name}
-</td>
-                <td>{h.hair_condition}</td>
-                <td>{h.oral_cavity}</td>
-                <td>{h.fingernail}</td>
-                <td>{h.toenail}</td>
-                <td>{h.note || "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
-
-  <button
-    type="button"
-    className="btn btn-outline-success btn-sm"
-    disabled={historyPage === 1}
-    onClick={() => setHistoryPage(historyPage - 1)}
-  >
-    ก่อนหน้า
-  </button>
-
-  <span className="fw-bold">
-    หน้า {historyPage} / {historyTotalPages || 1}
-  </span>
-
-  <button
-    type="button"
-    className="btn btn-outline-success btn-sm"
-    disabled={
-      historyPage === historyTotalPages ||
-      historyTotalPages === 0
-    }
-    onClick={() => setHistoryPage(historyPage + 1)}
-  >
-    ถัดไป
-  </button>
-
-</div>
-        </>
-)}
             </div>
             </div>
   );
