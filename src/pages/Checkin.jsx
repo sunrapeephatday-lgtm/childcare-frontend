@@ -109,6 +109,10 @@ export default function CheckinPage() {
   setCheckinPage(1);
 
   await loadToday(teacherId);
+  window.scrollTo({
+  top: 0,
+  behavior: "smooth"
+});
 
 }
 
@@ -543,7 +547,6 @@ const historyTotalPages = Math.ceil(history.length / rowsPerPage);
   </button>
 
 </div>
-      <hr />
           </div>
 
   );
