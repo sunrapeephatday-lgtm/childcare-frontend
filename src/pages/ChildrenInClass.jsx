@@ -7,6 +7,8 @@ export default function ChildrenInClass() {
   const [msg, setMsg] = useState(null);
   const [classroomName, setClassroomName] = useState("");
   const [notes, setNotes] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
   
   useEffect(() => {
     load();
@@ -86,6 +88,15 @@ async function saveNote(childId) {
 
     return `${years}.${months}`;
   }
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+
+  const currentRows = rows.slice(
+  indexOfFirstRow,
+  indexOfLastRow
+);
+
+const totalPages = Math.ceil(rows.length / rowsPerPage);
   return (
     <div className="container my-4">
 
@@ -116,17 +127,17 @@ async function saveNote(childId) {
 </thead>
 
           <tbody>
-            {rows.map((r, i) => (
+            {currentRows.map((r, i) => (
               <tr key={i}>
-                <td>{i + 1}</td>
+                <td>{indexOfFirstRow + i + 1}</td>
                 <td>{r.child_code || "-"}</td>
                 <td className="text-start ps-3">
                     {r.prefix}{r.first_name} {r.last_name}
                 </td>
-                <td>{r.nickname}</td>
-                <td>{thai(r.birth_date)}</td>
-                <td>{r.father_phone || "-"}</td>
-                <td>{r.mother_phone || "-"}</td>
+                <td className="text-start ps-3">{r.nickname}</td>
+                <td className="text-start ps-3">{thai(r.birth_date)}</td>
+                <td className="text-start ps-3">{r.father_phone || "-"}</td>
+                <td className="text-start ps-3">{r.mother_phone || "-"}</td>
                 <td style={{ minWidth: "280px" }}>
   <textarea
           className="form-control form-control-sm"
@@ -152,6 +163,29 @@ async function saveNote(childId) {
             ))}
           </tbody>
         </table>
+        <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage(currentPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {currentPage} / {totalPages || 1}
+  </span>
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={currentPage === totalPages || totalPages === 0}
+    onClick={() => setCurrentPage(currentPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
       </div>
     </div>
   );
