@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 
+const PAGE_SIZE = 10;
+
 /* ================= คำนวณระดับชั้นจริง ================= */
 function calculateApplyLevel(birthDate) {
   if (!birthDate) return "-";
@@ -31,11 +33,28 @@ export default function AdminEnrollments() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
+
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedRows = rows.slice(startIndex, startIndex + PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+    (page) =>
+      page === 1 ||
+      page === totalPages ||
+      Math.abs(page - currentPage) <= 2
+  );
 
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   async function load() {
     setLoading(true);
@@ -119,7 +138,7 @@ export default function AdminEnrollments() {
               </tr>
             )}
 
-            {rows.map((r, idx) => {
+            {paginatedRows.map((r, idx) => {
               let data = {};
               try {
                 data =
@@ -132,14 +151,14 @@ export default function AdminEnrollments() {
 
               return (
                 <tr key={r.enrollment_id}>
-                  <td>{idx + 1}</td>
+                  <td>{startIndex + idx + 1}</td>
 
                   <td className="text-start ps-3">
                       {data.prefix}{data.first_name} {data.last_name}
                   </td>
 
                   {/* ⭐ ใช้คำนวณจริง */}
-                  <td>
+                  <td className="text-start ps-3">
                     {data.apply_level
                       ? data.apply_level.includes("อายุ")
                         ? data.apply_level
@@ -147,7 +166,7 @@ export default function AdminEnrollments() {
                       : "-"}
                   </td>
 
-                  <td>
+                  <td className="text-start ps-3">
                     {r.status === "rejected"
                       ? "ไม่รับเข้า"
                       : r.classroom_name
@@ -157,14 +176,14 @@ export default function AdminEnrollments() {
                       : "-"}
                   </td>
 
-                  <td>
+                  <td className="text-start ps-3">
                     {data.mother_phone ||
                       data.father_phone ||
                       data.sender_phone ||
                       "-"}
                   </td>
 
-                  <td>
+                  <td className="text-start ps-3">
                     {r.created_at
                       ? new Date(r.created_at).toLocaleDateString("th-TH")
                       : "-"}
@@ -205,6 +224,62 @@ export default function AdminEnrollments() {
           </tbody>
         </table>
       </div>
+
+      {rows.length > PAGE_SIZE && (
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+          <div className="text-muted small">
+            แสดง {startIndex + 1}-{Math.min(startIndex + PAGE_SIZE, rows.length)} จาก {rows.length} รายการ
+          </div>
+
+          <nav aria-label="Enrollment pagination">
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                >
+                  ก่อนหน้า
+                </button>
+              </li>
+
+              {pageNumbers.map((page, index) => {
+                const prevPage = pageNumbers[index - 1];
+                const showGap = prevPage && page - prevPage > 1;
+
+                return (
+                  <React.Fragment key={page}>
+                    {showGap && (
+                      <li className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    )}
+                    <li className={`page-item ${currentPage === page ? "active" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  </React.Fragment>
+                );
+              })}
+
+              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                >
+                  ถัดไป
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
     </div>
   );
 }
