@@ -35,6 +35,10 @@ function thaiMonthYear(d) {
 export default function MeasurementsPage() {
   const [rows, setRows] = useState([]);
   const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [checkinPage, setCheckinPage] = useState(1);
+  const rowsPerPage = 10;
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [teacherId, setTeacherId] = useState(null);
   const [msg, setMsg] = useState(null);
@@ -68,7 +72,24 @@ async function init() {
     setTeacherId(tId);
 
     loadToday(tId);
-    loadHistory(tId);
+    async function handleReload() {
+
+  setShowHistory(false);
+
+  setHistory([]);
+
+  setHistoryPage(1);
+
+  setCheckinPage(1);
+
+  await loadToday(teacherId);
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
 
   } catch (err) {
     console.error(err);
@@ -208,7 +229,29 @@ const year = exportYear;
     `รายงานบันทึกน้ำหนักส่วนสูง_${months[month]}_${year + 543}.xlsx`
   );
 }
-  
+  const historyLastRow = historyPage * rowsPerPage;
+const historyFirstRow = historyLastRow - rowsPerPage;
+
+const currentHistory = history.slice(
+  historyFirstRow,
+  historyLastRow
+);
+
+const historyTotalPages = Math.ceil(
+  history.length / rowsPerPage
+);
+
+const checkinLastRow = checkinPage * rowsPerPage;
+const checkinFirstRow = checkinLastRow - rowsPerPage;
+
+const currentCheckins = rows.slice(
+  checkinFirstRow,
+  checkinLastRow
+);
+
+const checkinTotalPages = Math.ceil(
+  rows.length / rowsPerPage
+);
   /* ================= UI ================= */
  return (
   <div className="container my-4">
@@ -253,14 +296,48 @@ const year = exportYear;
   </div>
  <div className="col-12 col-md-7 mt-2 mt-md-0">
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-    <button className="btn btn-primary me-2" onClick={saveAll}>
-      บันทึกทั้งหมด
-    </button>
 
-    <button className="btn btn-success" onClick={exportExcel}>
-      Export Excel
-    </button>
-    </div>
+  <button
+    type="button"
+    className="btn btn-outline-secondary"
+    onClick={handleReload}
+  >
+    รีโหลด
+  </button>
+
+  <button
+    type="button"
+    className="btn btn-primary"
+    onClick={async () => {
+
+      await loadHistory(teacherId);
+
+      setHistoryPage(1);
+
+      setShowHistory(true);
+
+    }}
+  >
+    ค้นหาประวัติ
+  </button>
+
+  <button
+    type="button"
+    className="btn btn-primary"
+    onClick={saveAll}
+  >
+    บันทึกทั้งหมด
+  </button>
+
+  <button
+    type="button"
+    className="btn btn-success"
+    onClick={exportExcel}
+  >
+    Export Microsoft Excel
+  </button>
+
+</div>
   </div>
 </div>
       {/* ตารางบันทึก */}
@@ -279,9 +356,9 @@ const year = exportYear;
       </tr>
     </thead>
     <tbody>
-      {rows.map((r, i) => (
+      {currentCheckins.map((r, i) => (
         <tr key={r.child_id}>
-          <td>{i + 1}</td>
+          <td>{checkinFirstRow + i + 1}</td>
           <td className="text-start ps-3">
   {r.name}
 </td>
@@ -326,9 +403,36 @@ const year = exportYear;
       ))}
     </tbody>
   </table>
-</div>
+  <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
-      {/* ประวัติ */}
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={checkinPage === 1}
+    onClick={() => setCheckinPage(checkinPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {checkinPage} / {checkinTotalPages || 1}
+  </span>
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={
+      checkinPage === checkinTotalPages ||
+      checkinTotalPages === 0
+    }
+    onClick={() => setCheckinPage(checkinPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
+</div>
+{showHistory && (
+  <>
+      /* ประวัติ */
       <h5 className="mb-3 fw-bold text-success section-title">
         ประวัติการบันทึกน้ำหนัก-ส่วนสูง
       </h5>
@@ -347,9 +451,9 @@ const year = exportYear;
           </tr>
         </thead>
         <tbody>
-          {history.map((h, i) => (
+          {currentHistory.map((h, i) => (
             <tr key={i}>
-              <td>{i + 1}</td>
+              <td>{historyFirstRow +i + 1}</td>
               <td>{thaiDate(h.measurement_date)}</td>
               <td className="text-start ps-3">
   {h.prefix}{h.first_name} {h.last_name}
@@ -361,6 +465,34 @@ const year = exportYear;
         </tbody>
       </table>
       </div>
+      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={historyPage === 1}
+    onClick={() => setHistoryPage(historyPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {historyPage} / {historyTotalPages || 1}
+  </span>
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={
+      historyPage === historyTotalPages ||
+      historyTotalPages === 0
+    }
+    onClick={() => setHistoryPage(historyPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
+        </>
+)}
     </div>
   );
 }
