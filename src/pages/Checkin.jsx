@@ -126,44 +126,18 @@ function setNote(id, note) {
   );
 }
 
- async function saveAll() {
-
-  try {
-
+  async function saveAll() {
     for (const r of rows) {
-
       await API.post("/checkins", {
         child_id: r.child_id,
-        status: r.status || "มา",
-        note: r.note || "",
+        status: r.status,
+        note: r.note,
         teacher_id: teacherId
       });
-
     }
-
-    setMsg({
-      type: "success",
-      text: "บันทึกข้อมูลเรียบร้อยแล้ว"
-    });
-
     loadHistory(teacherId);
-
-    setTimeout(() => {
-      setMsg(null);
-    }, 3000);
-
-  } catch (err) {
-
-    console.error(err);
-
-    setMsg({
-      type: "danger",
-      text: "บันทึกข้อมูลไม่สำเร็จ"
-    });
-
+    setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
   }
-
-}
 
   /* ================= EXPORT ================= */
 function exportExcel() {
@@ -326,14 +300,7 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
   <h3 className="mb-3 fw-bold text-success section-title">
     บันทึกการเช็คชื่อ (วันที่ {thaiDate})
   </h3>
-     {msg && (
-  <div
-    className={`alert alert-${msg.type} shadow-sm`}
-    role="alert"
-  >
-    {msg.text}
-  </div>
-)}
+      {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
   <div className="d-flex justify-content-end gap-2">
 
     <form onSubmit={handleSearch} className="d-flex gap-2 flex-grow-1">
@@ -396,11 +363,10 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
 
   <div className="col-12 col-md-7 mt-2 mt-md-0">
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-   <button
-  type="button"
-  className="btn btn-primary px-3"
-  onClick={saveAll}
->
+    <button
+      className="btn btn-primary px-3"
+      onClick={saveAll}
+    >
       บันทึกทั้งหมด
     </button>
 
@@ -438,22 +404,21 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
               </td>
               <td className="text-start ps-3">{r.nickname}</td>
               <td>
-                <select
+                <input
                   value={r.status}
                   onChange={e => mark(r.child_id, e.target.value)}
                 >
                   <option value="มา">มา</option>
                   <option value="ขาด">ขาด</option>
                   <option value="ลา">ลา</option>
-                </select>
+                </input>
               </td>
 
               <td>
                 <input
-  className="form-control form-control-sm"
-  value={r.note || ""}
-  onChange={e => setNote(r.child_id, e.target.value)}
-/>
+                  value={r.note || ""}
+                  onChange={e => setNote(r.child_id, e.target.value)}
+                />
               </td>
             </tr>
           ))}
