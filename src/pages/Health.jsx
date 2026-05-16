@@ -123,12 +123,6 @@ async function init() {
   if (teacherId) {
   await loadToday(teacherId);
 }
-
-  setMsg({
-    type: "success",
-    text: "รีโหลดข้อมูลเรียบร้อย"
-  });
-
   window.scrollTo({
     top: 0,
     behavior: "smooth"
@@ -459,6 +453,7 @@ const checkinTotalPages = Math.ceil(
             <tr>
               <th style={{ width: "60px" }}>ลำดับ</th>
               <th style={{ width: "220px" }}>ชื่อ</th>
+              <th style={{ width: "140px" }}>ชื่อเล่น</th>
               <th style={{ width: "120px" }}>ผม</th>
               <th style={{ width: "120px" }}>ช่องปาก</th>
               <th style={{ width: "120px" }}>เล็บมือ</th>
@@ -474,7 +469,7 @@ const checkinTotalPages = Math.ceil(
                 <td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
                 {r.name}
                 </td>
-
+                <td>{r.nickname}</td>
                 {[
                   
                     "hair_condition",

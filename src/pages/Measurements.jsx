@@ -119,11 +119,6 @@ async function handleReload() {
 
   await loadToday(teacherId);
 
-  setMsg({
-    type: "success",
-    text: "รีโหลดข้อมูลเรียบร้อย"
-  });
-
   window.scrollTo({
     top: 0,
     behavior: "smooth"
