@@ -10,6 +10,7 @@ export default function AdminStudents() {
 
   const [rows,setRows] = useState([]);
   const [loading,setLoading] = useState(false);
+  const [classrooms,setClassrooms] = useState([]);
   const [classroomFilter,setClassroomFilter] = useState("");
   const [currentPage,setCurrentPage] = useState(1);
 
@@ -18,12 +19,15 @@ export default function AdminStudents() {
   const [selected,setSelected] = useState([]);
   const [promoting,setPromoting] = useState(false);
 
-  const classroomOptions = Array.from(
-    new Set(rows.map(r => r.classroom_name).filter(Boolean))
-  ).sort((a,b) => a.localeCompare(b,"th"));
+  const selectedClassroom = classrooms.find(
+    classroom => String(classroom.classroom_id) === classroomFilter
+  );
 
   const filteredRows = classroomFilter
-    ? rows.filter(r => r.classroom_name === classroomFilter)
+    ? rows.filter(r =>
+        String(r.classroom_id) === classroomFilter ||
+        (!r.classroom_id && r.classroom_name === selectedClassroom?.classroom_name)
+      )
     : rows;
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
@@ -38,7 +42,17 @@ export default function AdminStudents() {
 
   useEffect(()=>{
     fetchStudents();
+    fetchClassrooms();
   },[]);
+
+  async function fetchClassrooms(){
+    try{
+      const res = await API.get("/classrooms");
+      setClassrooms(res.data.rows || res.data || []);
+    }catch(err){
+      alert(err?.response?.data?.error || "โหลดข้อมูลห้องเรียนไม่สำเร็จ");
+    }
+  }
 
   useEffect(()=>{
     setCurrentPage(1);
@@ -161,9 +175,9 @@ export default function AdminStudents() {
             onChange={(e)=>setClassroomFilter(e.target.value)}
           >
             <option value="">ทุกห้องเรียน</option>
-            {classroomOptions.map(classroom => (
-              <option key={classroom} value={classroom}>
-                {classroom}
+            {classrooms.map(classroom => (
+              <option key={classroom.classroom_id} value={classroom.classroom_id}>
+                {classroom.classroom_name}
               </option>
             ))}
           </select>
