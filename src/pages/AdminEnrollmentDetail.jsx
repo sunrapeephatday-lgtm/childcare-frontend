@@ -188,7 +188,7 @@ page.drawText(`${bd ? bd.getDate() : "-"}`, { x: 148, y: 690, size, font })
 page.drawText(`${bd ? thaiMonths[bd.getMonth()] : "-"}`, { x: 230, y: 690, size, font })
 page.drawText(`${bd ? bd.getFullYear()+543 : "-"}`, { x: 330, y: 690, size, font })
 page.drawText(`${childAge.years}`, { x: 410, y: 690, size, font })
-page.drawText(`${childAge.months}`, { x: 490, y: 690, size, font })
+page.drawText(`${childAge.months}`, { x: 470, y: 690, size, font })
 /* ===== โรคประจำตัว ===== */
 page.drawText(`${data.congenital_disease || "-"}`, {
   x: 210,
