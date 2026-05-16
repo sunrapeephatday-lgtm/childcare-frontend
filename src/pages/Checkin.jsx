@@ -400,12 +400,9 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
             <tr key={r.child_id}>
               <td>{indexOfFirstRow + i + 1}</td>
               <td className="text-start ps-3">
-                {r.prefix}{r.first_name} {r.last_name}
+                {r.name}
               </td>
               <td className="text-start ps-3">{r.nickname}</td>
-              <td>
-                {formatThaiDate(r.record_date)}
-              </td>
               <td>
                 <select
                   value={r.status}
