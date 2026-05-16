@@ -343,7 +343,7 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
   <div className="col-12 col-md-7 mt-2 mt-md-0">
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
          <button
-  className="btn btn-success"
+  className="btn btn-primary me-2"
   onClick={() => {
     loadHistory(teacherId);
     setCurrentPage(1);
