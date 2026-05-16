@@ -35,12 +35,6 @@ export default function CheckinPage() {
   useEffect(() => {
     init();
   }, []);
-  useEffect(() => {
-  if (teacherId) {
-    loadHistory(teacherId);
-    setCurrentPage(1);
-  }
-}, [exportMonth, exportYear]);
 
   async function init() {
     const res = await API.get("/checkins/me");
@@ -302,21 +296,6 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
   </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
   <div className="d-flex justify-content-end gap-2">
-
-    <form onSubmit={handleSearch} className="d-flex gap-2 flex-grow-1">
-      <input
-        type="text"
-        className="form-control"
-        placeholder="ค้นหาชื่อ / ชื่อเล่น"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-      />
-      
-      <button className="btn btn-success">
-        ค้นหา
-      </button>
-    </form>
-
     <button
       className="btn btn-outline-secondary"
       onClick={handleReload}
@@ -376,6 +355,15 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
     >
       Export Microsoft Excel
     </button>
+    <button
+  className="btn btn-success"
+  onClick={() => {
+    loadHistory(teacherId);
+    setCurrentPage(1);
+  }}
+>
+  ค้นหาประวัติ
+</button>
     </div>
   </div>
 </div>
@@ -426,7 +414,53 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
       </table>
       </div>
       <hr />
+<h4 className="mb-3 fw-bold text-success section-title">
+  ประวัติการเช็คชื่อรายเดือน
+</h4>
 
+<div className="table-responsive">
+
+  <table
+    className="table table-bordered table-sm align-middle"
+    style={{ fontSize: "14px" }}
+  >
+
+    <thead>
+      <tr>
+        <th style={{ width: 60 }}>ลำดับ</th>
+        <th style={{ width: 140 }}>วันที่</th>
+        <th style={{ width: 220 }}>ชื่อ-นามสกุล</th>
+        <th style={{ width: 120 }}>สถานะ</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {currentHistory.map((r, i) => (
+
+        <tr key={i}>
+
+          <td>{indexOfFirstRow + i + 1}</td>
+
+          <td>
+            {formatThaiDate(r.record_date)}
+          </td>
+
+          <td className="text-start ps-3">
+            {r.prefix}{r.first_name} {r.last_name}
+          </td>
+
+          <td>{r.status}</td>
+
+        </tr>
+
+      ))}
+
+    </tbody>
+
+  </table>
+
+</div>
       <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
   <button
