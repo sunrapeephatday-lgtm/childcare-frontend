@@ -22,6 +22,14 @@ function formatThaiDate(date) {
   });
 }
 
+function DetailItem({ label, children }) {
+  return (
+    <p>
+      <b>{label}:</b> {children || "-"}
+    </p>
+  );
+}
+
 export default function AdminEnrollmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -719,37 +727,37 @@ page3.drawText(`${data.additional_info || "-"}`, {
       <div className="card mb-3">
         <div className="card-header">ข้อมูลเด็ก</div>
         <div className="card-body">
-          <p><b>ชื่อ:</b> {data.prefix}{data.first_name} {data.last_name}</p>
-          <p>ชื่อเล่น: {data.nickname}</p>
-          <p>เลขบัตร: {data.citizen_id}</p>
-          <p>วันเกิด: {formatThaiDate(data.birth_date)}</p>
-          <p>ระดับ: {data.apply_level}</p>
-          <p>น้ำหนัก: {data.birth_weight} กก.</p>
-          <p>ส่วนสูง: {data.birth_height} ซม.</p>
-          <p>กรุ๊ปเลือด: {data.blood_group}</p>
-          <p>ศาสนา: {data.religion}</p>
-          <p>เชื้อชาติ: {data.ethnicity}</p>
-          <p>สัญชาติ: {data.nationality}</p>
-          <p>วัคซีน: {data.vaccine}</p>
-          <p>โรคประจำตัว: {data.congenital_disease}</p>
-          <p>ประวัติป่วย: {data.illness_history}</p>
-          <p>โรคพันธุกรรม: {data.genetic_disease}</p>
-          <p>แพ้อาหาร: {data.food_allergy}</p>
-          <p>แพ้ยา: {data.drug_allergy}</p>
-          <p>พฤติกรรม: {data.child_behavior}</p>
-          <p>ช่วยเหลือตัวเอง: {data.self_help_ability}</p>
-          <p>ลำดับบุตร: {data.child_order}</p>
-          <p>จำนวนพี่น้อง: {data.total_siblings}</p>
-          <p>มีพี่ชายหรือน้องชาย: {data.male_siblings}</p>
-          <p>มีพี่สาวหรือน้องสาว: {data.female_siblings}</p>
-          <p>เคยเรียนที่: {data.previous_school}</p>
-          <p>ข้อมูลเพิ่มเติม: {data.additional_info}</p>
-          <p>เบอร์ฉุกเฉิน: {data.emergency_phone}</p>
-          <p>อยู่ในการดูแลของ: {data.care_responsible}</p>
-          <p>ผู้ดูแลเพิ่มเติม: {data.caregiver_prefix} {data.caregiver_firstname} {data.caregiver_lastname}</p>
-          <p>อาชีพผู้ดูแล: {data.caregiver_job}</p>
-          <p>รายได้ผู้ดูแล: {data.caregiver_income}</p>
-          <p>โทรผู้ดูแล: {data.caregiver_phone}</p>
+          <DetailItem label="ชื่อ">{data.prefix}{data.first_name} {data.last_name}</DetailItem>
+          <DetailItem label="ชื่อเล่น">{data.nickname}</DetailItem>
+          <DetailItem label="เลขบัตร">{data.citizen_id}</DetailItem>
+          <DetailItem label="วันเกิด">{formatThaiDate(data.birth_date)}</DetailItem>
+          <DetailItem label="ระดับ">{data.apply_level}</DetailItem>
+          <DetailItem label="น้ำหนัก">{data.birth_weight} กก.</DetailItem>
+          <DetailItem label="ส่วนสูง">{data.birth_height} ซม.</DetailItem>
+          <DetailItem label="กรุ๊ปเลือด">{data.blood_group}</DetailItem>
+          <DetailItem label="ศาสนา">{data.religion}</DetailItem>
+          <DetailItem label="เชื้อชาติ">{data.ethnicity}</DetailItem>
+          <DetailItem label="สัญชาติ">{data.nationality}</DetailItem>
+          <DetailItem label="วัคซีน">{data.vaccine}</DetailItem>
+          <DetailItem label="โรคประจำตัว">{data.congenital_disease}</DetailItem>
+          <DetailItem label="ประวัติป่วย">{data.illness_history}</DetailItem>
+          <DetailItem label="โรคพันธุกรรม">{data.genetic_disease}</DetailItem>
+          <DetailItem label="แพ้อาหาร">{data.food_allergy}</DetailItem>
+          <DetailItem label="แพ้ยา">{data.drug_allergy}</DetailItem>
+          <DetailItem label="พฤติกรรม">{data.child_behavior}</DetailItem>
+          <DetailItem label="ช่วยเหลือตัวเอง">{data.self_help_ability}</DetailItem>
+          <DetailItem label="ลำดับบุตร">{data.child_order}</DetailItem>
+          <DetailItem label="จำนวนพี่น้อง">{data.total_siblings}</DetailItem>
+          <DetailItem label="มีพี่ชายหรือน้องชาย">{data.male_siblings}</DetailItem>
+          <DetailItem label="มีพี่สาวหรือน้องสาว">{data.female_siblings}</DetailItem>
+          <DetailItem label="เคยเรียนที่">{data.previous_school}</DetailItem>
+          <DetailItem label="ข้อมูลเพิ่มเติม">{data.additional_info}</DetailItem>
+          <DetailItem label="เบอร์ฉุกเฉิน">{data.emergency_phone}</DetailItem>
+          <DetailItem label="อยู่ในการดูแลของ">{data.care_responsible}</DetailItem>
+          <DetailItem label="ผู้ดูแลเพิ่มเติม">{data.caregiver_prefix} {data.caregiver_firstname} {data.caregiver_lastname}</DetailItem>
+          <DetailItem label="อาชีพผู้ดูแล">{data.caregiver_job}</DetailItem>
+          <DetailItem label="รายได้ผู้ดูแล">{data.caregiver_income}</DetailItem>
+          <DetailItem label="โทรผู้ดูแล">{data.caregiver_phone}</DetailItem>
         </div>
       </div>
 
@@ -772,14 +780,14 @@ page3.drawText(`${data.additional_info || "-"}`, {
       <div className="card mb-3">
         <div className="card-header">ข้อมูลบิดา</div>
         <div className="card-body">
-          <p>{data.father_prefix}{data.father_firstname} {data.father_lastname}</p>
-          <p>กรุ๊ปเลือด: {data.father_blood}</p>
-          <p>ศาสนา: {data.father_religion}</p>
-          <p>เชื้อชาติ: {data.father_ethnicity}</p>
-          <p>สัญชาติ: {data.father_nationality}</p>
-          <p>อาชีพ: {data.father_job}</p>
-          <p>รายได้: {data.father_income}</p>
-          <p>โทร: {data.father_phone}</p>
+          <DetailItem label="ชื่อ">{data.father_prefix}{data.father_firstname} {data.father_lastname}</DetailItem>
+          <DetailItem label="กรุ๊ปเลือด">{data.father_blood}</DetailItem>
+          <DetailItem label="ศาสนา">{data.father_religion}</DetailItem>
+          <DetailItem label="เชื้อชาติ">{data.father_ethnicity}</DetailItem>
+          <DetailItem label="สัญชาติ">{data.father_nationality}</DetailItem>
+          <DetailItem label="อาชีพ">{data.father_job}</DetailItem>
+          <DetailItem label="รายได้">{data.father_income}</DetailItem>
+          <DetailItem label="โทร">{data.father_phone}</DetailItem>
         </div>
       </div>
 
@@ -801,14 +809,14 @@ page3.drawText(`${data.additional_info || "-"}`, {
       <div className="card mb-3">
         <div className="card-header">ข้อมูลมารดา</div>
         <div className="card-body">
-          <p>{data.mother_prefix}{data.mother_firstname} {data.mother_lastname}</p>
-          <p>กรุ๊ปเลือด: {data.mother_blood}</p>
-          <p>ศาสนา: {data.mother_religion}</p>
-          <p>เชื้อชาติ: {data.mother_ethnicity}</p>
-          <p>สัญชาติ: {data.mother_nationality}</p>
-          <p>อาชีพ: {data.mother_job}</p>
-          <p>รายได้: {data.mother_income}</p>
-          <p>โทร: {data.mother_phone}</p>
+          <DetailItem label="ชื่อ">{data.mother_prefix}{data.mother_firstname} {data.mother_lastname}</DetailItem>
+          <DetailItem label="กรุ๊ปเลือด">{data.mother_blood}</DetailItem>
+          <DetailItem label="ศาสนา">{data.mother_religion}</DetailItem>
+          <DetailItem label="เชื้อชาติ">{data.mother_ethnicity}</DetailItem>
+          <DetailItem label="สัญชาติ">{data.mother_nationality}</DetailItem>
+          <DetailItem label="อาชีพ">{data.mother_job}</DetailItem>
+          <DetailItem label="รายได้">{data.mother_income}</DetailItem>
+          <DetailItem label="โทร">{data.mother_phone}</DetailItem>
         </div>
       </div>
 
@@ -830,9 +838,9 @@ page3.drawText(`${data.additional_info || "-"}`, {
       <div className="card mb-3">
         <div className="card-header">ข้อมูลผู้รับ-ส่ง</div>
         <div className="card-body">
-          <p>{data.sender_prefix}{data.sender_firstname} {data.sender_lastname}</p>
-          <p>ความสัมพันธ์: {data.sender_relation}</p>
-          <p>โทร: {data.sender_phone}</p>
+          <DetailItem label="ชื่อ">{data.sender_prefix}{data.sender_firstname} {data.sender_lastname}</DetailItem>
+          <DetailItem label="ความสัมพันธ์">{data.sender_relation}</DetailItem>
+          <DetailItem label="โทร">{data.sender_phone}</DetailItem>
         </div>
       </div>
   </div>
