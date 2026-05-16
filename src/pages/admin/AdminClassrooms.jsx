@@ -1,6 +1,8 @@
 // src/pages/admin/AdminClassrooms.jsx
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import API from "../../api/api";
+
+const PAGE_SIZE = 10;
 
 export default function AdminClassrooms() {
 
@@ -16,12 +18,29 @@ export default function AdminClassrooms() {
 
   const [editId, setEditId] = useState(null);
   const [msg, setMsg] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedRows = rows.slice(startIndex, startIndex + PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+    (page) =>
+      page === 1 ||
+      page === totalPages ||
+      Math.abs(page - currentPage) <= 2
+  );
 
   /* ================= LOAD ================= */
   useEffect(() => {
     load();
     loadCenters();
   }, []);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   async function load() {
   try {
@@ -188,7 +207,7 @@ export default function AdminClassrooms() {
             <table  className="table table-bordered table-hover table-sm mb-0" style={{ fontSize: "14px" }}>
               <thead className="table-light">
                 <tr>
-                  <th style={{ minWidth: 45 }}>ศูนย์</th>
+                  <th style={{ minWidth: 45 }}>ศูนย์พัฒนาเด็กเล็ก</th>
                   <th style={{ minWidth: 25 }}>ห้องเรียน</th>
                   <th style={{ minWidth: 20 }} className="text-center">การจัดการ</th>
                 </tr>
@@ -212,10 +231,10 @@ export default function AdminClassrooms() {
                   </tr>
                 )}
 
-                {rows.map(r => (
+                {paginatedRows.map(r => (
                   <tr key={r.classroom_id}>
-                    <td>{r.center_name}</td>
-                    <td>{r.classroom_name}</td>
+                    <td className="text-start ps-3">{r.center_name}</td>
+                    <td className="text-start ps-3">{r.classroom_name}</td>
                     <td className="text-center" style={{ whiteSpace: "nowrap" }}>
   <button
     onClick={() => edit(r)}
@@ -238,6 +257,62 @@ export default function AdminClassrooms() {
             </table>
 
           </div>
+
+          {rows.length > PAGE_SIZE && (
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 px-3 pb-3">
+              <div className="text-muted small">
+                แสดง {startIndex + 1}-{Math.min(startIndex + PAGE_SIZE, rows.length)} จาก {rows.length} รายการ
+              </div>
+
+              <nav aria-label="Classroom pagination">
+                <ul className="pagination pagination-sm mb-0">
+                  <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    >
+                      ก่อนหน้า
+                    </button>
+                  </li>
+
+                  {pageNumbers.map((page, index) => {
+                    const prevPage = pageNumbers[index - 1];
+                    const showGap = prevPage && page - prevPage > 1;
+
+                    return (
+                      <Fragment key={page}>
+                        {showGap && (
+                          <li className="page-item disabled">
+                            <span className="page-link">...</span>
+                          </li>
+                        )}
+                        <li className={`page-item ${currentPage === page ? "active" : ""}`}>
+                          <button
+                            type="button"
+                            className="page-link"
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </button>
+                        </li>
+                      </Fragment>
+                    );
+                  })}
+
+                  <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                    >
+                      ถัดไป
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          )}
         </div>
       </div>
 
