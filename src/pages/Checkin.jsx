@@ -342,6 +342,15 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
 
   <div className="col-12 col-md-7 mt-2 mt-md-0">
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+         <button
+  className="btn btn-success"
+  onClick={() => {
+    loadHistory(teacherId);
+    setCurrentPage(1);
+  }}
+>
+  ค้นหาประวัติ
+</button>
     <button
       className="btn btn-primary px-3"
       onClick={saveAll}
@@ -355,15 +364,6 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
     >
       Export Microsoft Excel
     </button>
-    <button
-  className="btn btn-success"
-  onClick={() => {
-    loadHistory(teacherId);
-    setCurrentPage(1);
-  }}
->
-  ค้นหาประวัติ
-</button>
     </div>
   </div>
 </div>
