@@ -431,10 +431,10 @@ const checkinTotalPages = Math.ceil(
           {currentCheckins.map((r, i) => (
             <tr key={r.child_id}>
               <td>{checkinFirstRow + i + 1}</td>
-              <td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
+              <td className="text-start ps-3">
               {r.name}
               </td>
-              <td style={{ width: "120px" }}>
+              <td className="text-start ps-3">
                 {r.nickname || "-"}
               </td>
               <td>
