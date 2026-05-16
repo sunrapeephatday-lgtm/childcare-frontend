@@ -30,6 +30,52 @@ function DetailItem({ label, children }) {
   );
 }
 
+const thaiMonths = [
+  "มกราคม",
+  "กุมภาพันธ์",
+  "มีนาคม",
+  "เมษายน",
+  "พฤษภาคม",
+  "มิถุนายน",
+  "กรกฎาคม",
+  "สิงหาคม",
+  "กันยายน",
+  "ตุลาคม",
+  "พฤศจิกายน",
+  "ธันวาคม",
+];
+
+function parseLocalDate(value) {
+  if (!value) return null;
+  const [datePart] = String(value).split("T");
+  const [year, month, day] = datePart.split("-").map(Number);
+
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day);
+}
+
+function calculateAgeParts(birthDate, asOf = new Date()) {
+  const birth = parseLocalDate(birthDate);
+  if (!birth) return { years: "-", months: "-" };
+
+  let years = asOf.getFullYear() - birth.getFullYear();
+  let months = asOf.getMonth() - birth.getMonth();
+
+  if (asOf.getDate() < birth.getDate()) {
+    months -= 1;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  return {
+    years: Math.max(0, years),
+    months: Math.max(0, months),
+  };
+}
+
 export default function AdminEnrollmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -135,11 +181,14 @@ page.drawText(`${data.nationality || "-"}`, {
 })
 
 /* วันเกิด */
-let bd = data.birth_date ? new Date(data.birth_date) : null
+let bd = parseLocalDate(data.birth_date)
+const childAge = calculateAgeParts(data.birth_date)
 
 page.drawText(`${bd ? bd.getDate() : "-"}`, { x: 148, y: 690, size, font })
-page.drawText(`${bd ? bd.getMonth()+1 : "-"}`, { x: 240, y: 690, size, font })
+page.drawText(`${bd ? thaiMonths[bd.getMonth()] : "-"}`, { x: 230, y: 690, size, font })
 page.drawText(`${bd ? bd.getFullYear()+543 : "-"}`, { x: 330, y: 690, size, font })
+page.drawText(`${childAge.years}`, { x: 455, y: 690, size, font })
+page.drawText(`${childAge.months}`, { x: 560, y: 690, size, font })
 /* ===== โรคประจำตัว ===== */
 page.drawText(`${data.congenital_disease || "-"}`, {
   x: 210,
@@ -491,10 +540,10 @@ page3.drawText(
   }
 )
 
-let bd3 = data.birth_date ? new Date(data.birth_date) : null
+let bd3 = parseLocalDate(data.birth_date)
 
 page3.drawText(`${bd3 ? bd3.getDate() : "-"}`, { x: 120, y: 611, size, font })
-page3.drawText(`${bd3 ? bd3.getMonth()+1 : "-"}`, { x: 230, y: 611, size, font })
+page3.drawText(`${bd3 ? thaiMonths[bd3.getMonth()] : "-"}`, { x: 220, y: 611, size, font })
 page3.drawText(`${bd3 ? bd3.getFullYear()+543 : "-"}`, { x: 360, y: 611, size, font })
 
 page3.drawText(`${data.father_firstname || "-"}`, {
