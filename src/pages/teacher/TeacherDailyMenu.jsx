@@ -434,6 +434,10 @@ const totalPages = Math.ceil(menus.length / rowsPerPage);
             </tbody>
 
           </table>
+
+        </div>
+        </div>
+      </div>
 <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
   <button
@@ -457,10 +461,6 @@ const totalPages = Math.ceil(menus.length / rowsPerPage);
   </button>
 
 </div>
-        </div>
-        </div>
-      </div>
-
     </div>
   );
 }
