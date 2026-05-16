@@ -18,6 +18,7 @@ export default function CheckinPage() {
 
   const [rows, setRows] = useState([]);
   const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
   const [date, setDate] = useState("");
   const [teacherId, setTeacherId] = useState(null);
   const [msg, setMsg] = useState(null);
@@ -42,7 +43,6 @@ export default function CheckinPage() {
 
     setTeacherId(tid);
     loadToday(tid);
-    loadHistory(tid);
   }
 
   async function loadToday(tid) {
@@ -344,10 +344,15 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
          <button
   className="btn btn-primary me-2"
-  onClick={() => {
-    loadHistory(teacherId);
-    setCurrentPage(1);
-  }}
+  onClick={async () => {
+
+  await loadHistory(teacherId);
+
+  setCurrentPage(1);
+
+  setShowHistory(true);
+
+}}
 >
   ค้นหาประวัติ
 </button>
@@ -414,6 +419,8 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
       </table>
       </div>
       <hr />
+      {showHistory && (
+  <>
 <h4 className="mb-3 fw-bold text-success section-title">
   ประวัติการเช็คชื่อรายเดือน
 </h4>
@@ -461,6 +468,8 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
   </table>
 
 </div>
+  </>
+)}
       <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
   <button
