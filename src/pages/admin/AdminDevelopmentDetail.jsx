@@ -75,7 +75,7 @@ export default function AdminDevelopmentDetail() {
             {items.map((it) => (
               <tr key={it.item_no}>
                 <td className="text-center">{it.item_no}</td>
-                <td>{it.description}</td>
+                <td className="text-start ps-3">{it.description}</td>
                 <td className="text-center">{levelBadge(it.level_id)}</td>
               </tr>
             ))}
