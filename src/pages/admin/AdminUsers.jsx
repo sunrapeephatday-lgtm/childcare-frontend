@@ -4,6 +4,8 @@ import API from "../../api/api";
 import "../../styles/AdminLayout.css";
 import "../../styles/admin.css";
 
+const PAGE_SIZE = 10;
+
 export default function AdminUsers() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -25,8 +27,18 @@ export default function AdminUsers() {
   });
   const [editId, setEditId] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const currentUser = JSON.parse(sessionStorage.getItem("user"));
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedRows = rows.slice(startIndex, startIndex + PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+    (page) =>
+      page === 1 ||
+      page === totalPages ||
+      Math.abs(page - currentPage) <= 2
+  );
 
   async function load() {
     setLoading(true);
@@ -70,6 +82,12 @@ export default function AdminUsers() {
     load();
     loadCenters();
   }, []);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   function openCreate() {
     setModalMode("create");
@@ -288,12 +306,12 @@ export default function AdminUsers() {
                   </td>
                 </tr>
               )}
-              {rows.map((r, idx) => {
+              {paginatedRows.map((r, idx) => {
                 const isSelf = r.user_id === currentUser?.user_id;
                 return (
                   <tr key={r.user_id}>
-                    <td>{idx + 1}</td>
-                    <td>
+                    <td>{startIndex + idx + 1}</td>
+                    <td className="text-start ps-3">
                       {r.username}
                       {isSelf && (
                         <div className="text-muted small">
@@ -343,6 +361,62 @@ export default function AdminUsers() {
           </table>
         </div>
       </div>
+
+      {rows.length > PAGE_SIZE && (
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+          <div className="text-muted small">
+            แสดง {startIndex + 1}-{Math.min(startIndex + PAGE_SIZE, rows.length)} จาก {rows.length} รายการ
+          </div>
+
+          <nav aria-label="User pagination">
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                >
+                  ก่อนหน้า
+                </button>
+              </li>
+
+              {pageNumbers.map((page, index) => {
+                const prevPage = pageNumbers[index - 1];
+                const showGap = prevPage && page - prevPage > 1;
+
+                return (
+                  <React.Fragment key={page}>
+                    {showGap && (
+                      <li className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    )}
+                    <li className={`page-item ${currentPage === page ? "active" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  </React.Fragment>
+                );
+              })}
+
+              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                >
+                  ถัดไป
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (
