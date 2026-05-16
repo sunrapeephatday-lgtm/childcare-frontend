@@ -27,7 +27,9 @@ export default function CheckinPage() {
 
   const [keyword, setKeyword] = useState("");
   const [filteredRows, setFilteredRows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const rowsPerPage = 10;
   const thaiDate = formatThaiDate(date);
 
   useEffect(() => {
@@ -53,11 +55,17 @@ export default function CheckinPage() {
   }
 
   async function loadHistory(tid) {
-    const res = await API.get("/checkins/history", {
-      params: { teacher_id: tid }
-    });
-    setHistory(res.data.rows || []);
-  }
+
+  const res = await API.get("/checkins/monthly", {
+    params: {
+      teacher_id: tid,
+      month: exportMonth,
+      year: exportYear
+    }
+  });
+
+  setHistory(res.data.rows || []);
+}
 
   function handleSearch(e) {
   e.preventDefault();
@@ -350,7 +358,7 @@ function exportExcel() {
       className="btn btn-primary me-2"
       onClick={exportExcel}
     >
-      Export Excel
+      Export Microsoft Excel
     </button>
     </div>
   </div>
