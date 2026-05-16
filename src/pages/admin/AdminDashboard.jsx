@@ -18,6 +18,8 @@ export default function AdminDashboard() {
   const [childrenCount, setChildrenCount] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const thaiMonths = [
@@ -73,11 +75,20 @@ export default function AdminDashboard() {
       });
 
       setSearchResults(res.data);
+      setCurrentPage(1);
     } catch (err) {
       console.error("SEARCH ERROR =", err);
     }
   }
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
 
+    const currentRows = searchResults.slice(
+      indexOfFirstRow,
+       indexOfLastRow
+    );
+
+const totalPages = Math.ceil(searchResults.length / rowsPerPage);
   return (
     <div>
       <h5 className="mb-4 fw-bold text-success section-title ">
@@ -154,12 +165,12 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {searchResults.map((c) => (
+                {currentRows.map((c) => (
                   <tr key={c.child_id}>
-                    <td>
+                    <td className="text-start ps-3">
                       {c.prefix}{c.first_name} {c.last_name}
                     </td>
-                    <td>{c.classroom_name}</td>
+                    <td className="text-start ps-3">{c.classroom_name}</td>
 
                     <td>{c.attendance || "-"}</td>
                     <td>{c.milk || "-"}</td>
@@ -172,6 +183,29 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+            <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage(currentPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {currentPage} / {totalPages || 1}
+  </span>
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={currentPage === totalPages || totalPages === 0}
+    onClick={() => setCurrentPage(currentPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
           </div>
         </div>
       )}
