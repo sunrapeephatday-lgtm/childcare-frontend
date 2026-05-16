@@ -10,7 +10,7 @@ function todayISO() {
 
   return localDate.toISOString().split("T")[0];
 }
-
+ 
 function formatThaiDate(d) {
   const date = new Date(d);
   const offset = date.getTimezoneOffset();
@@ -46,7 +46,9 @@ export default function TeacherDailyMenu(){
   const [alertMsg,setAlertMsg] = useState(null);
   const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
   const [exportYear, setExportYear] = useState(new Date().getFullYear());
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+
   useEffect(()=>{
     loadMenus();
   },[]);
@@ -237,7 +239,15 @@ const filteredMenus = menus.filter((m) => {
 
     saveAs(blob,"รายงานเมนูอาหาร.doc");
   }
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
 
+const currentRows = menus.slice(
+  indexOfFirstRow,
+  indexOfLastRow
+);
+
+const totalPages = Math.ceil(menus.length / rowsPerPage);
   return (
     <div className="container-fluid px-5 my-4">
 
@@ -385,7 +395,7 @@ const filteredMenus = menus.filter((m) => {
       className="btn btn-success px-4"
       onClick={exportWord}
     >
-      ส่งออก Word
+      Export Microsoft Word
     </button>
   </div>
 </div>
@@ -404,10 +414,10 @@ const filteredMenus = menus.filter((m) => {
             </thead>
 
             <tbody>
-              {menus.map(m=>(
+              {currentRows.map(m=>(
                 <tr key={m.daily_menu_id}>
-                  <td>{formatThaiDate(m.menu_date)}</td>
-                  <td>
+                  <td className="text-start ps-3">{formatThaiDate(m.menu_date)}</td>
+                  <td className="text-start ps-3">
                     {m.main_menu} {m.stir_menu} {m.soup_menu} {m.fried_menu} {m.dessert_menu}
                   </td>
                   <td>{m.note || "-"}</td>
@@ -424,7 +434,29 @@ const filteredMenus = menus.filter((m) => {
             </tbody>
 
           </table>
+<div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage(currentPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {currentPage} / {totalPages || 1}
+  </span>
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={currentPage === totalPages || totalPages === 0}
+    onClick={() => setCurrentPage(currentPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
         </div>
         </div>
       </div>
