@@ -28,7 +28,8 @@ export default function CheckinPage() {
 
   const [keyword, setKeyword] = useState("");
   const [filteredRows, setFilteredRows] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [checkinPage, setCheckinPage] = useState(1);
 
   const rowsPerPage = 10;
   const thaiDate = formatThaiDate(date);
@@ -277,15 +278,25 @@ function exportExcel() {
     `รายงานเช็คชื่อ_${thaiMonths[month]}_${year + 543}.xlsx`
   );
 }
-const indexOfLastRow = currentPage * rowsPerPage;
-const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+const historyLastRow = historyPage * rowsPerPage;
+const historyFirstRow = historyLastRow - rowsPerPage;
 
 const currentHistory = history.slice(
-  indexOfFirstRow,
-  indexOfLastRow
+  historyFirstRow,
+  historyLastRow
 );
 
-const totalPages = Math.ceil(history.length / rowsPerPage);
+const checkinLastRow = checkinPage * rowsPerPage;
+const checkinFirstRow = checkinLastRow - rowsPerPage;
+
+const currentCheckins = filteredRows.slice(
+  checkinFirstRow,
+  checkinLastRow
+);
+
+const checkinTotalPages = Math.ceil(filteredRows.length / rowsPerPage);
+
+const historyTotalPages = Math.ceil(history.length / rowsPerPage);
 
   return (
     <div className="container my-4">
@@ -295,16 +306,7 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
     บันทึกการเช็คชื่อ (วันที่ {thaiDate})
   </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
-  <div className="d-flex justify-content-end gap-2">
-    <button
-      className="btn btn-outline-secondary"
-      onClick={handleReload}
-    >
-      รีโหลด
-    </button>
-    
-  </div>
-
+  
   {/* ===== ปุ่ม ===== */}
  <div className="row mb-3 align-items-end">
   <div className="col-md-3">
@@ -341,6 +343,15 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
   </div>
 
   <div className="col-12 col-md-7 mt-2 mt-md-0">
+    <div className="d-flex justify-content-end gap-2">
+    <button
+      className="btn btn-outline-secondary"
+      onClick={handleReload}
+    >
+      รีโหลด
+    </button>
+    
+  </div>
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
          <button
   className="btn btn-primary me-2"
@@ -348,7 +359,7 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
 
   await loadHistory(teacherId);
 
-  setCurrentPage(1);
+  setHistoryPage(1);
 
   setShowHistory(true);
 
@@ -372,54 +383,7 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
     </div>
   </div>
 </div>
-  <div className="table-responsive">
-
-      <table
-  className="table table-bordered table-sm align-middle"
-  style={{ fontSize: "14px" }}
->
-        <thead>
-          <tr>
-           <th style={{ width: 60 }}>ลำดับ</th>
-          <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
-          <th style={{ width: 120 }}>ชื่อเล่น</th>
-          <th style={{ width: 120 }}>สถานะ</th>
-          <th style={{ width: 120 }}>หมายเหตุ</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {filteredRows.map((r, i) => (
-            <tr key={r.child_id}>
-              <td>{indexOfFirstRow + i + 1}</td>
-              <td className="text-start ps-3">
-                {r.name}
-              </td>
-              <td className="text-start ps-3">{r.nickname}</td>
-              <td>
-                <select
-                  value={r.status}
-                  onChange={e => mark(r.child_id, e.target.value)}
-                >
-                  <option value="มา">มา</option>
-                  <option value="ขาด">ขาด</option>
-                  <option value="ลา">ลา</option>
-                </select>
-              </td>
-
-              <td>
-                <input
-                  value={r.note || ""}
-                  onChange={e => setNote(r.child_id, e.target.value)}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
-      <hr />
-      {showHistory && (
+ {showHistory && (
   <>
 <h4 className="mb-3 fw-bold text-success section-title">
   ประวัติการเช็คชื่อรายเดือน
@@ -447,7 +411,7 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
 
         <tr key={i}>
 
-          <td>{indexOfFirstRow + i + 1}</td>
+          <td>{historyFirstRow + i + 1}</td>
 
           <td>
             {formatThaiDate(r.record_date)}
@@ -470,29 +434,105 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
 </div>
   </>
 )}
-      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+<div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
   <button
     className="btn btn-outline-success btn-sm"
-    disabled={currentPage === 1}
-    onClick={() => setCurrentPage(currentPage - 1)}
+    disabled={historyPage === 1}
+    onClick={() => setHistoryPage(historyPage - 1)}
   >
     ก่อนหน้า
   </button>
 
   <span className="fw-bold">
-    หน้า {currentPage} / {totalPages || 1}
+    หน้า {historyPage} / {historyTotalPages || 1}
   </span>
 
   <button
     className="btn btn-outline-success btn-sm"
-    disabled={currentPage === totalPages || totalPages === 0}
-    onClick={() => setCurrentPage(currentPage + 1)}
+    disabled={
+      historyPage === historyTotalPages ||
+      historyTotalPages === 0
+    }
+    onClick={() => setHistoryPage(historyPage + 1)}
   >
     ถัดไป
   </button>
 
 </div>
+  <div className="table-responsive">
+
+      <table
+  className="table table-bordered table-sm align-middle"
+  style={{ fontSize: "14px" }}
+>
+        <thead>
+          <tr>
+           <th style={{ width: 60 }}>ลำดับ</th>
+          <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
+          <th style={{ width: 120 }}>ชื่อเล่น</th>
+          <th style={{ width: 120 }}>สถานะ</th>
+          <th style={{ width: 120 }}>หมายเหตุ</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {currentCheckins.map((r, i) => (
+            <tr key={r.child_id}>
+              <td>{checkinFirstRow + i + 1}</td>
+              <td className="text-start ps-3">
+                {r.name}
+              </td>
+              <td className="text-start ps-3">{r.nickname}</td>
+              <td>
+                <select
+                  value={r.status}
+                  onChange={e => mark(r.child_id, e.target.value)}
+                >
+                  <option value="มา">มา</option>
+                  <option value="ขาด">ขาด</option>
+                  <option value="ลา">ลา</option>
+                </select>
+              </td>
+
+              <td>
+                <input
+                  value={r.note || ""}
+                  onChange={e => setNote(r.child_id, e.target.value)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={checkinPage === 1}
+    onClick={() => setCheckinPage(checkinPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {checkinPage} / {checkinTotalPages || 1}
+  </span>
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={
+      checkinPage === checkinTotalPages ||
+      checkinTotalPages === 0
+    }
+    onClick={() => setCheckinPage(checkinPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
+      <hr />
           </div>
 
   );
