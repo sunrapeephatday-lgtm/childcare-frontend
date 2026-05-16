@@ -97,7 +97,17 @@ async function init() {
   });
   setHistory(res.data.rows || []);
 }
-  async function handleReload() {
+async function handleReload() {
+
+  const currentDate = new Date();
+
+  const currentMonth = currentDate.getMonth() + 1;
+
+  const currentYear = currentDate.getFullYear();
+
+  setExportMonth(currentMonth);
+
+  setExportYear(currentYear);
 
   setShowHistory(false);
 
@@ -108,6 +118,11 @@ async function init() {
   setCheckinPage(1);
 
   await loadToday(teacherId);
+
+  setMsg({
+    type: "success",
+    text: "รีโหลดข้อมูลเรียบร้อย"
+  });
 
   window.scrollTo({
     top: 0,
@@ -364,9 +379,7 @@ const checkinTotalPages = Math.ceil(
             <tr key={i}>
               <td>{historyFirstRow +i + 1}</td>
               <td>{thaiDate(h.measurement_date)}</td>
-              <td className="text-start ps-3">
-  {h.prefix}{h.first_name} {h.last_name}
-</td>
+              <td className="text-start ps-3">{h.prefix}{h.first_name} {h.last_name}</td>
               <td>{h.weight}</td>
               <td>{h.height}</td>
             </tr>
@@ -377,7 +390,8 @@ const checkinTotalPages = Math.ceil(
       <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
   <button
-    className="btn btn-outline-success btn-sm"
+    type="button"
+  className="btn btn-outline-success btn-sm"
     disabled={historyPage === 1}
     onClick={() => setHistoryPage(historyPage - 1)}
   >
@@ -424,7 +438,7 @@ const checkinTotalPages = Math.ceil(
           <td className="text-start ps-3">
   {r.name}
 </td>
-          <td>{r.nickname || "-"}</td>
+          <td className="text-start ps-3">{r.nickname || "-"}</td>
           <td>
             <input
   type="number"
