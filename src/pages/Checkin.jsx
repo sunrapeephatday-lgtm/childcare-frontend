@@ -390,14 +390,13 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
            <th style={{ width: 60 }}>ลำดับ</th>
           <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
           <th style={{ width: 120 }}>ชื่อเล่น</th>
-          <th style={{ width: 120 }}>วันที่</th>
           <th style={{ width: 120 }}>สถานะ</th>
           <th style={{ width: 120 }}>หมายเหตุ</th>
           </tr>
         </thead>
 
         <tbody>
-          {currentHistory.map((r, i) => (
+          {filteredRows.map((r, i) => (
             <tr key={r.child_id}>
               <td>{indexOfFirstRow + i + 1}</td>
               <td className="text-start ps-3">
