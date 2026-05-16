@@ -402,7 +402,7 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
               <td className="text-start ps-3">
                 {r.name}
               </td>
-              <td>{r.nickname}</td>
+              <td className="text-start ps-3">{r.nickname}</td>
 
               <td>
                 <select
