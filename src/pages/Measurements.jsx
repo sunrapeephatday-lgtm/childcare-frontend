@@ -72,25 +72,7 @@ async function init() {
     setTeacherId(tId);
 
     loadToday(tId);
-    async function handleReload() {
-
-  setShowHistory(false);
-
-  setHistory([]);
-
-  setHistoryPage(1);
-
-  setCheckinPage(1);
-
-  await loadToday(teacherId);
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
-}
-
+  
   } catch (err) {
     console.error(err);
     setMsg({ type: "danger", text: "โหลดข้อมูลครูไม่สำเร็จ" });
@@ -114,6 +96,24 @@ async function init() {
     params: { teacher_id: tid }
   });
   setHistory(res.data.rows || []);
+}
+  async function handleReload() {
+
+  setShowHistory(false);
+
+  setHistory([]);
+
+  setHistoryPage(1);
+
+  setCheckinPage(1);
+
+  await loadToday(teacherId);
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
 }
 
   function changeVal(child_id, key, value) {
@@ -340,6 +340,69 @@ const checkinTotalPages = Math.ceil(
 </div>
   </div>
 </div>
+/* ประวัติ */
+{showHistory && (
+  <>
+      <h5 className="mb-3 fw-bold text-success section-title">
+        ประวัติการบันทึกน้ำหนัก-ส่วนสูง
+      </h5>
+      <div className="table-scroll">
+      <table
+  className="table table-bordered table-sm align-middle"
+  style={{ fontSize: "14px" }}
+>
+        <thead>
+          <tr>
+            <th style={{ width: 60 }}>ลำดับ</th>
+            <th style={{ width: 120 }}>วันที่</th>
+            <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
+            <th style={{ width: 120 }}>น้ำหนัก</th>
+            <th style={{ width: 120 }}>ส่วนสูง</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentHistory.map((h, i) => (
+            <tr key={i}>
+              <td>{historyFirstRow +i + 1}</td>
+              <td>{thaiDate(h.measurement_date)}</td>
+              <td className="text-start ps-3">
+  {h.prefix}{h.first_name} {h.last_name}
+</td>
+              <td>{h.weight}</td>
+              <td>{h.height}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={historyPage === 1}
+    onClick={() => setHistoryPage(historyPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {historyPage} / {historyTotalPages || 1}
+  </span>
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={
+      historyPage === historyTotalPages ||
+      historyTotalPages === 0
+    }
+    onClick={() => setHistoryPage(historyPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
+        </>
+)}
       {/* ตารางบันทึก */}
 <div className="measurements-table">
   <table
@@ -430,69 +493,6 @@ const checkinTotalPages = Math.ceil(
 
 </div>
 </div>
-{showHistory && (
-  <>
-      /* ประวัติ */
-      <h5 className="mb-3 fw-bold text-success section-title">
-        ประวัติการบันทึกน้ำหนัก-ส่วนสูง
-      </h5>
-      <div className="table-scroll">
-      <table
-  className="table table-bordered table-sm align-middle"
-  style={{ fontSize: "14px" }}
->
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>ลำดับ</th>
-            <th style={{ width: 120 }}>วันที่</th>
-            <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
-            <th style={{ width: 120 }}>น้ำหนัก</th>
-            <th style={{ width: 120 }}>ส่วนสูง</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentHistory.map((h, i) => (
-            <tr key={i}>
-              <td>{historyFirstRow +i + 1}</td>
-              <td>{thaiDate(h.measurement_date)}</td>
-              <td className="text-start ps-3">
-  {h.prefix}{h.first_name} {h.last_name}
-</td>
-              <td>{h.weight}</td>
-              <td>{h.height}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
-      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
-
-  <button
-    className="btn btn-outline-success btn-sm"
-    disabled={historyPage === 1}
-    onClick={() => setHistoryPage(historyPage - 1)}
-  >
-    ก่อนหน้า
-  </button>
-
-  <span className="fw-bold">
-    หน้า {historyPage} / {historyTotalPages || 1}
-  </span>
-
-  <button
-    className="btn btn-outline-success btn-sm"
-    disabled={
-      historyPage === historyTotalPages ||
-      historyTotalPages === 0
-    }
-    onClick={() => setHistoryPage(historyPage + 1)}
-  >
-    ถัดไป
-  </button>
-
-</div>
-        </>
-)}
     </div>
   );
 }
