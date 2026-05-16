@@ -105,7 +105,7 @@ async function init() {
     setHistory(res.data.rows || []);
   }
   async function handleReload() {
-
+    setMsg(null);
   const currentDate = new Date();
 
   setExportMonth(currentDate.getMonth() + 1);
@@ -120,7 +120,9 @@ async function init() {
 
   setCheckinPage(1);
 
+  if (teacherId) {
   await loadToday(teacherId);
+}
 
   setMsg({
     type: "success",
