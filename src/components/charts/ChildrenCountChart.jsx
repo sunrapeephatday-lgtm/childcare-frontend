@@ -45,10 +45,18 @@ export default function ChildrenCountChart({ data }) {
       <h5 className="fw-bold mb-3">สรุปจำนวนนักเรียน</h5>
 
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartData}>
+        <BarChart data={chartData} margin={{ top: 10, right: 20, left: 35, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
-          <YAxis allowDecimals={false} />
+          <YAxis
+            allowDecimals={false}
+            label={{
+              value: "จำนวนเด็ก (คน)",
+              angle: -90,
+              position: "insideLeft",
+              style: { textAnchor: "middle" },
+            }}
+          />
           <Tooltip
             formatter={(value) => [`${value} คน`, "จำนวน"]}
           />

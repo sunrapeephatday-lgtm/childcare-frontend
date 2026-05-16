@@ -20,6 +20,20 @@ export default function AdminDashboard() {
   const [searchResults, setSearchResults] = useState([]);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
+  const thaiMonths = [
+    "มกราคม",
+    "กุมภาพันธ์",
+    "มีนาคม",
+    "เมษายน",
+    "พฤษภาคม",
+    "มิถุนายน",
+    "กรกฎาคม",
+    "สิงหาคม",
+    "กันยายน",
+    "ตุลาคม",
+    "พฤศจิกายน",
+    "ธันวาคม"
+  ];
 
   async function loadDashboard() {
     try {
@@ -91,7 +105,7 @@ export default function AdminDashboard() {
           >
             {[...Array(12)].map((_, i) => (
               <option key={i + 1} value={i + 1}>
-                {i + 1}
+                {thaiMonths[i]}
               </option>
             ))}
           </select>

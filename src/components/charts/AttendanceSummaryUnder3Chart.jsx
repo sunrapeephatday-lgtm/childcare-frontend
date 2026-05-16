@@ -129,7 +129,7 @@ export default function AttendanceSummaryChart() {
       <ResponsiveContainer width="100%" height={320}>
         <BarChart
           data={data}
-          margin={{ top: 10, right: 20, left: 20, bottom: 0 }}
+          margin={{ top: 10, right: 20, left: 45, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
 
@@ -138,7 +138,15 @@ export default function AttendanceSummaryChart() {
             tick={{ fontSize: 12 }}
           />
 
-          <YAxis allowDecimals={false} />
+          <YAxis
+            allowDecimals={false}
+            label={{
+              value: "จำนวนครั้งที่มาเรียน",
+              angle: -90,
+              position: "insideLeft",
+              style: { textAnchor: "middle" }
+            }}
+          />
 
           <Tooltip
             formatter={(v) => [`${v} ครั้ง`, "จำนวนมาเรียน"]}
