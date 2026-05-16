@@ -340,7 +340,6 @@ const checkinTotalPages = Math.ceil(
 </div>
   </div>
 </div>
-/* ประวัติ */
 {showHistory && (
   <>
       <h5 className="mb-3 fw-bold text-success section-title">
