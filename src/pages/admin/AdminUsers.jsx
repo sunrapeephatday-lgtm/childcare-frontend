@@ -33,6 +33,10 @@ export default function AdminUsers() {
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const paginatedRows = rows.slice(startIndex, startIndex + PAGE_SIZE);
+  const editingUserName =
+    `${form.prefix || ""}${form.first_name || ""} ${form.last_name || ""}`.trim() ||
+    form.username ||
+    editId;
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
     (page) =>
       page === 1 ||
@@ -433,7 +437,7 @@ export default function AdminUsers() {
                   <h5 className="modal-title">
                     {modalMode === "create"
                       ? "สร้างผู้ใช้ใหม่"
-                      : `แก้ไขผู้ใช้ ${editId}`}
+                      : `แก้ไขผู้ใช้ ${editingUserName}`}
                   </h5>
                   <button
                     type="button"
