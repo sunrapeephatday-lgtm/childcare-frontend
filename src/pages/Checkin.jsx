@@ -343,15 +343,6 @@ const historyTotalPages = Math.ceil(history.length / rowsPerPage);
   </div>
 
   <div className="col-12 col-md-7 mt-2 mt-md-0">
-    <div className="d-flex justify-content-end gap-2">
-    <button
-      className="btn btn-outline-secondary"
-      onClick={handleReload}
-    >
-      รีโหลด
-    </button>
-    
-  </div>
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
          <button
   className="btn btn-primary me-2"
@@ -367,6 +358,14 @@ const historyTotalPages = Math.ceil(history.length / rowsPerPage);
 >
   ค้นหาประวัติ
 </button>
+
+<button
+      className="btn btn-outline-secondary"
+      onClick={handleReload}
+    >
+      รีโหลด
+    </button>
+
     <button
       className="btn btn-primary px-3"
       onClick={saveAll}
@@ -432,8 +431,6 @@ const historyTotalPages = Math.ceil(history.length / rowsPerPage);
   </table>
 
 </div>
-  </>
-)}
 <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
   <button
@@ -460,6 +457,9 @@ const historyTotalPages = Math.ceil(history.length / rowsPerPage);
   </button>
 
 </div>
+  </>
+)}
+
   <div className="table-responsive">
 
       <table
