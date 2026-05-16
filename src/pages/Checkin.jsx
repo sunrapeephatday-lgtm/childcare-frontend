@@ -35,6 +35,12 @@ export default function CheckinPage() {
   useEffect(() => {
     init();
   }, []);
+  useEffect(() => {
+  if (teacherId) {
+    loadHistory(teacherId);
+    setCurrentPage(1);
+  }
+}, [exportMonth, exportYear]);
 
   async function init() {
     const res = await API.get("/checkins/me");
@@ -277,6 +283,16 @@ function exportExcel() {
     `รายงานเช็คชื่อ_${thaiMonths[month]}_${year + 543}.xlsx`
   );
 }
+const indexOfLastRow = currentPage * rowsPerPage;
+const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+
+const currentHistory = history.slice(
+  indexOfFirstRow,
+  indexOfLastRow
+);
+
+const totalPages = Math.ceil(history.length / rowsPerPage);
+
   return (
     <div className="container my-4">
 
@@ -431,9 +447,9 @@ function exportExcel() {
         </thead>
 
         <tbody>
-          {history.map((h, i) => (
+          {currentHistory.map((h, i) => (
             <tr key={i}>
-              <td>{i + 1}</td>
+              <td>{indexOfFirstRow + i + 1}</td>
               <td>{formatThaiDate(h.record_date)}</td>
               <td className="text-start ps-3">
   {h.prefix}{h.first_name} {h.last_name}
@@ -444,6 +460,29 @@ function exportExcel() {
           ))}
         </tbody>
       </table>
+      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage(currentPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {currentPage} / {totalPages || 1}
+  </span>
+
+  <button
+    className="btn btn-outline-success btn-sm"
+    disabled={currentPage === totalPages || totalPages === 0}
+    onClick={() => setCurrentPage(currentPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
           </div>
     </div>
   );
