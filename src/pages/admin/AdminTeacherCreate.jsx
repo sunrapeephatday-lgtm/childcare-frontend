@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import API from "../../api/api";
 
+const PAGE_SIZE = 10;
+
 export default function AdminTeacherCreate() {
 
   const [params] = useSearchParams();
@@ -11,6 +13,7 @@ export default function AdminTeacherCreate() {
   const [classrooms, setClassrooms] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [form, setForm] = useState({
     center_id: "",
@@ -25,6 +28,22 @@ export default function AdminTeacherCreate() {
     loadCenters();
     loadTeachers();
   }, []);
+
+  const totalPages = Math.max(1, Math.ceil(teachers.length / PAGE_SIZE));
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedTeachers = teachers.slice(startIndex, startIndex + PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+    (page) =>
+      page === 1 ||
+      page === totalPages ||
+      Math.abs(page - currentPage) <= 2
+  );
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   async function loadCenters() {
     const res = await API.get("/centers");
@@ -227,13 +246,21 @@ export default function AdminTeacherCreate() {
               </thead>
 
               <tbody>
-                {teachers.map((t, i) => (
+                {paginatedTeachers.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="text-center py-4">
+                      ไม่มีข้อมูลครู
+                    </td>
+                  </tr>
+                )}
+
+                {paginatedTeachers.map((t, i) => (
                   <tr key={t.teacher_id}>
-                    <td>{i + 1}</td>
-                    <td>{t.prefix}{t.first_name} {t.last_name}</td>
-                    <td>{t.center_name}</td>
-                    <td>{t.classroom_name}</td>
-                    <td>{t.phone}</td>
+                    <td>{startIndex + i + 1}</td>
+                    <td className="text-start ps-3">{t.prefix}{t.first_name} {t.last_name}</td>
+                    <td className="text-start ps-3">{t.center_name}</td>
+                    <td className="text-start ps-3">{t.classroom_name}</td>
+                    <td className="text-start ps-3">{t.phone}</td>
                    <td style={{ whiteSpace: "nowrap" }}>
                     <button className="btn btn-sm btn-outline-orange me-2"onClick={() => handleEdit(t)}>
                       แก้ไข
@@ -250,6 +277,62 @@ export default function AdminTeacherCreate() {
             </table>
 
           </div>
+
+          {teachers.length > PAGE_SIZE && (
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+              <div className="text-muted small">
+                แสดง {startIndex + 1}-{Math.min(startIndex + PAGE_SIZE, teachers.length)} จาก {teachers.length} รายการ
+              </div>
+
+              <nav aria-label="Teacher pagination">
+                <ul className="pagination pagination-sm mb-0">
+                  <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    >
+                      ก่อนหน้า
+                    </button>
+                  </li>
+
+                  {pageNumbers.map((page, index) => {
+                    const prevPage = pageNumbers[index - 1];
+                    const showGap = prevPage && page - prevPage > 1;
+
+                    return (
+                      <React.Fragment key={page}>
+                        {showGap && (
+                          <li className="page-item disabled">
+                            <span className="page-link">...</span>
+                          </li>
+                        )}
+                        <li className={`page-item ${currentPage === page ? "active" : ""}`}>
+                          <button
+                            type="button"
+                            className="page-link"
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </button>
+                        </li>
+                      </React.Fragment>
+                    );
+                  })}
+
+                  <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                    >
+                      ถัดไป
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          )}
 
         </div>
       </div>
