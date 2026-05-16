@@ -139,7 +139,7 @@ export default function LunchSummary3YearsChart() {
           <YAxis
             allowDecimals={false}
             label={{
-              value: "จำนวนครั้งที่รับประทานอาหาร",
+              value: "จำนวนเด็ก (คน)",
               angle: -90,
               position: "insideLeft",
               style: { textAnchor: "middle" }
@@ -147,7 +147,7 @@ export default function LunchSummary3YearsChart() {
           />
 
           <Tooltip
-            formatter={(v) => [`${v} ครั้ง`, "จำนวนรับประทานอาหาร"]}
+            formatter={(v) => [`${v} คน`, "จำนวนเด็ก"]}
           />
 
           <Bar dataKey="total" radius={[8, 8, 0, 0]}>

@@ -138,7 +138,7 @@ export default function ToothbrushSummaryUnder3Chart() {
           <YAxis
             allowDecimals={false}
             label={{
-              value: "จำนวนครั้งที่แปรงฟัน",
+              value: "จำนวนเด็ก (คน)",
               angle: -90,
               position: "insideLeft",
               style: { textAnchor: "middle" }
@@ -146,7 +146,7 @@ export default function ToothbrushSummaryUnder3Chart() {
           />
 
           <Tooltip
-            formatter={(v) => [`${v} ครั้ง`, "จำนวนแปรงฟัน"]}
+            formatter={(v) => [`${v} คน`, "จำนวนเด็ก"]}
           />
 
           <Bar dataKey="total" radius={[8, 8, 0, 0]}>
