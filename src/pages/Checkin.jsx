@@ -96,10 +96,21 @@ export default function CheckinPage() {
   setFilteredRows(result);
 }
 
-  function handleReload() {
-    setKeyword("");
-    loadToday(teacherId);
-  }
+ async function handleReload() {
+
+  setKeyword("");
+
+  setShowHistory(false);
+
+  setHistory([]);
+
+  setHistoryPage(1);
+
+  setCheckinPage(1);
+
+  await loadToday(teacherId);
+
+}
 
   function mark(id, status) {
   setRows(r =>
@@ -345,9 +356,10 @@ const historyTotalPages = Math.ceil(history.length / rowsPerPage);
   <div className="col-12 col-md-7 mt-2 mt-md-0">
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
 <button
-      className="btn btn-outline-secondary"
-      onClick={handleReload}
-    >
+  type="button"
+  className="btn btn-outline-secondary"
+  onClick={handleReload}
+>
       รีโหลด
     </button>
 
