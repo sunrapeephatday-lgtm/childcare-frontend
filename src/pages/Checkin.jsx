@@ -404,14 +404,14 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
               </td>
               <td className="text-start ps-3">{r.nickname}</td>
               <td>
-                <input
+                <select
                   value={r.status}
                   onChange={e => mark(r.child_id, e.target.value)}
                 >
                   <option value="มา">มา</option>
                   <option value="ขาด">ขาด</option>
                   <option value="ลา">ลา</option>
-                </input>
+                </select>
               </td>
 
               <td>
