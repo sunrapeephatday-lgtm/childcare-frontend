@@ -422,6 +422,7 @@ const checkinTotalPages = Math.ceil(
   <tr>
     <th style={{ width: "60px" }}>ลำดับ</th>
     <th style={{ width: "140px" }}>ชื่อ-นามสกุล</th>
+    <th style={{ width: "120px" }}>ชื่อเล่น</th>
     <th style={{ width: "160px" }}>สถานะ</th>
     <th style={{ width: "220px" }}>หมายเหตุ</th>
   </tr>
@@ -431,8 +432,11 @@ const checkinTotalPages = Math.ceil(
             <tr key={r.child_id}>
               <td>{checkinFirstRow + i + 1}</td>
               <td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
-  {r.name}
-</td>
+              {r.name}
+              </td>
+              <td style={{ width: "120px" }}>
+                {r.nickname || "-"}
+              </td>
               <td>
                 <select
                   value={r.status}
