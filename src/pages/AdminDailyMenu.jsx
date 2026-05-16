@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { saveAs } from "file-saver";
 
+const PAGE_SIZE = 10;
+
 /* ===== helpers ===== */
 function todayISO() {
   const d = new Date();
@@ -42,13 +44,29 @@ export default function AdminDailyMenu() {
   const [menus, setMenus] = useState([]);
   const [editing, setEditing] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
   const [exportYear, setExportYear] = useState(new Date().getFullYear());
+  const totalPages = Math.max(1, Math.ceil(menus.length / PAGE_SIZE));
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedMenus = menus.slice(startIndex, startIndex + PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+    (page) =>
+      page === 1 ||
+      page === totalPages ||
+      Math.abs(page - currentPage) <= 2
+  );
 
   useEffect(() => {
     loadMenus();
   }, []);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   async function loadMenus() {
     const res = await API.get("/daily-menu");
@@ -301,10 +319,18 @@ export default function AdminDailyMenu() {
           </thead>
 
           <tbody>
-            {menus.map(m=>(
+            {menus.length === 0 && (
+              <tr>
+                <td colSpan="4" className="text-center py-4">
+                  ยังไม่มีข้อมูล
+                </td>
+              </tr>
+            )}
+
+            {paginatedMenus.map(m=>(
               <tr key={m.daily_menu_id}>
-                <td>{formatThaiDate(m.menu_date)}</td>
-                <td>
+                <td className="text-start ps-3">{formatThaiDate(m.menu_date)}</td>
+                <td className="text-start ps-3">
                   {m.main_menu} {m.stir_menu} {m.soup_menu} {m.fried_menu} {m.dessert_menu}
                 </td>
                 <td>{m.note || "-"}</td>
@@ -317,6 +343,62 @@ export default function AdminDailyMenu() {
           </tbody>
         </table>
       </div>
+
+      {menus.length > PAGE_SIZE && (
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+          <div className="text-muted small">
+            แสดง {startIndex + 1}-{Math.min(startIndex + PAGE_SIZE, menus.length)} จาก {menus.length} รายการ
+          </div>
+
+          <nav aria-label="Daily menu pagination">
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                >
+                  ก่อนหน้า
+                </button>
+              </li>
+
+              {pageNumbers.map((page,index)=>{
+                const prevPage = pageNumbers[index - 1];
+                const showGap = prevPage && page - prevPage > 1;
+
+                return (
+                  <React.Fragment key={page}>
+                    {showGap && (
+                      <li className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    )}
+                    <li className={`page-item ${currentPage === page ? "active" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  </React.Fragment>
+                );
+              })}
+
+              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                >
+                  ถัดไป
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
 
     </div>
   );
