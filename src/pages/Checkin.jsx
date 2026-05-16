@@ -390,20 +390,23 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
            <th style={{ width: 60 }}>ลำดับ</th>
           <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
           <th style={{ width: 120 }}>ชื่อเล่น</th>
+          <th style={{ width: 120 }}>วันที่</th>
           <th style={{ width: 120 }}>สถานะ</th>
           <th style={{ width: 120 }}>หมายเหตุ</th>
           </tr>
         </thead>
 
         <tbody>
-          {filteredRows.map((r, i) => (
+          {currentHistory.map((r, i) => (
             <tr key={r.child_id}>
-              <td>{i + 1}</td>
+              <td>{indexOfFirstRow + i + 1}</td>
               <td className="text-start ps-3">
-                {r.name}
+                {r.prefix}{r.first_name} {r.last_name}
               </td>
               <td className="text-start ps-3">{r.nickname}</td>
-
+              <td>
+                {formatThaiDate(r.record_date)}
+              </td>
               <td>
                 <select
                   value={r.status}
@@ -428,38 +431,6 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
       </div>
       <hr />
 
-      <h4 className="mb-3 fw-bold text-success section-title">
-        ประวัติการเช็คชื่อ
-      </h4>
-<div className="table-responsive">
-      <table
-  className="table table-bordered table-sm align-middle"
-  style={{ fontSize: "14px" }}
->
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>ลำดับ</th>
-            <th style={{ width: 120 }}>วันที่</th>
-            <th style={{ width: 220 }}>ชื่อ-นามสกุล</th>
-            <th style={{ width: 120 }}>สถานะ</th>
-            <th style={{ width: 220 }}>หมายเหตุ</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {currentHistory.map((h, i) => (
-            <tr key={i}>
-              <td>{indexOfFirstRow + i + 1}</td>
-              <td>{formatThaiDate(h.record_date)}</td>
-              <td className="text-start ps-3">
-  {h.prefix}{h.first_name} {h.last_name}
-</td>
-              <td>{h.status}</td>
-              <td>{h.note || "-"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
       <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
   <button
@@ -484,6 +455,6 @@ const totalPages = Math.ceil(history.length / rowsPerPage);
 
 </div>
           </div>
-    </div>
+
   );
 }
