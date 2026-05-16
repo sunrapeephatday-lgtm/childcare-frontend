@@ -28,6 +28,13 @@ export default function BrushingsPage(){
   const [teacherId,setTeacherId] = useState(null);
   const [rows,setRows] = useState([]);
   const [history,setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const [historyPage, setHistoryPage] = useState(1);
+
+  const [checkinPage, setCheckinPage] = useState(1);
+
+  const rowsPerPage = 10;
   const [msg,setMsg] = useState(null);
   const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
   const [exportYear, setExportYear] = useState(new Date().getFullYear());
@@ -53,7 +60,7 @@ export default function BrushingsPage(){
       setTeacherId(tId);
 
       loadToday(tId);
-      loadHistory(tId);
+      
 
     }catch(err){
       console.error(err);
@@ -74,6 +81,36 @@ export default function BrushingsPage(){
     });
     setHistory(res.data.rows || []);
   }
+
+  async function handleReload() {
+
+  setMsg(null);
+
+  const currentDate = new Date();
+
+  setExportMonth(currentDate.getMonth() + 1);
+
+  setExportYear(currentDate.getFullYear());
+
+  setShowHistory(false);
+
+  setHistory([]);
+
+  setHistoryPage(1);
+
+  setCheckinPage(1);
+
+  if (teacherId) {
+    await loadToday(teacherId);
+  }
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
 
   async function saveAll(){
 
@@ -204,6 +241,33 @@ export default function BrushingsPage(){
     `รายงานการแปรงฟัน_${thaiMonths[month]}_${year + 543}.xlsx`
   );
 }
+
+const historyLastRow = historyPage * rowsPerPage;
+
+const historyFirstRow = historyLastRow - rowsPerPage;
+
+const currentHistory = history.slice(
+  historyFirstRow,
+  historyLastRow
+);
+
+const historyTotalPages = Math.ceil(
+  history.length / rowsPerPage
+);
+
+const checkinLastRow = checkinPage * rowsPerPage;
+
+const checkinFirstRow = checkinLastRow - rowsPerPage;
+
+const currentCheckins = rows.slice(
+  checkinFirstRow,
+  checkinLastRow
+);
+
+const checkinTotalPages = Math.ceil(
+  rows.length / rowsPerPage
+);
+
   return (
   <div className="container my-4">
     <h3 className="mb-3 fw-bold text-success section-title">
@@ -244,23 +308,114 @@ export default function BrushingsPage(){
       </div>
  <div className="col-12 col-md-7 mt-2 mt-md-0">
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-        <button
-          className="btn btn-success me-2"
-          onClick={saveAll}
-        >
-          บันทึกทั้งหมด
-        </button>
 
-        <button
-          className="btn btn-success"
-          onClick={exportExcel}
-        >
-          Export Excel
-        </button>
-        </div>
+  <button
+    type="button"
+    className="btn btn-outline-secondary"
+    onClick={handleReload}
+  >
+    รีโหลด
+  </button>
+
+  <button
+    type="button"
+    className="btn btn-primary"
+    onClick={async () => {
+
+      await loadHistory(teacherId);
+
+      setHistoryPage(1);
+
+      setShowHistory(true);
+
+    }}
+  >
+    ค้นหาประวัติ
+  </button>
+
+  <button
+    type="button"
+    className="btn btn-success"
+    onClick={saveAll}
+  >
+    บันทึกทั้งหมด
+  </button>
+
+  <button
+    type="button"
+    className="btn btn-success"
+    onClick={exportExcel}
+  >
+    Export Microsoft Excel
+  </button>
+
+</div>
       </div>
     </div>
+{showHistory && (
+  <>
+    <h5 className="mb-3 fw-bold text-success section-title">
+      ประวัติการแปรงฟัน
+    </h5>
 
+    <div className="table-scroll">
+      <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
+        <thead>
+  <tr>
+    <th style={{ width: "60px" }}>ลำดับ</th>
+    <th style={{ width: "120px" }}>วันที่</th>
+    <th style={{ width: "160px" }}>ชื่อ-นามสกุล</th>
+    <th style={{ width: "180px" }}>สถานะ</th>
+    <th style={{ width: "220px" }}>หมายเหตุ</th>
+  </tr>
+</thead>
+        <tbody>
+          {currentHistory.map((h, i) => (
+            <tr key={i}>
+              <td>{historyFirstRow + i + 1}</td>
+              <td>{toThaiDate(h.record_date)}</td>
+              <td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
+                {h.prefix}{h.first_name} {h.last_name}
+              </td>
+              <td>{h.status}</td>
+              <td style={{ width: "220px" }}>
+        {h.note || "-"}
+      </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+
+  <button
+    type="button"
+    className="btn btn-outline-success btn-sm"
+    disabled={historyPage === 1}
+    onClick={() => setHistoryPage(historyPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
+
+  <span className="fw-bold">
+    หน้า {historyPage} / {historyTotalPages || 1}
+  </span>
+
+  <button
+    type="button"
+    className="btn btn-outline-success btn-sm"
+    disabled={
+      historyPage === historyTotalPages ||
+      historyTotalPages === 0
+    }
+    onClick={() => setHistoryPage(historyPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
+    </div>
+      </>
+)}
     <div className="table-scroll">
       <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
         <thead>
@@ -272,9 +427,9 @@ export default function BrushingsPage(){
   </tr>
 </thead>
         <tbody>
-          {rows.map((r, i) => (
+          {currentCheckins.map((r, i) => (
             <tr key={r.child_id}>
-              <td>{i + 1}</td>
+              <td>{checkinFirstRow + i + 1}</td>
               <td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
   {r.name}
 </td>
@@ -313,39 +468,34 @@ export default function BrushingsPage(){
           ))}
         </tbody>
       </table>
-    </div>
+      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
 
-    <h5 className="mb-3 fw-bold text-success section-title">
-      ประวัติการแปรงฟัน
-    </h5>
+  <button
+    type="button"
+    className="btn btn-outline-success btn-sm"
+    disabled={checkinPage === 1}
+    onClick={() => setCheckinPage(checkinPage - 1)}
+  >
+    ก่อนหน้า
+  </button>
 
-    <div className="table-scroll">
-      <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
-        <thead>
-  <tr>
-    <th style={{ width: "60px" }}>ลำดับ</th>
-    <th style={{ width: "120px" }}>วันที่</th>
-    <th style={{ width: "160px" }}>ชื่อ-นามสกุล</th>
-    <th style={{ width: "180px" }}>สถานะ</th>
-    <th style={{ width: "220px" }}>หมายเหตุ</th>
-  </tr>
-</thead>
-        <tbody>
-          {history.map((h, i) => (
-            <tr key={i}>
-              <td>{i + 1}</td>
-              <td>{toThaiDate(h.record_date)}</td>
-              <td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
-                {h.prefix}{h.first_name} {h.last_name}
-              </td>
-              <td>{h.status}</td>
-              <td style={{ width: "220px" }}>
-        {h.note || "-"}
-      </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  <span className="fw-bold">
+    หน้า {checkinPage} / {checkinTotalPages || 1}
+  </span>
+
+  <button
+    type="button"
+    className="btn btn-outline-success btn-sm"
+    disabled={
+      checkinPage === checkinTotalPages ||
+      checkinTotalPages === 0
+    }
+    onClick={() => setCheckinPage(checkinPage + 1)}
+  >
+    ถัดไป
+  </button>
+
+</div>
     </div>
   </div>
 );
