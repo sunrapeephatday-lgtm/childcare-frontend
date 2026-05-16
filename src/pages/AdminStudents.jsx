@@ -2,21 +2,53 @@ import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 
+const PAGE_SIZE = 10;
+
 export default function AdminStudents() {
 
   const navigate = useNavigate();
 
   const [rows,setRows] = useState([]);
   const [loading,setLoading] = useState(false);
+  const [classroomFilter,setClassroomFilter] = useState("");
+  const [currentPage,setCurrentPage] = useState(1);
 
   // ⭐ state สำหรับ popup เลื่อนชั้น
   const [showPromote,setShowPromote] = useState(false);
   const [selected,setSelected] = useState([]);
   const [promoting,setPromoting] = useState(false);
 
+  const classroomOptions = Array.from(
+    new Set(rows.map(r => r.classroom_name).filter(Boolean))
+  ).sort((a,b) => a.localeCompare(b,"th"));
+
+  const filteredRows = classroomFilter
+    ? rows.filter(r => r.classroom_name === classroomFilter)
+    : rows;
+
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedRows = filteredRows.slice(startIndex, startIndex + PAGE_SIZE);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+    (page) =>
+      page === 1 ||
+      page === totalPages ||
+      Math.abs(page - currentPage) <= 2
+  );
+
   useEffect(()=>{
     fetchStudents();
   },[]);
+
+  useEffect(()=>{
+    setCurrentPage(1);
+  },[classroomFilter]);
+
+  useEffect(()=>{
+    if(currentPage > totalPages){
+      setCurrentPage(totalPages);
+    }
+  },[currentPage,totalPages]);
 
   async function fetchStudents(){
     setLoading(true);
@@ -120,6 +152,24 @@ export default function AdminStudents() {
         </div>
       </div>
 
+      <div className="row g-2 mb-3">
+        <div className="col-12 col-md-4 col-lg-3">
+          <label className="form-label">ค้นหาตามห้องเรียน</label>
+          <select
+            className="form-select"
+            value={classroomFilter}
+            onChange={(e)=>setClassroomFilter(e.target.value)}
+          >
+            <option value="">ทุกห้องเรียน</option>
+            {classroomOptions.map(classroom => (
+              <option key={classroom} value={classroom}>
+                {classroom}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="table-responsive">
         <table className="table table-bordered table-sm">
           <thead className="table-light">
@@ -127,7 +177,7 @@ export default function AdminStudents() {
               <th>ลำดับ</th>
               <th>รหัสนักเรียน</th>
               <th>ชื่อ-นามสกุล</th>
-              <th>ห้อง</th>
+              <th>ห้องเรียน</th>
               <th>ปีการศึกษา</th>
               <th>สถานะ</th>
               <th>การจัดการ</th>
@@ -135,7 +185,7 @@ export default function AdminStudents() {
           </thead>
 
           <tbody>
-            {rows.length === 0 && (
+            {filteredRows.length === 0 && (
               <tr>
                 <td colSpan={7} className="text-center">
                   ไม่มีข้อมูล
@@ -143,12 +193,12 @@ export default function AdminStudents() {
               </tr>
             )}
 
-            {rows.map((r,i)=>(
+            {paginatedRows.map((r,i)=>(
               <tr key={r.child_id}>
-                <td>{i+1}</td>
+                <td>{startIndex+i+1}</td>
                 <td>{r.child_code || "-"}</td>
                 <td className="text-start ps-3" style={{ minWidth: 260 }}>{r.prefix}{r.first_name} {r.last_name}</td>
-                <td>{r.classroom_name || "-"}</td>
+                <td className="text-start ps-3">{r.classroom_name || "-"}</td>
                 <td>{r.academic_year || "-"}</td>
 
                 <td>
@@ -187,6 +237,62 @@ export default function AdminStudents() {
         </table>
       </div>
 
+      {filteredRows.length > PAGE_SIZE && (
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+          <div className="text-muted small">
+            แสดง {startIndex + 1}-{Math.min(startIndex + PAGE_SIZE, filteredRows.length)} จาก {filteredRows.length} รายการ
+          </div>
+
+          <nav aria-label="Student pagination">
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                >
+                  ก่อนหน้า
+                </button>
+              </li>
+
+              {pageNumbers.map((page,index)=>{
+                const prevPage = pageNumbers[index - 1];
+                const showGap = prevPage && page - prevPage > 1;
+
+                return (
+                  <React.Fragment key={page}>
+                    {showGap && (
+                      <li className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    )}
+                    <li className={`page-item ${currentPage === page ? "active" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  </React.Fragment>
+                );
+              })}
+
+              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                >
+                  ถัดไป
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
+
       {/* ⭐ POPUP เลื่อนชั้น */}
       {showPromote && (
         <div className="modal fade show"
@@ -217,7 +323,7 @@ export default function AdminStudents() {
                     <tr>
                       <th>ลำดับ</th>
                       <th>ชื่อ</th>
-                      <th>ห้อง</th>
+                      <th>ห้องเรียน</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -230,8 +336,8 @@ export default function AdminStudents() {
                             onChange={()=>toggle(r.child_id)}
                           />
                         </td>
-                        <td>{r.prefix}{r.first_name} {r.last_name}</td>
-                        <td>{r.classroom_name}</td>
+                        <td className="text-start ps-3">{r.prefix}{r.first_name} {r.last_name}</td>
+                        <td className="text-start ps-3">{r.classroom_name}</td>
                       </tr>
                     ))}
                   </tbody>
