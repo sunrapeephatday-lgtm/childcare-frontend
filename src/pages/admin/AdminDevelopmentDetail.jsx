@@ -61,16 +61,24 @@ export default function AdminDevelopmentDetail() {
       </div>
 
       {/* ===== Detail Table ===== */}
-      <div className="table-responsive">
+      <div className="table-responsive" style={{ maxWidth: 1080 }}>
         <table
-          className="table table-bordered table-hover table-sm align-middle"
-          style={{ tableLayout: "fixed", minWidth: 720, fontSize: "14px" }}
+          className="table table-hover table-sm align-middle mb-0"
+          style={{
+            tableLayout: "fixed",
+            minWidth: 720,
+            fontSize: "14px",
+            border: "1px solid #bbf7d0",
+            borderRadius: 10,
+            overflow: "hidden",
+            boxShadow: "0 8px 18px rgba(15, 118, 110, 0.08)"
+          }}
         >
           <thead className="table-success text-center">
             <tr>
-              <th style={{ width: 64 }}>ข้อ</th>
+              <th style={{ width: 72 }}>ข้อ</th>
               <th>รายการประเมิน</th>
-              <th style={{ width: 96 }}>ระดับ</th>
+              <th style={{ width: 110 }}>ระดับ</th>
             </tr>
           </thead>
 
@@ -78,7 +86,10 @@ export default function AdminDevelopmentDetail() {
             {items.map((it) => (
               <tr key={it.item_no}>
                 <td className="text-center">{it.item_no}</td>
-                <td className="text-start px-3 py-2" style={{ whiteSpace: "normal", lineHeight: 1.45 }}>
+                <td
+                  className="text-start px-4 py-2"
+                  style={{ whiteSpace: "normal", lineHeight: 1.45 }}
+                >
                   {it.description}
                 </td>
                 <td className="text-center">{levelBadge(it.level_id)}</td>
