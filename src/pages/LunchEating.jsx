@@ -342,7 +342,7 @@ const checkinTotalPages = Math.ceil(
 
   <button
     type="button"
-    className="btn btn-success"
+    className="btn btn-primary me-2"
     onClick={exportExcelMonthly}
   >
     Export Microsoft Excel
