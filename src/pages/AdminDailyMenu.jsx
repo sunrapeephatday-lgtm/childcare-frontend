@@ -295,13 +295,13 @@ export default function AdminDailyMenu() {
             ))}
           </select>
 
-          <button
-            type="button"
-            className="btn btn-success export-btn"
-            onClick={exportWord}
-          >
-            ส่งออก Word
-          </button>
+           <button
+      type="button"
+      className="btn btn-primary me-2"
+      onClick={exportWord}
+    >
+      Export Microsoft Word
+    </button>
 
         </div>
       </div>
