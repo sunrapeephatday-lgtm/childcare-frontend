@@ -1,44 +1,47 @@
-/* ล็อกคอมโพเนนต์หลักให้อยู่ในสัดส่วนหน้าเว็ปดั้งเดิม */
-.checkin-container-fixed {
+/* ล็อกพื้นที่เนื้อหาหลักฝั่งขวา ไม่ให้กางขยายตามตาราง */
+.checkin-layout-wrapper {
   max-width: 100% !important;
   width: 100% !important;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-/* คุมกล่อง Card ทุกอันไม่ให้โดนสิ่งแปลกปลอมดันขนาดจนแตก */
-.checkin-container-fixed .card {
+/* ล็อกขนาดกรอบ Card สีขาวให้กางเท่าหน้าปกติ ไม่แตกทะลุขอบ */
+.checkin-layout-wrapper .card {
   width: 100% !important;
   max-width: 100% !important;
+  min-width: 0 !important; /* ป้องกัน Flexbox บังคับขยายขนาดการ์ด */
   box-sizing: border-box;
-  overflow: hidden; /* บล็อกเนื้อหาที่ล้นออกไปข้างนอก */
 }
 
-/* 🛠️ จุดแก้ปัญหาหลัก: กล่องสำหรับจัดการสร้างแถบ Scrollbar แนวนอนสีเทาโดยเฉพาะ */
-.checkin-scroll-box {
+/* 🛠️ ฟิกซ์จุดสำคัญ: ตัวคุมแถบเลื่อนแนวนอนสีเทาเฉพาะสำหรับตารางประวัติย้อนหลัง */
+.checkin-table-scroll-container {
   width: 100% !important;
   max-width: 100% !important;
-  overflow-x: auto !important; /* เปิดใช้งาน Scrollbar แนวนอน */
-  overflow-y: hidden;
+  overflow-x: auto !important; /* เปิดแถบเลื่อนแนวนอน */
+  overflow-y: hidden !important;
   -webkit-overflow-scrolling: touch;
   display: block;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
 }
 
-/* สั่งให้โครงสร้างตารางกางขนาดความกว้างเต็มที่เพื่อเปิดระบบแถบเลื่อน */
-.checkin-scroll-box table {
+/* ตั้งค่าขนาดตารางให้ขยายกางออกไปเพื่อเปิดแถบ Scrollbar แนวนอน */
+.checkin-table-scroll-container table {
   width: max-content !important;
-  min-width: 1500px !important;
+  min-width: 1550px !important;
   max-width: none !important;
-  table-layout: auto;
+  table-layout: auto !important;
 }
 
-.checkin-scroll-box th,
-.checkin-scroll-box td {
+.checkin-table-scroll-area th,
+.checkin-table-scroll-area td {
   white-space: nowrap;
   vertical-align: middle;
   text-align: center;
 }
 
-/* สไตล์สีปุ่มหลักและธีมหัวข้อบาร์เขียว */
+/* สไตล์ปุ่มและสีธีมตามหน้าเช็คชื่อดั้งเดิม */
 .btn-primary {
   background-color: #198754 !important;
   border-color: #198754 !important;

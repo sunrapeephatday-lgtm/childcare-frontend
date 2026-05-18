@@ -258,14 +258,14 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="container my-4 checkin-container-fixed">
+    <div className="checkin-layout-wrapper container my-4">
       {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
   
-      {/* ===== เมนูเลือกเดือน/ปี และปุ่มคำสั่งต่างๆ ===== */}
+      {/* ===== เมนูตัวเลือกเดือน/ปี ===== */}
       <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
         <div className="row align-items-end">
           <div className="col-md-3">
@@ -327,8 +327,8 @@ export default function CheckinPage() {
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* จุดสำคัญ: เพิ่มกล่องครอบตารางนี้เพื่อสร้าง Scrollbar แนวนอนสีเทาภายในพื้นที่การ์ดขาวพอดี */}
-          <div className="checkin-scroll-box border rounded">
+          {/* จุดแก้ไขสำคัญ: ใช้โครงสร้าง wrapper ล็อกตายตัวตรงนี้ เพื่อบังคับให้มีแถบเลื่อนแนวนอนเฉพาะตาราง */}
+          <div className="checkin-table-scroll-container">
             <table className="table table-bordered align-middle mb-0 text-center">
               <thead className="table-success text-dark">
                 <tr>
@@ -439,7 +439,7 @@ export default function CheckinPage() {
                 <th style={{ width: "60px" }}>ลำดับ</th>
                 <th style={{ width: "200px" }} className="text-start ps-3">ชื่อ-นามสกุล</th>
                 <th style={{ width: "120px" }} className="text-start ps-3">ชื่อเล่น</th>
-                <th style={{ width: "140px" }}>สถานะ</th>
+                <th style={{ width: "160px" }}>สถานะ</th>
                 <th style={{ width: "250px" }}>หมายเหตุ</th>
               </tr>
             </thead>
