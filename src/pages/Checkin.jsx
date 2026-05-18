@@ -28,8 +28,6 @@ export default function CheckinPage() {
   const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
   const [exportYear, setExportYear] = useState(new Date().getFullYear());
 
-  const [keyword, setKeyword] = useState("");
-  const [filteredRows, setFilteredRows] = useState([]);
   const rowsPerPage = 10;
 
   const thaiDate = formatThaiDate(date);
@@ -51,7 +49,6 @@ export default function CheckinPage() {
       params: { teacher_id: tid }
     });
     setRows(res.data.rows || []);
-    setFilteredRows(res.data.rows || []);
     setDate(res.data.date);
   }
 
@@ -62,37 +59,7 @@ export default function CheckinPage() {
     setHistory(res.data.rows || []);
   }
 
-  function handleSearch(e) {
-  e.preventDefault();
-
-  const k = keyword.toLowerCase();
-
-  const today = new Date().toISOString().slice(0, 10);
-
-  const result = rows.map((r) => {
-    // 🔥 หา history ของเด็กคนนี้ "วันนี้"
-    const h = history.find(
-      (x) =>
-        x.first_name + " " + x.last_name === r.name.replace(/^(เด็กชาย|เด็กหญิง)/, "").trim() &&
-        new Date(x.record_date).toISOString().slice(0, 10) === today
-    );
-
-    return {
-      ...r,
-      checkedToday: !!h,   // ✅ เช็คแล้วหรือยัง
-      realStatus: h?.status || "ยังไม่เช็ค"
-    };
-  }).filter((r) =>
-    (r.name || "").toLowerCase().includes(k) ||
-    (r.nickname || "").toLowerCase().includes(k)
-  );
-
-  setFilteredRows(result);
-  setCheckinPage(1);
-}
-
   async function handleReload() {
-    setKeyword("");
     setMsg(null);
     setShowHistory(false);
     setHistory([]);
@@ -118,17 +85,9 @@ export default function CheckinPage() {
     r.map(x => (x.child_id === id ? { ...x, status } : x))
   );
 
-  setFilteredRows(r =>
-    r.map(x => (x.child_id === id ? { ...x, status } : x))
-  );
-
 }
 function setNote(id, note) {
   setRows(r =>
-    r.map(x => (x.child_id === id ? { ...x, note } : x))
-  );
-
-  setFilteredRows(r =>
     r.map(x => (x.child_id === id ? { ...x, note } : x))
   );
 }
@@ -302,8 +261,8 @@ const historyTotalPages = Math.ceil(history.length / rowsPerPage);
 
 const checkinLastRow = checkinPage * rowsPerPage;
 const checkinFirstRow = checkinLastRow - rowsPerPage;
-const currentCheckins = filteredRows.slice(checkinFirstRow, checkinLastRow);
-const checkinTotalPages = Math.ceil(filteredRows.length / rowsPerPage);
+const currentCheckins = rows.slice(checkinFirstRow, checkinLastRow);
+const checkinTotalPages = Math.ceil(rows.length / rowsPerPage);
 
 const historyPageNumbers = Array.from(
   { length: historyTotalPages },
@@ -333,26 +292,8 @@ const checkinPageNumbers = Array.from(
     บันทึกการเช็คชื่อ (วันที่ {thaiDate})
   </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
-  <div className="d-flex justify-content-end gap-2">
-
-    <form onSubmit={handleSearch} className="d-flex gap-2 flex-grow-1">
-      <input
-        type="text"
-        className="form-control"
-        placeholder="ค้นหาชื่อ / ชื่อเล่น"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-      />
-      
-      <button className="btn btn-success">
-        ค้นหา
-      </button>
-    </form>
-
-  </div>
-
   {/* ===== ปุ่ม ===== */}
- <div className="row mb-3 align-items-end">
+ <div className="row mb-4 align-items-end">
   <div className="col-md-3">
     <label className="form-label">เดือน</label>
     <select
@@ -421,24 +362,129 @@ const checkinPageNumbers = Array.from(
       className="btn btn-primary me-2"
       onClick={exportExcel}
     >
-      Export Excel
+      Export Microsoft Excel
     </button>
     </div>
   </div>
 </div>
+{showHistory && (
+  <>
+      <h5 className="mt-4 fw-bold text-success section-title">
+        ประวัติการเช็คชื่อ
+      </h5>
+      <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
+  <thead>
+    <tr>
+      <th style={{ width: "60px" }}>ลำดับ</th>
+      <th style={{ width: "120px" }}>วันที่</th>
+      <th style={{ width: "120px" }}>ชื่อ-นามสกุล</th>
+      <th style={{ width: "140px" }}>สถานะ</th>
+      <th style={{ width: "140px" }}>หมายเหตุ</th>
+    </tr>
+  </thead>
+        <tbody>
+          {currentHistory.map((h,i)=>(
+            <tr key={i}>
+              <td>{historyFirstRow + i + 1}</td>
+              <td>{formatThaiDate(h.record_date)}</td>
+              <td style={{ textAlign: "left", paddingLeft: "16px", width: "160px" }}>
+  {h.prefix}{h.first_name} {h.last_name}
+</td>
+              <td>{h.status}</td>
+              <td>{h.note || "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {history.length > rowsPerPage && (
+  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+
+    <div className="text-muted small">
+      แสดง {historyFirstRow + 1}-
+      {Math.min(historyLastRow, history.length)}
+      {" "}จาก {history.length} รายการ
+    </div>
+
+    <nav>
+      <ul className="pagination pagination-sm mb-0">
+
+        <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
+          <button
+            type="button"
+            className="page-link"
+            onClick={() =>
+              setHistoryPage((page) => Math.max(1, page - 1))
+            }
+          >
+            ก่อนหน้า
+          </button>
+        </li>
+
+        {historyPageNumbers.map((page, index) => {
+          const prevPage = historyPageNumbers[index - 1];
+          const showGap = prevPage && page - prevPage > 1;
+
+          return (
+            <React.Fragment key={page}>
+
+              {showGap && (
+                <li className="page-item disabled">
+                  <span className="page-link">...</span>
+                </li>
+              )}
+
+              <li
+                className={`page-item ${
+                  historyPage === page ? "active" : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setHistoryPage(page)}
+                >
+                  {page}
+                </button>
+              </li>
+
+            </React.Fragment>
+          );
+        })}
+
+        <li
+          className={`page-item ${
+            historyPage === historyTotalPages ? "disabled" : ""
+          }`}
+        >
+          <button
+            type="button"
+            className="page-link"
+            onClick={() =>
+              setHistoryPage((page) =>
+                Math.min(historyTotalPages, page + 1)
+              )
+            }
+          >
+            ถัดไป
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+  </div>
+)}
+  </>
+)}
   <div className="milk-table-wrapper">
 
-      <table
-  className="table table-bordered table-sm align-middle"
-  style={{ fontSize: "14px" }}
->
+      <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
         <thead>
           <tr>
-           <th style={{ width: 60 }}>ลำดับ</th>
-          <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
-          <th style={{ width: 120 }}>ชื่อเล่น</th>
-          <th style={{ width: 120 }}>สถานะ</th>
-          <th style={{ width: 120 }}>หมายเหตุ</th>
+           <th style={{ width: "60px" }}>ลำดับ</th>
+          <th style={{ width: "120px" }}>ชื่อ-นามสกุล</th>
+          <th style={{ width: "120px" }}>ชื่อเล่น</th>
+          <th style={{ width: "140px" }}>สถานะ</th>
+          <th style={{ width: "140px" }}>หมายเหตุ</th>
           </tr>
         </thead>
 
@@ -446,13 +492,14 @@ const checkinPageNumbers = Array.from(
           {currentCheckins.map((r, i) => (
             <tr key={r.child_id}>
               <td>{checkinFirstRow + i + 1}</td>
-              <td className="text-start ps-3">
+              <td style={{ textAlign: "left", paddingLeft: "16px", width: "160px" }}>
                 {r.name}
               </td>
               <td>{r.nickname}</td>
 
               <td>
                 <select
+                  className="form-select-sm"
                   value={r.status}
                   onChange={e => mark(r.child_id, e.target.value)}
                 >
@@ -464,6 +511,7 @@ const checkinPageNumbers = Array.from(
 
               <td>
                 <input
+                  className="form-control-sm"
                   value={r.note || ""}
                   onChange={e => setNote(r.child_id, e.target.value)}
                 />
@@ -472,12 +520,12 @@ const checkinPageNumbers = Array.from(
           ))}
         </tbody>
       </table>
-      {filteredRows.length > rowsPerPage && (
+        {rows.length > rowsPerPage && (
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
           <div className="text-muted small">
             แสดง {checkinFirstRow + 1}-
-            {Math.min(checkinLastRow, filteredRows.length)}
-            {" "}จาก {filteredRows.length} รายการ
+              {Math.min(checkinLastRow, rows.length)}
+              {" "}จาก {rows.length} รายการ
           </div>
 
           <nav>
@@ -533,105 +581,6 @@ const checkinPageNumbers = Array.from(
         </div>
       )}
       </div>
-      {showHistory && (
-        <>
-      <hr />
-
-      <h4 className="mb-3 fw-bold text-success section-title">
-        ประวัติการเช็คชื่อ
-      </h4>
-<div className="milk-table-wrapper">
-      <table
-  className="table table-bordered table-sm align-middle"
-  style={{ fontSize: "14px" }}
->
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>ลำดับ</th>
-            <th style={{ width: 120 }}>วันที่</th>
-            <th style={{ width: 220 }}>ชื่อ-นามสกุล</th>
-            <th style={{ width: 120 }}>สถานะ</th>
-            <th style={{ width: 220 }}>หมายเหตุ</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {currentHistory.map((h, i) => (
-            <tr key={i}>
-              <td>{historyFirstRow + i + 1}</td>
-              <td>{formatThaiDate(h.record_date)}</td>
-              <td className="text-start ps-3">
-  {h.prefix}{h.first_name} {h.last_name}
-</td>
-              <td>{h.status}</td>
-              <td>{h.note || "-"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {history.length > rowsPerPage && (
-        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
-          <div className="text-muted small">
-            แสดง {historyFirstRow + 1}-
-            {Math.min(historyLastRow, history.length)}
-            {" "}จาก {history.length} รายการ
-          </div>
-
-          <nav>
-            <ul className="pagination pagination-sm mb-0">
-              <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
-                <button
-                  type="button"
-                  className="page-link"
-                  onClick={() => setHistoryPage((page) => Math.max(1, page - 1))}
-                >
-                  ก่อนหน้า
-                </button>
-              </li>
-
-              {historyPageNumbers.map((page, index) => {
-                const prevPage = historyPageNumbers[index - 1];
-                const showGap = prevPage && page - prevPage > 1;
-
-                return (
-                  <React.Fragment key={page}>
-                    {showGap && (
-                      <li className="page-item disabled">
-                        <span className="page-link">...</span>
-                      </li>
-                    )}
-
-                    <li className={`page-item ${historyPage === page ? "active" : ""}`}>
-                      <button
-                        type="button"
-                        className="page-link"
-                        onClick={() => setHistoryPage(page)}
-                      >
-                        {page}
-                      </button>
-                    </li>
-                  </React.Fragment>
-                );
-              })}
-
-              <li className={`page-item ${historyPage === historyTotalPages ? "disabled" : ""}`}>
-                <button
-                  type="button"
-                  className="page-link"
-                  onClick={() =>
-                    setHistoryPage((page) => Math.min(historyTotalPages, page + 1))
-                  }
-                >
-                  ถัดไป
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      )}
-          </div>
-        </>
-      )}
     </div>
   );
 }
