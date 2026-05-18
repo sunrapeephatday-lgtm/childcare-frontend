@@ -33,17 +33,22 @@ export default function CheckinPage() {
   const rowsPerPage = 10;
   const thaiDate = formatThaiDate(date);
 
-  useEffect(() => { init(); }, []);
+  useEffect(() => {
+    init();
+  }, []);
 
   async function init() {
     const res = await API.get("/checkins/me");
     const tid = res.data.teacher_id;
+
     setTeacherId(tid);
     loadToday(tid);
   }
 
   async function loadToday(tid) {
-    const res = await API.get("/checkins/today", { params: { teacher_id: tid } });
+    const res = await API.get("/checkins/today", {
+      params: { teacher_id: tid }
+    });
     setRows(res.data.rows || []);
     setFilteredRows(res.data.rows || []);
     setDate(res.data.date);
@@ -51,9 +56,38 @@ export default function CheckinPage() {
 
   async function loadHistory(tid) {
     const res = await API.get("/checkins/monthly", {
-      params: { teacher_id: tid, month: exportMonth, year: exportYear }
+      params: {
+        teacher_id: tid,
+        month: exportMonth,
+        year: exportYear
+      }
     });
     setHistory(res.data.rows || []);
+  }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    const k = keyword.toLowerCase();
+    const today = new Date().toISOString().slice(0, 10);
+
+    const result = rows.map((r) => {
+      const h = history.find(
+        (x) =>
+          x.first_name + " " + x.last_name === r.name.replace(/^(เด็กชาย|เด็กหญิง)/, "").trim() &&
+          new Date(x.record_date).toISOString().slice(0, 10) === today
+      );
+
+      return {
+        ...r,
+        checkedToday: !!h,
+        realStatus: h?.status || "ยังไม่เช็ค"
+      };
+    }).filter((r) =>
+      (r.name || "").toLowerCase().includes(k) ||
+      (r.nickname || "").toLowerCase().includes(k)
+    );
+
+    setFilteredRows(result);
   }
 
   async function handleReload() {
@@ -63,7 +97,10 @@ export default function CheckinPage() {
     setHistoryPage(1);
     setCheckinPage(1);
     await loadToday(teacherId);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   }
 
   function mark(id, status) {
@@ -79,19 +116,33 @@ export default function CheckinPage() {
   async function saveAll() {
     for (const r of rows) {
       await API.post("/checkins", {
-        child_id: r.child_id, status: r.status,
-        note: r.note, teacher_id: teacherId
+        child_id: r.child_id,
+        status: r.status,
+        note: r.note,
+        teacher_id: teacherId
       });
     }
     loadHistory(teacherId);
     setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
   }
 
+  /* ================= EXPORT ================= */
   function exportExcel() {
-    if (!history.length) { alert("ไม่มีข้อมูล"); return; }
+    if (!history.length) {
+      alert("ไม่มีข้อมูล");
+      return;
+    }
 
-    const thaiMonths = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
-    const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+    const thaiMonths = [
+      "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+      "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+    ];
+
+    const shortMonths = [
+      "ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
+      "ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."
+    ];
+
     const month = exportMonth - 1;
     const year = exportYear;
     const days = new Date(year, month + 1, 0).getDate();
@@ -102,38 +153,75 @@ export default function CheckinPage() {
       if (d.getMonth() !== month || d.getFullYear() !== year) return;
       const name = `${h.first_name} ${h.last_name}`;
       const day = d.getDate();
-      if (!map[name]) map[name] = {};
+      if (!map[name]) {
+        map[name] = {};
+      }
       map[name][day] = h.status;
     });
 
-    const header = ["ลำดับ","ชื่อ-นามสกุล",...Array.from({length:days},(_,i)=>`${i+1}${shortMonths[month]}`),"มา","ขาด","ลา"];
+    const header = [
+      "ลำดับ",
+      "ชื่อ-นามสกุล",
+      ...Array.from({ length: days }, (_, i) => `${i + 1}${shortMonths[month]}`),
+      "มา",
+      "ขาด",
+      "ลา"
+    ];
+
     const title = `บันทึกการเช็คการมาเรียนประจำเดือน ${thaiMonths[month]} พ.ศ. ${year + 543}`;
     const center = "ศูนย์พัฒนาเด็ก อบต.หนองน้ำแดง สังกัดองค์การบริหารส่วนตำบลหนองน้ำแดง";
-    const aoa = [[title],[center],[],header];
+
+    const aoa = [
+      [title],
+      [center],
+      [],
+      header
+    ];
 
     let index = 1;
     Object.keys(map).forEach(name => {
       const rowExcel = aoa.length + 1;
       const cells = [];
+
       for (let d = 1; d <= days; d++) {
         const st = map[name][d];
-        cells.push(st === "มา" ? "✓" : st === "ขาด" ? "ข" : st === "ลา" ? "ล" : "");
+        if (st === "มา") cells.push("✓");
+        else if (st === "ขาด") cells.push("ข");
+        else if (st === "ลา") cells.push("ล");
+        else cells.push("");
       }
-      const sL = XLSX.utils.encode_col(2);
-      const eL = XLSX.utils.encode_col(2 + days - 1);
-      aoa.push([index++, name, ...cells,
-        {t:"n",f:`COUNTIF(${sL}${rowExcel}:${eL}${rowExcel},"✓")`},
-        {t:"n",f:`COUNTIF(${sL}${rowExcel}:${eL}${rowExcel},"ข")`},
-        {t:"n",f:`COUNTIF(${sL}${rowExcel}:${eL}${rowExcel},"ล")`}
+
+      const startCol = 2;
+      const endCol = startCol + days - 1;
+      const startLetter = XLSX.utils.encode_col(startCol);
+      const endLetter = XLSX.utils.encode_col(endCol);
+
+      aoa.push([
+        index++,
+        name,
+        ...cells,
+        { t: "n", f: `COUNTIF(${startLetter}${rowExcel}:${endLetter}${rowExcel},"✓")` },
+        { t: "n", f: `COUNTIF(${startLetter}${rowExcel}:${endLetter}${rowExcel},"ข")` },
+        { t: "n", f: `COUNTIF(${startLetter}${rowExcel}:${endLetter}${rowExcel},"ล")` }
       ]);
     });
 
     const ws = XLSX.utils.aoa_to_sheet(aoa);
+
     ws["!merges"] = [
-      {s:{r:0,c:0},e:{r:0,c:header.length-1}},
-      {s:{r:1,c:0},e:{r:1,c:header.length-1}}
+      { s: { r: 0, c: 0 }, e: { r: 0, c: header.length - 1 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: header.length - 1 } }
     ];
-    ws["!cols"] = [{wch:8},{wch:30},...Array.from({length:days},()=>({wch:5})),{wch:6},{wch:6},{wch:6}];
+
+    ws["!cols"] = [
+      { wch: 8 },
+      { wch: 30 },
+      ...Array.from({ length: days }, () => ({ wch: 5 })),
+      { wch: 6 },
+      { wch: 6 },
+      { wch: 6 }
+    ];
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "รายงานเช็คชื่อ");
     XLSX.writeFile(wb, `รายงานเช็คชื่อ_${thaiMonths[month]}_${year + 543}.xlsx`);
@@ -146,119 +234,149 @@ export default function CheckinPage() {
     history.reduce((acc, h) => {
       const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
       const day = new Date(h.record_date).getDate();
-      if (!acc[name]) acc[name] = {};
+      if (!acc[name]) {
+        acc[name] = {};
+      }
       acc[name][day] = h.status;
       return acc;
     }, {})
   );
 
   const currentHistory = groupedHistory.slice(historyFirstRow, historyLastRow);
+
   const checkinLastRow = checkinPage * rowsPerPage;
   const checkinFirstRow = checkinLastRow - rowsPerPage;
   const currentCheckins = filteredRows.slice(checkinFirstRow, checkinLastRow);
+
   const checkinTotalPages = Math.ceil(filteredRows.length / rowsPerPage);
   const historyTotalPages = Math.ceil(groupedHistory.length / rowsPerPage);
-  const historyPageNumbers = Array.from({length:historyTotalPages},(_,i)=>i+1)
-    .filter(p => p===1 || p===historyTotalPages || Math.abs(p-historyPage)<=2);
-  const checkinPageNumbers = Array.from({length:checkinTotalPages},(_,i)=>i+1)
-    .filter(p => p===1 || p===checkinTotalPages || Math.abs(p-checkinPage)<=2);
 
-  const daysInMonth = new Date(exportYear, exportMonth, 0).getDate();
-  const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  const historyPageNumbers = Array.from({ length: historyTotalPages }, (_, i) => i + 1)
+    .filter((page) => page === 1 || page === historyTotalPages || Math.abs(page - historyPage) <= 2);
+
+  const checkinPageNumbers = Array.from({ length: checkinTotalPages }, (_, i) => i + 1)
+    .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
     <div className="checkin-container container-fluid px-4 my-4">
+      {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
-
-      {/* ===== เมนูค้นหา ===== */}
-      <div className="card shadow-sm p-4 mb-4 bg-white rounded border-0">
+  
+      {/* ===== เมนูเลือกเดือน/ปี และปุ่มคำสั่งต่างๆ ===== */}
+      <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
         <div className="row align-items-end">
           <div className="col-md-3">
-            <label className="form-label fw-medium text-secondary">เดือน</label>
-            <select className="form-select" value={exportMonth} onChange={(e) => setExportMonth(Number(e.target.value))}>
-              {["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"]
-                .map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+            <label className="form-label fw-bold text-secondary">เดือน</label>
+            <select
+              className="form-select"
+              value={exportMonth}
+              onChange={(e) => setExportMonth(Number(e.target.value))}
+            >
+              {[
+                "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+                "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+              ].map((m, i) => (
+                <option key={i} value={i + 1}>{m}</option>
+              ))}
             </select>
           </div>
+
           <div className="col-md-2">
-            <label className="form-label fw-medium text-secondary">ปี</label>
-            <select className="form-select" value={exportYear} onChange={(e) => setExportYear(Number(e.target.value))}>
-              {[2568,2569,2570].map(y => <option key={y} value={y-543}>{y}</option>)}
+            <label className="form-label fw-bold text-secondary">ปี</label>
+            <select
+              className="form-select"
+              value={exportYear}
+              onChange={(e) => setExportYear(Number(e.target.value))}
+            >
+              {[2568, 2569, 2570].map((y) => (
+                <option key={y} value={y - 543}>{y}</option>
+              ))}
             </select>
           </div>
+
           <div className="col-12 col-md-7 mt-3 mt-md-0">
             <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-              <button type="button" className="btn btn-outline-secondary px-3" onClick={handleReload}>รีโหลด</button>
+              <button type="button" className="btn btn-outline-secondary px-3" onClick={handleReload}>
+                รีโหลด
+              </button>
               <button className="btn btn-success px-3" onClick={async () => {
                 await loadHistory(teacherId);
                 setHistoryPage(1);
                 setShowHistory(true);
-              }}>ค้นหาประวัติ</button>
-              <button className="btn btn-success px-3" onClick={saveAll}>บันทึกทั้งหมด</button>
-              <button className="btn btn-success px-3" onClick={exportExcel}>Export Microsoft Excel</button>
+              }}>
+                ค้นหาประวัติ
+              </button>
+              <button className="btn btn-success px-3" onClick={saveAll}>
+                บันทึกทั้งหมด
+              </button>
+              <button className="btn btn-success px-3" onClick={exportExcel}>
+                Export Microsoft Excel
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ===== ตารางประวัติ ===== */}
+      {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน ===== */}
       {showHistory && (
-        <div className="card shadow-sm p-4 mb-4 bg-white rounded border-0">
-          <h4 className="mb-3 fw-bold text-success section-title">ประวัติการเช็คชื่อรายเดือน</h4>
+        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0 history-card">
+          <h4 className="mb-3 fw-bold text-success section-title">
+            ประวัติการเช็คชื่อรายเดือน
+          </h4>
 
-          {/*
-            ✅ KEY FIX:
-            - wrapper div: width=100%, overflow-x=auto → สร้าง scrollbar แนวนอนภายใน card
-            - table: width=max-content → ขยายตามจำนวนวัน ไม่บีบ ไม่ทะลุออกนอก
-            - ไม่ใช้ className จาก CSS เพื่อป้องกัน specificity conflict
-          */}
-          <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-            <table
-              className="table table-bordered align-middle mb-0 text-center"
-              style={{ width: "max-content", minWidth: "100%" }}
-            >
+          {/* แผ่นกระจาย Scrollbar: บังคับเลื่อนแนวนอนภายในกล่องนี้เท่านั้น โครงสร้างด้านนอกจะไม่แตก */}
+          <div className="checkin-table-scroll-area border rounded">
+            <table className="table table-bordered align-middle mb-0 text-center">
               <thead className="table-success text-dark">
                 <tr>
-                  <th rowSpan="2" className="align-middle" style={{ minWidth: "55px" }}>ลำดับ</th>
-                  <th rowSpan="2" className="align-middle text-start ps-3" style={{ minWidth: "220px" }}>ชื่อ-นามสกุล</th>
-                  <th colSpan={daysInMonth} className="py-2 text-center fw-bold bg-success bg-opacity-10">
+                  <th rowSpan="2" className="align-middle">ลำดับ</th>
+                  <th rowSpan="2" className="align-middle text-start ps-3" style={{ minWidth: "200px" }}>ชื่อ-นามสกุล</th>
+                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-center text-dark fw-bold bg-success bg-opacity-10">
                     วันที่เช็คชื่อ
                   </th>
-                  <th rowSpan="2" className="align-middle" style={{ minWidth: "48px" }}>มา</th>
-                  <th rowSpan="2" className="align-middle" style={{ minWidth: "48px" }}>ขาด</th>
-                  <th rowSpan="2" className="align-middle" style={{ minWidth: "48px" }}>ลา</th>
+                  <th rowSpan="2" className="align-middle">มา</th>
+                  <th rowSpan="2" className="align-middle">ขาด</th>
+                  <th rowSpan="2" className="align-middle">ลา</th>
                 </tr>
                 <tr>
-                  {Array.from({ length: daysInMonth }, (_, i) => (
-                    <th key={i} className="fw-normal small py-1" style={{ minWidth: "42px" }}>
-                      {i + 1}<br />
-                      <span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
-                    </th>
-                  ))}
+                  {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, i) => {
+                    const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+                    return (
+                      <th key={i} className="fw-normal small py-1" style={{ minWidth: "45px" }}>
+                        {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
                 {currentHistory.map(([name, records], i) => {
-                  let present = 0, absent = 0, leave = 0;
+                  let present = 0;
+                  let absent = 0;
+                  let leave = 0;
+
                   return (
                     <tr key={i}>
                       <td>{historyFirstRow + i + 1}</td>
-                      <td className="text-start ps-3 fw-medium" style={{ whiteSpace: "nowrap" }}>{name}</td>
-                      {Array.from({ length: daysInMonth }, (_, dayIndex) => {
+                      <td className="text-start ps-3 fw-medium" style={{ minWidth: "200px", whiteSpace: "nowrap" }}>
+                        {name}
+                      </td>
+                      {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, dayIndex) => {
                         const day = dayIndex + 1;
                         const status = records[day];
+
                         if (status === "มา") present++;
                         else if (status === "ขาด") absent++;
                         else if (status === "ลา") leave++;
+
                         return (
-                          <td key={day}>
-                            {status === "มา" ? <span className="text-success fw-bold">✓</span>
-                              : status === "ขาด" ? <span className="text-danger fw-bold">ข</span>
-                              : status === "ลา" ? <span className="text-warning fw-bold">ล</span>
-                              : <span className="text-muted">-</span>}
+                          <td key={day} className="px-1">
+                            {status === "มา" ? <span className="text-success fw-bold">✓</span> : 
+                             status === "ขาด" ? <span className="text-danger fw-bold">ข</span> : 
+                             status === "ลา" ? <span className="text-warning fw-bold">ล</span> : "-"}
                           </td>
                         );
                       })}
@@ -272,6 +390,7 @@ export default function CheckinPage() {
             </table>
           </div>
 
+          {/* Pagination ของตารางประวัติ */}
           {groupedHistory.length > rowsPerPage && (
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
               <div className="text-muted small">
@@ -280,7 +399,9 @@ export default function CheckinPage() {
               <nav>
                 <ul className="pagination pagination-sm mb-0">
                   <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
-                    <button type="button" className="page-link" onClick={() => setHistoryPage(p => Math.max(1, p - 1))}>ก่อนหน้า</button>
+                    <button type="button" className="page-link" onClick={() => setHistoryPage((page) => Math.max(1, page - 1))}>
+                      ก่อนหน้า
+                    </button>
                   </li>
                   {historyPageNumbers.map((page, index) => {
                     const prevPage = historyPageNumbers[index - 1];
@@ -295,7 +416,9 @@ export default function CheckinPage() {
                     );
                   })}
                   <li className={`page-item ${historyPage === historyTotalPages ? "disabled" : ""}`}>
-                    <button type="button" className="page-link" onClick={() => setHistoryPage(p => Math.min(historyTotalPages, p + 1))}>ถัดไป</button>
+                    <button type="button" className="page-link" onClick={() => setHistoryPage((page) => Math.min(historyTotalPages, page + 1))}>
+                      ถัดไป
+                    </button>
                   </li>
                 </ul>
               </nav>
@@ -304,9 +427,11 @@ export default function CheckinPage() {
         </div>
       )}
 
-      {/* ===== ตารางรายชื่อนักเรียนวันนี้ ===== */}
-      <div className="card shadow-sm p-4 bg-white rounded border-0">
-        <h4 className="mb-3 fw-bold text-secondary section-title">รายชื่อนักเรียนวันนี้</h4>
+      {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ ===== */}
+      <div className="card shadow-sm p-3 bg-white rounded border-0 daily-card">
+        <h4 className="mb-3 fw-bold text-secondary section-title">
+          รายชื่อนักเรียนวันนี้
+        </h4>
         <div className="table-responsive border rounded">
           <table className="table table-bordered table-hover align-middle mb-0 text-center">
             <thead className="table-light">
@@ -325,16 +450,14 @@ export default function CheckinPage() {
                   <td className="text-start ps-3">{r.name}</td>
                   <td className="text-start ps-3">{r.nickname}</td>
                   <td>
-                    <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "110px" }}
-                      value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
+                    <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "110px" }} value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
                       <option value="มา">มา</option>
                       <option value="ขาด">ขาด</option>
                       <option value="ลา">ลา</option>
                     </select>
                   </td>
                   <td>
-                    <input className="form-control form-control-sm" value={r.note || ""}
-                      onChange={(e) => setNote(r.child_id, e.target.value)} placeholder="ระบุหมายเหตุ (ถ้ามี)" />
+                    <input className="form-control form-control-sm" value={r.note || ""} onChange={(e) => setNote(r.child_id, e.target.value)} placeholder="ระบุหมายเหตุ (ถ้ามี)"/>
                   </td>
                 </tr>
               ))}
@@ -342,6 +465,7 @@ export default function CheckinPage() {
           </table>
         </div>
 
+        {/* Pagination ของตารางวันนี้ */}
         {filteredRows.length > rowsPerPage && (
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
             <div className="text-muted small">
@@ -350,7 +474,9 @@ export default function CheckinPage() {
             <nav>
               <ul className="pagination pagination-sm mb-0">
                 <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
-                  <button type="button" className="page-link" onClick={() => setCheckinPage(p => Math.max(1, p - 1))}>ก่อนหน้า</button>
+                  <button type="button" className="page-link" onClick={() => setCheckinPage((page) => Math.max(1, page - 1))}>
+                    ก่อนหน้า
+                  </button>
                 </li>
                 {checkinPageNumbers.map((page, index) => {
                   const prevPage = checkinPageNumbers[index - 1];
@@ -365,7 +491,9 @@ export default function CheckinPage() {
                   );
                 })}
                 <li className={`page-item ${checkinPage === checkinTotalPages ? "disabled" : ""}`}>
-                  <button type="button" className="page-link" onClick={() => setCheckinPage(p => Math.min(checkinTotalPages, p + 1))}>ถัดไป</button>
+                  <button type="button" className="page-link" onClick={() => setCheckinPage((page) => Math.min(checkinTotalPages, page + 1))}>
+                    ถัดไป
+                  </button>
                 </li>
               </ul>
             </nav>
