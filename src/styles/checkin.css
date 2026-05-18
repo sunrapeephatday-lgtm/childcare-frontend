@@ -1,48 +1,7 @@
-/* บังคับ Container หลักไม่ให้ยืดตามตารางข้างใน */
+/* Container หลัก — ไม่ต้อง overflow-x: hidden ที่นี่
+   เพราะ card + wrapper ข้างในจัดการ scroll เองแล้ว */
 .checkin-container {
-  max-width: 100% !important;
-  overflow-x: hidden; /* ✅ FIX: ป้องกัน layout ทะลุออกนอกหน้าจอ */
-}
-
-/* ✅ FIX: card ต้องมี overflow: hidden เพื่อกักตารางไว้ข้างใน */
-.history-card,
-.daily-card {
-  max-width: 100% !important;
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* ตัวครอบตารางประวัติ — รับผิดชอบ scroll แนวนอนเพียงอย่างเดียว */
-.checkin-table-wrapper {
-  width: 100%;
   max-width: 100%;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch;
-  display: block;
-}
-
-/* ✅ FIX: ตารางข้างในให้ขยายตามเนื้อหา ไม่จำกัด max-width */
-.checkin-table-wrapper table {
-  width: max-content;
-  max-width: none !important;
-  table-layout: auto;
-}
-
-.checkin-table-wrapper th,
-.checkin-table-wrapper td {
-  white-space: nowrap;
-  vertical-align: middle;
-  text-align: center;
-}
-
-/* สีธีมปุ่ม */
-.btn-success {
-  background-color: #198754 !important;
-  border-color: #198754 !important;
-}
-.btn-success:hover {
-  background-color: #157347 !important;
-  border-color: #146c43 !important;
 }
 
 /* เส้นหัวข้อบาร์ด้านซ้าย */
@@ -50,7 +9,6 @@
   position: relative;
   padding-left: 12px;
 }
-
 .section-title::before {
   content: "";
   position: absolute;
@@ -60,4 +18,14 @@
   width: 4px;
   background-color: #198754;
   border-radius: 4px;
+}
+
+/* สีปุ่ม success */
+.btn-success {
+  background-color: #198754 !important;
+  border-color: #198754 !important;
+}
+.btn-success:hover {
+  background-color: #157347 !important;
+  border-color: #146c43 !important;
 }
