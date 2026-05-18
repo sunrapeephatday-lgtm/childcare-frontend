@@ -312,8 +312,9 @@ const currentCheckins = filteredRows.slice(
 const checkinTotalPages = Math.ceil(filteredRows.length / rowsPerPage);
 
 const historyTotalPages = Math.ceil(
-  groupedRows.length / rowsPerPage
+  history.length / rowsPerPage
 );
+
 const historyPageNumbers = Array.from(
   { length: historyTotalPages },
   (_, i) => i + 1
@@ -426,44 +427,153 @@ const checkinPageNumbers = Array.from(
 <div className="table-responsive">
 
   <table
-    className="table table-bordered table-sm align-middle"
-    style={{ fontSize: "14px" }}
+  className="table table-bordered table-sm align-middle"
+  style={{
+    fontSize: "14px",
+    whiteSpace: "nowrap"
+  }}
+>
+
+<thead>
+
+<tr>
+
+  <th rowSpan="2">ลำดับ</th>
+
+  <th rowSpan="2">
+    ชื่อ-นามสกุล
+  </th>
+
+  <th
+    colSpan={
+      new Date(exportYear, exportMonth, 0).getDate()
+    }
   >
+    วันที่เช็คชื่อ
+  </th>
 
-    <thead>
-      <tr>
-        <th style={{ width: 60 }}>ลำดับ</th>
-        <th style={{ width: 140 }}>วันที่</th>
-        <th style={{ width: 220 }}>ชื่อ-นามสกุล</th>
-        <th style={{ width: 120 }}>สถานะ</th>
-      </tr>
-    </thead>
+  <th rowSpan="2">มา</th>
 
-    <tbody>
+  <th rowSpan="2">ขาด</th>
 
-      {currentHistory.map((r, i) => (
+  <th rowSpan="2">ลา</th>
 
-        <tr key={i}>
+</tr>
 
-          <td>{historyFirstRow + i + 1}</td>
+<tr>
 
-          <td>
-            {formatThaiDate(r.record_date)}
-          </td>
+{Array.from(
+  {
+    length: new Date(
+      exportYear,
+      exportMonth,
+      0
+    ).getDate()
+  },
+  (_, i) => {
 
-          <td className="text-start ps-3">
-            {r.prefix}{r.first_name} {r.last_name}
-          </td>
+    const shortMonths = [
+      "ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
+      "ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."
+    ];
 
-          <td>{r.status}</td>
+    return (
+      <th key={i}>
+        {i + 1}
+        {shortMonths[exportMonth - 1]}
+      </th>
+    );
+  }
+)}
 
-        </tr>
+</tr>
 
-      ))}
+</thead>
 
-    </tbody>
+<tbody>
 
-  </table>
+{Object.entries(
+
+  history.reduce((acc, h) => {
+
+    const name =
+      `${h.prefix}${h.first_name} ${h.last_name}`;
+
+    const day =
+      new Date(h.record_date).getDate();
+
+    if (!acc[name]) {
+      acc[name] = {};
+    }
+
+    acc[name][day] = h.status;
+
+    return acc;
+
+  }, {})
+
+).map(([name, records], i) => {
+
+  let present = 0;
+  let absent = 0;
+  let leave = 0;
+
+  return (
+
+    <tr key={i}>
+
+      <td>{i + 1}</td>
+
+      <td className="text-start ps-3">
+        {name}
+      </td>
+
+      {Array.from(
+        {
+          length: new Date(
+            exportYear,
+            exportMonth,
+            0
+          ).getDate()
+        },
+        (_, dayIndex) => {
+
+          const day = dayIndex + 1;
+
+          const status = records[day];
+
+          if (status === "มา") present++;
+          else if (status === "ขาด") absent++;
+          else if (status === "ลา") leave++;
+
+          return (
+            <td key={day}>
+              {status === "มา"
+                ? "✓"
+                : status === "ขาด"
+                ? "ข"
+                : status === "ลา"
+                ? "ล"
+                : ""}
+            </td>
+          );
+        }
+      )}
+
+      <td>{present}</td>
+
+      <td>{absent}</td>
+
+      <td>{leave}</td>
+
+    </tr>
+
+  );
+})}
+
+</tbody>
+
+</table>
 
 </div>
 {history.length > rowsPerPage && (
@@ -543,128 +653,78 @@ const checkinPageNumbers = Array.from(
 )}
   </>
 )}
-  <div className="table-responsive">
-<table
-  className="table table-bordered table-sm align-middle"
-  style={{
-    fontSize: "14px",
-    whiteSpace: "nowrap"
-  }}
->
+<div className="table-responsive">
+
+<table className="table table-bordered align-middle">
 
 <thead>
+<tr>
 
-  {/* ===== header ชั้นบน ===== */}
-  <tr>
+<th>ลำดับ</th>
+<th>ชื่อ-นามสกุล</th>
+<th>ชื่อเล่น</th>
+<th>สถานะ</th>
+<th>หมายเหตุ</th>
 
-    <th rowSpan="2">
-      ลำดับ
-    </th>
-
-    <th rowSpan="2">
-      ชื่อ-นามสกุล
-    </th>
-
-    <th colSpan={daysInMonth}>
-      วันที่เช็คชื่อ
-    </th>
-
-    <th rowSpan="2">
-      มา
-    </th>
-
-    <th rowSpan="2">
-      ขาด
-    </th>
-
-    <th rowSpan="2">
-      ลา
-    </th>
-
-  </tr>
-
-  {/* ===== header ชั้นล่าง ===== */}
-  <tr>
-
-    {Array.from(
-      { length: daysInMonth },
-      (_, i) => (
-        <th key={i}>
-          {i + 1}
-          {shortMonths[exportMonth - 1]}
-        </th>
-      )
-    )}
-
-  </tr>
-
+</tr>
 </thead>
 
 <tbody>
 
-{currentHistory.map(([name, records], i) => {
+{currentCheckins.map((r, i) => (
 
-  let present = 0;
-  let absent = 0;
-  let leave = 0;
+<tr key={r.child_id}>
 
-  return (
+<td>
+{checkinFirstRow + i + 1}
+</td>
 
-    <tr key={i}>
+<td>
+{r.name}
+</td>
 
-      <td>
-        {historyFirstRow + i + 1}
-      </td>
+<td>
+{r.nickname}
+</td>
 
-      <td className="text-start ps-3">
-        {name}
-      </td>
+<td>
 
-      {Array.from(
-        { length: daysInMonth },
-        (_, dayIndex) => {
+<select
+value={r.status}
+onChange={(e) =>
+mark(r.child_id, e.target.value)
+}
+>
 
-          const day = dayIndex + 1;
+<option value="มา">มา</option>
+<option value="ขาด">ขาด</option>
+<option value="ลา">ลา</option>
 
-          const status = records[day];
+</select>
 
-          if (status === "มา") present++;
-          else if (status === "ขาด") absent++;
-          else if (status === "ลา") leave++;
+</td>
 
-          return (
-            <td key={day}>
+<td>
 
-              {status === "มา"
-                ? "✓"
-                : status === "ขาด"
-                ? "ข"
-                : status === "ลา"
-                ? "ล"
-                : ""}
+<input
+value={r.note || ""}
+onChange={(e) =>
+setNote(r.child_id, e.target.value)
+}
+/>
 
-            </td>
-          );
-        }
-      )}
+</td>
 
-      <td>{present}</td>
+</tr>
 
-      <td>{absent}</td>
-
-      <td>{leave}</td>
-
-    </tr>
-
-  );
-})}
+))}
 
 </tbody>
 
 </table>
-     
-      </div>
-     {filteredRows.length > rowsPerPage && (
+
+</div>
+{filteredRows.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
     <div className="text-muted small">
@@ -681,7 +741,9 @@ const checkinPageNumbers = Array.from(
             type="button"
             className="page-link"
             onClick={() =>
-              setCheckinPage((page) => Math.max(1, page - 1))
+              setCheckinPage((page) =>
+                Math.max(1, page - 1)
+              )
             }
           >
             ก่อนหน้า
@@ -689,57 +751,79 @@ const checkinPageNumbers = Array.from(
         </li>
 
         {checkinPageNumbers.map((page, index) => {
-          const prevPage = checkinPageNumbers[index - 1];
-          const showGap = prevPage && page - prevPage > 1;
+
+          const prevPage =
+            checkinPageNumbers[index - 1];
+
+          const showGap =
+            prevPage &&
+            page - prevPage > 1;
 
           return (
             <React.Fragment key={page}>
+
               {showGap && (
                 <li className="page-item disabled">
-                  <span className="page-link">...</span>
+                  <span className="page-link">
+                    ...
+                  </span>
                 </li>
               )}
 
               <li
                 className={`page-item ${
-                  checkinPage === page ? "active" : ""
+                  checkinPage === page
+                    ? "active"
+                    : ""
                 }`}
               >
+
                 <button
                   type="button"
                   className="page-link"
-                  onClick={() => setCheckinPage(page)}
+                  onClick={() =>
+                    setCheckinPage(page)
+                  }
                 >
                   {page}
                 </button>
+
               </li>
+
             </React.Fragment>
           );
         })}
 
         <li
           className={`page-item ${
-            checkinPage === checkinTotalPages ? "disabled" : ""
+            checkinPage === checkinTotalPages
+              ? "disabled"
+              : ""
           }`}
         >
+
           <button
             type="button"
             className="page-link"
             onClick={() =>
               setCheckinPage((page) =>
-                Math.min(checkinTotalPages, page + 1)
+                Math.min(
+                  checkinTotalPages,
+                  page + 1
+                )
               )
             }
           >
             ถัดไป
           </button>
+
         </li>
 
       </ul>
     </nav>
+
   </div>
 )}
-          </div>
-
+  </div>
   );
 }
