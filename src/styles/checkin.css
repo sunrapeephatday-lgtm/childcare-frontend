@@ -4,9 +4,25 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* กันตารางโดนบีบ */
-.table-responsive table{
-  min-width: 820px;
+/* ===== ตารางประวัติรายเดือน ===== */
+
+.history-table-wrapper{
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-bottom: 20px;
+}
+
+.history-table-wrapper table{
+  width: max-content;
+  min-width: 100%;
+}
+
+/* ===== ตารางเช็คชื่อปกติ ===== */
+
+.table-responsive{
+  width: 100%;
+  overflow-x: auto;
 }
 
 /* ไม่ให้ข้อความหักบรรทัด */

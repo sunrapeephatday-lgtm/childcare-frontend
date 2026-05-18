@@ -448,7 +448,7 @@ const checkinPageNumbers = Array.from(
   ประวัติการเช็คชื่อรายเดือน
 </h4>
 
-<div className="table-responsive">
+<div className="history-table-wrapper">
 
   <table
   className="table table-bordered table-sm align-middle"
