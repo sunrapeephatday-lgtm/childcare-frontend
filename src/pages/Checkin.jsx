@@ -258,7 +258,7 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="container-fluid px-4 my-4">
+    <div className="checkin-container container-fluid px-4 my-4">
       {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
@@ -266,10 +266,10 @@ export default function CheckinPage() {
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
   
       {/* ===== เมนูค้นหา คลุมด้วยสไตล์แบบการ์ดสวยงาม ===== */}
-      <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
+      <div className="card shadow-sm p-4 mb-4 bg-white rounded border-0">
         <div className="row align-items-end">
           <div className="col-md-3">
-            <label className="form-label fw-bold text-secondary">เดือน</label>
+            <label className="form-label fw-medium text-secondary">เดือน</label>
             <select
               className="form-select"
               value={exportMonth}
@@ -285,7 +285,7 @@ export default function CheckinPage() {
           </div>
 
           <div className="col-md-2">
-            <label className="form-label fw-bold text-secondary">ปี</label>
+            <label className="form-label fw-medium text-secondary">ปี</label>
             <select
               className="form-select"
               value={exportYear}
@@ -309,10 +309,10 @@ export default function CheckinPage() {
               }}>
                 ค้นหาประวัติ
               </button>
-              <button className="btn btn-primary px-3" onClick={saveAll}>
+              <button className="btn btn-success px-3" onClick={saveAll}>
                 บันทึกทั้งหมด
               </button>
-              <button className="btn btn-outline-primary px-3" onClick={exportExcel}>
+              <button className="btn btn-success px-3" onClick={exportExcel}>
                 Export Microsoft Excel
               </button>
             </div>
@@ -322,19 +322,19 @@ export default function CheckinPage() {
 
       {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน (ที่มี 31 วัน) ===== */}
       {showHistory && (
-        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
+        <div className="card shadow-sm p-4 mb-4 bg-white rounded border-0 history-card">
           <h4 className="mb-3 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* จุดสำคัญ: ใช้ wrapper บังคับ Scrollbar แนวนอนภายในกรอบการ์ด ไม่ให้ทะลุออกจอหลัก */}
-          <div className="checkin-table-wrapper border rounded overflow-auto w-100">
+          {/* Wrapper บังคับให้เกิด Scrollbar แนวนอนภายในกรอบการ์ดขาวเท่านั้น */}
+          <div className="checkin-table-wrapper border rounded overflow-auto">
             <table className="table table-bordered align-middle mb-0 text-center" style={{ minWidth: "1600px" }}>
               <thead className="table-success text-dark">
                 <tr>
                   <th rowSpan="2" className="align-middle">ลำดับ</th>
                   <th rowSpan="2" className="align-middle text-start ps-3" style={{ minWidth: "220px" }}>ชื่อ-นามสกุล</th>
-                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-end pe-3 small text-muted fw-normal">
+                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-center text-dark fw-bold bg-success bg-opacity-10">
                     วันที่เช็คชื่อ
                   </th>
                   <th rowSpan="2" className="align-middle">มา</th>
@@ -428,7 +428,7 @@ export default function CheckinPage() {
       )}
 
       {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ (ตารางล่าง) ===== */}
-      <div className="card shadow-sm p-3 bg-white rounded border-0">
+      <div className="card shadow-sm p-4 bg-white rounded border-0 daily-card">
         <h4 className="mb-3 fw-bold text-secondary section-title">
           รายชื่อนักเรียนวันนี้
         </h4>
