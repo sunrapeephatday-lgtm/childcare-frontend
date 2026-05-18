@@ -6,7 +6,12 @@
 
 /* กันตารางโดนบีบ */
 .table-responsive table{
-  min-width: 820px;
+  width: max-content;
+  min-width: 100%;
+}
+.table-responsive{
+  width: 100%;
+  overflow-x: auto;
 }
 
 /* ไม่ให้ข้อความหักบรรทัด */
