@@ -579,7 +579,7 @@ const checkinPageNumbers = Array.from(
 
 </table>
 
-</div>
+
 {groupedHistory.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
@@ -655,6 +655,7 @@ const checkinPageNumbers = Array.from(
     </nav>
   </div>
 )}
+</div>
   </>
 )}
 <div className="table-responsive">
