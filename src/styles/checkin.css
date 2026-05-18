@@ -26,9 +26,20 @@
 }
 
 /* ไม่ให้ข้อความหักบรรทัด */
-.table-responsive th,
-.table-responsive td{
+/* ===== ตารางประวัติ ===== */
+
+.history-table-wrapper th,
+.history-table-wrapper td{
   white-space: nowrap;
+}
+
+.table-responsive input{
+  width: 100%;
+  min-width: 120px;
+}
+
+.table-responsive select{
+  width: 100%;
 }
 
 /* select */
