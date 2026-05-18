@@ -448,8 +448,9 @@ const checkinPageNumbers = Array.from(
   ประวัติการเช็คชื่อรายเดือน
 </h4>
 
-<div className="history-table-wrapper">
 
+ <div className="history-table-wrapper">
+  <div className="history-table-wrapper">
   <table
   className="table table-bordered table-sm align-middle history-table"
   style={{
@@ -656,6 +657,7 @@ const checkinPageNumbers = Array.from(
   </div>
 )}
 </div>
+</div>
   </>
 )}
 <div className="table-responsive">
@@ -830,5 +832,6 @@ setNote(r.child_id, e.target.value)
   </div>
 )}
   </div>
+  
   );
 }
