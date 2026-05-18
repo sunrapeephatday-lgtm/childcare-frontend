@@ -263,7 +263,7 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="container my-4">
+    <div className="container px-3 my-4">
       {/* ===== หัวข้อสไตล์เหมือนหน้าดื่มนม ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})

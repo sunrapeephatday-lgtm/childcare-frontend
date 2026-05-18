@@ -177,7 +177,12 @@ textarea{
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
 }
-
+/* เพิ่มท้าย index.css */
+.admin-content .container {
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 /* ======================================================
    SIDEBAR
 ====================================================== */
