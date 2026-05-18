@@ -16,3 +16,6 @@
 .checkin-table-wrapper .form-select-sm {
   min-width: 120px;
 }
+.history-table-wrapper table{
+  min-width: 1600px;
+}
