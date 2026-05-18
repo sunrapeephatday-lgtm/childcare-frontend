@@ -249,6 +249,25 @@ const checkinTotalPages = Math.ceil(
   rows.length / rowsPerPage
 );
 
+const historyPageNumbers = Array.from(
+  { length: historyTotalPages },
+  (_, i) => i + 1
+).filter(
+  (page) =>
+    page === 1 ||
+    page === historyTotalPages ||
+    Math.abs(page - historyPage) <= 2
+);
+
+const checkinPageNumbers = Array.from(
+  { length: checkinTotalPages },
+  (_, i) => i + 1
+).filter(
+  (page) =>
+    page === 1 ||
+    page === checkinTotalPages ||
+    Math.abs(page - checkinPage) <= 2
+);
   return (
     <div className="container my-4">
       <h3 className="mb-3 fw-bold text-success section-title">
@@ -360,35 +379,84 @@ const checkinTotalPages = Math.ceil(
           ))}
         </tbody>
       </table>
-      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+      {history.length > rowsPerPage && (
+  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
-  <button
-    type="button"
-    className="btn btn-outline-success btn-sm"
-    disabled={historyPage === 1}
-    onClick={() => setHistoryPage(historyPage - 1)}
-  >
-    ก่อนหน้า
-  </button>
+    <div className="text-muted small">
+      แสดง {historyFirstRow + 1}-
+      {Math.min(historyLastRow, history.length)}
+      {" "}จาก {history.length} รายการ
+    </div>
 
-  <span className="fw-bold">
-    หน้า {historyPage} / {historyTotalPages || 1}
-  </span>
+    <nav>
+      <ul className="pagination pagination-sm mb-0">
 
-  <button
-    type="button"
-    className="btn btn-outline-success btn-sm"
-    disabled={
-      historyPage === historyTotalPages ||
-      historyTotalPages === 0
-    }
-    onClick={() => setHistoryPage(historyPage + 1)}
-  >
-    ถัดไป
-  </button>
+        <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
+          <button
+            type="button"
+            className="page-link"
+            onClick={() =>
+              setHistoryPage((page) => Math.max(1, page - 1))
+            }
+          >
+            ก่อนหน้า
+          </button>
+        </li>
 
-</div>
-        </>
+        {historyPageNumbers.map((page, index) => {
+          const prevPage = historyPageNumbers[index - 1];
+          const showGap = prevPage && page - prevPage > 1;
+
+          return (
+            <React.Fragment key={page}>
+
+              {showGap && (
+                <li className="page-item disabled">
+                  <span className="page-link">...</span>
+                </li>
+              )}
+
+              <li
+                className={`page-item ${
+                  historyPage === page ? "active" : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setHistoryPage(page)}
+                >
+                  {page}
+                </button>
+              </li>
+
+            </React.Fragment>
+          );
+        })}
+
+        <li
+          className={`page-item ${
+            historyPage === historyTotalPages ? "disabled" : ""
+          }`}
+        >
+          <button
+            type="button"
+            className="page-link"
+            onClick={() =>
+              setHistoryPage((page) =>
+                Math.min(historyTotalPages, page + 1)
+              )
+            }
+          >
+            ถัดไป
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+  </div>
+)}
+  </>
 )}
       <div className="milk-table-wrapper">
        <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
@@ -426,37 +494,84 @@ const checkinTotalPages = Math.ceil(
           ))}
         </tbody>
       </table>
-      <div className="d-flex justify-content-center align-items-center gap-2 mt-3 mb-3 flex-wrap">
+    {rows.length > rowsPerPage && (
+  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
-  <button
-    type="button"
-    className="btn btn-outline-success btn-sm"
-    disabled={checkinPage === 1}
-    onClick={() => setCheckinPage(checkinPage - 1)}
-  >
-    ก่อนหน้า
-  </button>
-
-  <span className="fw-bold">
-    หน้า {checkinPage} / {checkinTotalPages || 1}
-  </span>
-
-  <button
-    type="button"
-    className="btn btn-outline-success btn-sm"
-    disabled={
-      checkinPage === checkinTotalPages ||
-      checkinTotalPages === 0
-    }
-    onClick={() => setCheckinPage(checkinPage + 1)}
-  >
-    ถัดไป
-  </button>
-
-</div>
-      </div>
-
+    <div className="text-muted small">
+      แสดง {checkinFirstRow + 1}-
+      {Math.min(checkinLastRow, rows.length)}
+      {" "}จาก {rows.length} รายการ
     </div>
 
+    <nav>
+      <ul className="pagination pagination-sm mb-0">
+
+        <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
+          <button
+            type="button"
+            className="page-link"
+            onClick={() =>
+              setCheckinPage((page) => Math.max(1, page - 1))
+            }
+          >
+            ก่อนหน้า
+          </button>
+        </li>
+
+        {checkinPageNumbers.map((page, index) => {
+          const prevPage = checkinPageNumbers[index - 1];
+          const showGap = prevPage && page - prevPage > 1;
+
+          return (
+            <React.Fragment key={page}>
+
+              {showGap && (
+                <li className="page-item disabled">
+                  <span className="page-link">...</span>
+                </li>
+              )}
+
+              <li
+                className={`page-item ${
+                  checkinPage === page ? "active" : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCheckinPage(page)}
+                >
+                  {page}
+                </button>
+              </li>
+
+            </React.Fragment>
+          );
+        })}
+
+        <li
+          className={`page-item ${
+            checkinPage === checkinTotalPages ? "disabled" : ""
+          }`}
+        >
+          <button
+            type="button"
+            className="page-link"
+            onClick={() =>
+              setCheckinPage((page) =>
+                Math.min(checkinTotalPages, page + 1)
+              )
+            }
+          >
+            ถัดไป
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+  </div>
+)}
+  </div>
+    </div>
   );
 }

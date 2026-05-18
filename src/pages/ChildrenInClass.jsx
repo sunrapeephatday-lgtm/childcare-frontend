@@ -97,6 +97,16 @@ async function saveNote(childId) {
 );
 
 const totalPages = Math.ceil(rows.length / rowsPerPage);
+const pageNumbers = Array.from(
+  { length: totalPages },
+  (_, i) => i + 1
+).filter(
+  (page) =>
+    page === 1 ||
+    page === totalPages ||
+    Math.abs(page - currentPage) <= 2
+);
+
   return (
     <div className="container my-4">
 
@@ -163,30 +173,84 @@ const totalPages = Math.ceil(rows.length / rowsPerPage);
             ))}
           </tbody>
         </table>
-        <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
+        {rows.length > rowsPerPage && (
+  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
 
-  <button
-    className="btn btn-outline-success btn-sm"
-    disabled={currentPage === 1}
-    onClick={() => setCurrentPage(currentPage - 1)}
-  >
-    ก่อนหน้า
-  </button>
+    <div className="text-muted small">
+      แสดง {indexOfFirstRow + 1}-
+      {Math.min(indexOfLastRow, rows.length)}
+      {" "}จาก {rows.length} รายการ
+    </div>
 
-  <span className="fw-bold">
-    หน้า {currentPage} / {totalPages || 1}
-  </span>
+    <nav aria-label="Children pagination">
+      <ul className="pagination pagination-sm mb-0">
 
-  <button
-    className="btn btn-outline-success btn-sm"
-    disabled={currentPage === totalPages || totalPages === 0}
-    onClick={() => setCurrentPage(currentPage + 1)}
-  >
-    ถัดไป
-  </button>
+        <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+          <button
+            type="button"
+            className="page-link"
+            onClick={() =>
+              setCurrentPage((page) => Math.max(1, page - 1))
+            }
+          >
+            ก่อนหน้า
+          </button>
+        </li>
 
-</div>
-      </div>
+        {pageNumbers.map((page, index) => {
+          const prevPage = pageNumbers[index - 1];
+          const showGap = prevPage && page - prevPage > 1;
+
+          return (
+            <React.Fragment key={page}>
+
+              {showGap && (
+                <li className="page-item disabled">
+                  <span className="page-link">...</span>
+                </li>
+              )}
+
+              <li
+                className={`page-item ${
+                  currentPage === page ? "active" : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              </li>
+
+            </React.Fragment>
+          );
+        })}
+
+        <li
+          className={`page-item ${
+            currentPage === totalPages ? "disabled" : ""
+          }`}
+        >
+          <button
+            type="button"
+            className="page-link"
+            onClick={() =>
+              setCurrentPage((page) =>
+                Math.min(totalPages, page + 1)
+              )
+            }
+          >
+            ถัดไป
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+  </div>
+)}
+    </div>
     </div>
   );
 }
