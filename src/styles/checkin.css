@@ -9,6 +9,25 @@
   min-width: 820px;
 }
 
+.milk-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.milk-table-wrapper table {
+  min-width: 820px;
+}
+
+.milk-table-wrapper th,
+.milk-table-wrapper td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.milk-table-wrapper .form-select-sm {
+  min-width: 120px;
+}
+
 /* ไม่ให้ข้อความหักบรรทัด */
 .table-responsive th,
 .table-responsive td{

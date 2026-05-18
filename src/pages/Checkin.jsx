@@ -21,12 +21,16 @@ export default function CheckinPage() {
   const [date, setDate] = useState("");
   const [teacherId, setTeacherId] = useState(null);
   const [msg, setMsg] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [checkinPage, setCheckinPage] = useState(1);
 
   const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
   const [exportYear, setExportYear] = useState(new Date().getFullYear());
 
   const [keyword, setKeyword] = useState("");
   const [filteredRows, setFilteredRows] = useState([]);
+  const rowsPerPage = 10;
 
   const thaiDate = formatThaiDate(date);
 
@@ -40,7 +44,6 @@ export default function CheckinPage() {
 
     setTeacherId(tid);
     loadToday(tid);
-    loadHistory(tid);
   }
 
   async function loadToday(tid) {
@@ -85,11 +88,29 @@ export default function CheckinPage() {
   );
 
   setFilteredRows(result);
+  setCheckinPage(1);
 }
 
-  function handleReload() {
+  async function handleReload() {
     setKeyword("");
-    loadToday(teacherId);
+    setMsg(null);
+    setShowHistory(false);
+    setHistory([]);
+    setHistoryPage(1);
+    setCheckinPage(1);
+
+    const currentDate = new Date();
+    setExportMonth(currentDate.getMonth() + 1);
+    setExportYear(currentDate.getFullYear());
+
+    if (teacherId) {
+      await loadToday(teacherId);
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   }
 
   function mark(id, status) {
@@ -123,6 +144,10 @@ function setNote(id, note) {
     }
     loadHistory(teacherId);
     setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
+
+    setTimeout(() => {
+      setMsg(null);
+    }, 2000);
   }
 
   /* ================= EXPORT ================= */
@@ -269,6 +294,37 @@ function exportExcel() {
     `รายงานเช็คชื่อ_${thaiMonths[month]}_${year + 543}.xlsx`
   );
 }
+
+const historyLastRow = historyPage * rowsPerPage;
+const historyFirstRow = historyLastRow - rowsPerPage;
+const currentHistory = history.slice(historyFirstRow, historyLastRow);
+const historyTotalPages = Math.ceil(history.length / rowsPerPage);
+
+const checkinLastRow = checkinPage * rowsPerPage;
+const checkinFirstRow = checkinLastRow - rowsPerPage;
+const currentCheckins = filteredRows.slice(checkinFirstRow, checkinLastRow);
+const checkinTotalPages = Math.ceil(filteredRows.length / rowsPerPage);
+
+const historyPageNumbers = Array.from(
+  { length: historyTotalPages },
+  (_, i) => i + 1
+).filter(
+  (page) =>
+    page === 1 ||
+    page === historyTotalPages ||
+    Math.abs(page - historyPage) <= 2
+);
+
+const checkinPageNumbers = Array.from(
+  { length: checkinTotalPages },
+  (_, i) => i + 1
+).filter(
+  (page) =>
+    page === 1 ||
+    page === checkinTotalPages ||
+    Math.abs(page - checkinPage) <= 2
+);
+
   return (
     <div className="container my-4">
 
@@ -293,13 +349,6 @@ function exportExcel() {
       </button>
     </form>
 
-    <button
-      className="btn btn-outline-secondary"
-      onClick={handleReload}
-    >
-      รีโหลด
-    </button>
-    
   </div>
 
   {/* ===== ปุ่ม ===== */}
@@ -340,6 +389,27 @@ function exportExcel() {
   <div className="col-12 col-md-7 mt-2 mt-md-0">
     <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
     <button
+      type="button"
+      className="btn btn-outline-secondary"
+      onClick={handleReload}
+    >
+      รีโหลด
+    </button>
+
+    <button
+      type="button"
+      className="btn btn-primary"
+      onClick={async () => {
+        await loadHistory(teacherId);
+        setHistoryPage(1);
+        setShowHistory(true);
+      }}
+    >
+      ค้นหาประวัติ
+    </button>
+
+    <button
+      type="button"
       className="btn btn-primary px-3"
       onClick={saveAll}
     >
@@ -347,6 +417,7 @@ function exportExcel() {
     </button>
 
     <button
+      type="button"
       className="btn btn-primary me-2"
       onClick={exportExcel}
     >
@@ -355,7 +426,7 @@ function exportExcel() {
     </div>
   </div>
 </div>
-  <div className="table-responsive">
+  <div className="milk-table-wrapper">
 
       <table
   className="table table-bordered table-sm align-middle"
@@ -372,9 +443,9 @@ function exportExcel() {
         </thead>
 
         <tbody>
-          {filteredRows.map((r, i) => (
+          {currentCheckins.map((r, i) => (
             <tr key={r.child_id}>
-              <td>{i + 1}</td>
+              <td>{checkinFirstRow + i + 1}</td>
               <td className="text-start ps-3">
                 {r.name}
               </td>
@@ -401,13 +472,75 @@ function exportExcel() {
           ))}
         </tbody>
       </table>
+      {filteredRows.length > rowsPerPage && (
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+          <div className="text-muted small">
+            แสดง {checkinFirstRow + 1}-
+            {Math.min(checkinLastRow, filteredRows.length)}
+            {" "}จาก {filteredRows.length} รายการ
+          </div>
+
+          <nav>
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setCheckinPage((page) => Math.max(1, page - 1))}
+                >
+                  ก่อนหน้า
+                </button>
+              </li>
+
+              {checkinPageNumbers.map((page, index) => {
+                const prevPage = checkinPageNumbers[index - 1];
+                const showGap = prevPage && page - prevPage > 1;
+
+                return (
+                  <React.Fragment key={page}>
+                    {showGap && (
+                      <li className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    )}
+
+                    <li className={`page-item ${checkinPage === page ? "active" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setCheckinPage(page)}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  </React.Fragment>
+                );
+              })}
+
+              <li className={`page-item ${checkinPage === checkinTotalPages ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() =>
+                    setCheckinPage((page) => Math.min(checkinTotalPages, page + 1))
+                  }
+                >
+                  ถัดไป
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
       </div>
+      {showHistory && (
+        <>
       <hr />
 
       <h4 className="mb-3 fw-bold text-success section-title">
         ประวัติการเช็คชื่อ
       </h4>
-<div className="table-responsive">
+<div className="milk-table-wrapper">
       <table
   className="table table-bordered table-sm align-middle"
   style={{ fontSize: "14px" }}
@@ -423,9 +556,9 @@ function exportExcel() {
         </thead>
 
         <tbody>
-          {history.map((h, i) => (
+          {currentHistory.map((h, i) => (
             <tr key={i}>
-              <td>{i + 1}</td>
+              <td>{historyFirstRow + i + 1}</td>
               <td>{formatThaiDate(h.record_date)}</td>
               <td className="text-start ps-3">
   {h.prefix}{h.first_name} {h.last_name}
@@ -436,7 +569,69 @@ function exportExcel() {
           ))}
         </tbody>
       </table>
+      {history.length > rowsPerPage && (
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+          <div className="text-muted small">
+            แสดง {historyFirstRow + 1}-
+            {Math.min(historyLastRow, history.length)}
+            {" "}จาก {history.length} รายการ
           </div>
+
+          <nav>
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() => setHistoryPage((page) => Math.max(1, page - 1))}
+                >
+                  ก่อนหน้า
+                </button>
+              </li>
+
+              {historyPageNumbers.map((page, index) => {
+                const prevPage = historyPageNumbers[index - 1];
+                const showGap = prevPage && page - prevPage > 1;
+
+                return (
+                  <React.Fragment key={page}>
+                    {showGap && (
+                      <li className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    )}
+
+                    <li className={`page-item ${historyPage === page ? "active" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setHistoryPage(page)}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  </React.Fragment>
+                );
+              })}
+
+              <li className={`page-item ${historyPage === historyTotalPages ? "disabled" : ""}`}>
+                <button
+                  type="button"
+                  className="page-link"
+                  onClick={() =>
+                    setHistoryPage((page) => Math.min(historyTotalPages, page + 1))
+                  }
+                >
+                  ถัดไป
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
