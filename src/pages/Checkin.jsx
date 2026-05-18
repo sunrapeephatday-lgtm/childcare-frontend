@@ -600,13 +600,13 @@ const checkinPageNumbers = Array.from(
 </table>
 
 </div>
-{history.length > rowsPerPage && (
+{groupedHistory.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
     <div className="text-muted small">
       แสดง {historyFirstRow + 1}-
-      {Math.min(historyLastRow, history.length)}
-      {" "}จาก {history.length} รายการ
+      {Math.min(historyLastRow, groupedHistory.length)}
+      {" "}จาก {groupedHistory.length} รายการ
     </div>
 
     <nav>
