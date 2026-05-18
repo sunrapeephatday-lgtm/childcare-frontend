@@ -277,7 +277,6 @@ const pageNumbers = Array.from(
       {/* ===== FORM ===== */}
       <form onSubmit={onSubmit} className="card shadow-sm border-0 mb-4">
         <div className="card-body">
-          <div className="table-responsive">
           <div className="row g-3">
 
             <div className="col-lg-2">
@@ -361,7 +360,6 @@ const pageNumbers = Array.from(
               )}
             </div>
 
-          </div>
           </div>
         </div>
       </form>
