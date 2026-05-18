@@ -14,6 +14,13 @@ function formatThaiDate(d) {
   return `${day}/${month}/${year}`;
 }
 
+function attendanceSymbol(status) {
+  if (status === "มา") return "✓";
+  if (status === "ขาด") return "✕";
+  if (status === "ลา") return "ล";
+  return "";
+}
+
 export default function CheckinPage() {
 
   const [rows, setRows] = useState([]);
@@ -459,7 +466,7 @@ const checkinPageNumbers = Array.from(
                 {h.name}
               </td>
               {monthDateColumns.map((d) => (
-                <td key={d.day}>{h.statuses[d.day] || ""}</td>
+                <td key={d.day}>{attendanceSymbol(h.statuses[d.day])}</td>
               ))}
               <td>{h.presentCount}</td>
               <td>{h.leaveCount}</td>
