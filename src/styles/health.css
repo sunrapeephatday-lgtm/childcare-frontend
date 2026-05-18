@@ -1,22 +1,35 @@
 .health-table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
 }
 
 .health-table-wrapper table {
-  min-width: 820px;
+  min-width: 1240px;
+  table-layout: fixed;
 }
 
 .health-table-wrapper th,
 .health-table-wrapper td {
   white-space: nowrap;
+  vertical-align: middle;
 }
 
 .health-table-wrapper select {
-  min-width: 120px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .health-table-wrapper input {
-  min-width: 150px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.health-table-wrapper .form-select-sm,
+.health-table-wrapper .form-control-sm {
+  min-height: 38px;
 }
 
