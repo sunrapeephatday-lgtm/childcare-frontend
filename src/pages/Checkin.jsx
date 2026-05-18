@@ -516,27 +516,7 @@ const checkinPageNumbers = Array.from(
 
 <tbody>
 
-{Object.entries(
-
-  history.reduce((acc, h) => {
-
-    const name =
-      `${h.prefix}${h.first_name} ${h.last_name}`;
-
-    const day =
-      new Date(h.record_date).getDate();
-
-    if (!acc[name]) {
-      acc[name] = {};
-    }
-
-    acc[name][day] = h.status;
-
-    return acc;
-
-  }, {})
-
-).map(([name, records], i) => {
+{currentHistory.map(([name, records], i) => {
 
   let present = 0;
   let absent = 0;
