@@ -1,55 +1,31 @@
-/* ล็อกคอมโพเนนต์หลักให้อยู่ในกรอบ 100% ไม่ทะลุจอตามตาราง */
-.checkin-container {
-  max-width: 100% !important;
-  width: 100% !important;
-  box-sizing: border-box;
-}
-
-/* ตั้งค่าให้กล่องขาว (Card) หดตัวตามขนาดหน้าจอได้อย่างอิสระ */
-.card.history-card, 
-.card.daily-card {
+/* ล็อกให้ตัวการ์ดขาวกางขนาดพอดีกรอบ Layout ฝั่งขวา และสร้าง Scrollbar แนวนอนภายในตัวเอง */
+.milk-table-wrapper {
   width: 100% !important;
   max-width: 100% !important;
-  min-width: 0; /* ป้องกันไม่ให้โดนตารางดันขนาดจนแตก */
-  box-sizing: border-box;
-}
-
-/* จุดแก้สไตล์สำคัญ: จัดการพื้นที่ตารางให้สร้าง Scrollbar ด้านล่างเฉพาะตัวมันเอง */
-.checkin-table-scroll-area {
-  width: 100%;
-  max-width: 100%;
   overflow-x: auto !important;
-  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  display: block;
+  box-sizing: border-box;
 }
 
-/* กำหนดความกว้างให้ตัวตารางภายใน เพื่อให้ยืดออกไปเปิดแถบเลื่อนแนวนอน */
-.checkin-table-scroll-area table {
+/* บังคับตารางไม่ให้บีบขนาดช่องคอลัมน์ เพื่อความสวยงามตอนเลื่อน Scrollbar */
+.milk-table-wrapper table {
   width: max-content !important;
-  min-width: 1500px !important;
-  max-width: none !important;
   table-layout: auto;
 }
 
-.checkin-table-scroll-area th,
-.checkin-table-scroll-area td {
+.milk-table-wrapper th,
+.milk-table-wrapper td {
   white-space: nowrap;
   vertical-align: middle;
   text-align: center;
 }
 
-/* สไตล์สีปุ่มหลักและธีมหัวข้อ */
-.btn-success {
-  background-color: #198754 !important;
-  border-color: #198754 !important;
+/* ปรับแต่งความกว้างอินพุตฟอร์มย่อยในตาราง */
+.milk-table-wrapper .form-select-sm {
+  min-width: 110px;
 }
 
-.btn-success:hover {
-  background-color: #157347 !important;
-  border-color: #146c43 !important;
-}
-
+/* ตกแต่งเส้นแถบสีข้างหัวข้อ */
 .section-title {
   position: relative;
   padding-left: 12px;

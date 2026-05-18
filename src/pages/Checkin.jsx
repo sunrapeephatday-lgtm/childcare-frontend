@@ -258,7 +258,7 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="checkin-container container-fluid px-4 my-4">
+    <div className="container my-4">
       {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
@@ -302,17 +302,17 @@ export default function CheckinPage() {
               <button type="button" className="btn btn-outline-secondary px-3" onClick={handleReload}>
                 รีโหลด
               </button>
-              <button className="btn btn-success px-3" onClick={async () => {
+              <button className="btn btn-primary px-3" onClick={async () => {
                 await loadHistory(teacherId);
                 setHistoryPage(1);
                 setShowHistory(true);
               }}>
                 ค้นหาประวัติ
               </button>
-              <button className="btn btn-success px-3" onClick={saveAll}>
+              <button className="btn btn-primary px-3" onClick={saveAll}>
                 บันทึกทั้งหมด
               </button>
-              <button className="btn btn-success px-3" onClick={exportExcel}>
+              <button className="btn btn-primary me-2" onClick={exportExcel}>
                 Export Microsoft Excel
               </button>
             </div>
@@ -322,73 +322,71 @@ export default function CheckinPage() {
 
       {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน ===== */}
       {showHistory && (
-        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0 history-card">
+        /* จุดแก้ไขสำคัญ: เพิ่มคลาส milk-table-wrapper เพื่อสั่งครอบคุมขนาดไม่ให้หลุดขอบสีขาว */
+        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0 milk-table-wrapper">
           <h4 className="mb-3 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* แผ่นกระจาย Scrollbar: บังคับเลื่อนแนวนอนภายในกล่องนี้เท่านั้น โครงสร้างด้านนอกจะไม่แตก */}
-          <div className="checkin-table-scroll-area border rounded">
-            <table className="table table-bordered align-middle mb-0 text-center">
-              <thead className="table-success text-dark">
-                <tr>
-                  <th rowSpan="2" className="align-middle">ลำดับ</th>
-                  <th rowSpan="2" className="align-middle text-start ps-3" style={{ minWidth: "200px" }}>ชื่อ-นามสกุล</th>
-                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-center text-dark fw-bold bg-success bg-opacity-10">
-                    วันที่เช็คชื่อ
-                  </th>
-                  <th rowSpan="2" className="align-middle">มา</th>
-                  <th rowSpan="2" className="align-middle">ขาด</th>
-                  <th rowSpan="2" className="align-middle">ลา</th>
-                </tr>
-                <tr>
-                  {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, i) => {
-                    const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-                    return (
-                      <th key={i} className="fw-normal small py-1" style={{ minWidth: "45px" }}>
-                        {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {currentHistory.map(([name, records], i) => {
-                  let present = 0;
-                  let absent = 0;
-                  let leave = 0;
-
+          <table className="table table-bordered align-middle mb-0 text-center">
+            <thead className="table-success text-dark">
+              <tr>
+                <th rowSpan="2" className="align-middle">ลำดับ</th>
+                <th rowSpan="2" className="align-middle text-start ps-3" style={{ minWidth: "160px" }}>ชื่อ-นามสกุล</th>
+                <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-center text-dark fw-bold bg-success bg-opacity-10">
+                  วันที่เช็คชื่อ
+                </th>
+                <th rowSpan="2" className="align-middle">มา</th>
+                <th rowSpan="2" className="align-middle">ขาด</th>
+                <th rowSpan="2" className="align-middle">ลา</th>
+              </tr>
+              <tr>
+                {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, i) => {
+                  const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
                   return (
-                    <tr key={i}>
-                      <td>{historyFirstRow + i + 1}</td>
-                      <td className="text-start ps-3 fw-medium" style={{ minWidth: "200px", whiteSpace: "nowrap" }}>
-                        {name}
-                      </td>
-                      {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, dayIndex) => {
-                        const day = dayIndex + 1;
-                        const status = records[day];
-
-                        if (status === "มา") present++;
-                        else if (status === "ขาด") absent++;
-                        else if (status === "ลา") leave++;
-
-                        return (
-                          <td key={day} className="px-1">
-                            {status === "มา" ? <span className="text-success fw-bold">✓</span> : 
-                             status === "ขาด" ? <span className="text-danger fw-bold">ข</span> : 
-                             status === "ลา" ? <span className="text-warning fw-bold">ล</span> : "-"}
-                          </td>
-                        );
-                      })}
-                      <td className="text-success fw-bold">{present}</td>
-                      <td className="text-danger fw-bold">{absent}</td>
-                      <td className="text-warning fw-bold">{leave}</td>
-                    </tr>
+                    <th key={i} className="fw-normal small py-1" style={{ minWidth: "45px" }}>
+                      {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
+                    </th>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+              </tr>
+            </thead>
+            <tbody>
+              {currentHistory.map(([name, records], i) => {
+                let present = 0;
+                let absent = 0;
+                let leave = 0;
+
+                return (
+                  <tr key={i}>
+                    <td>{historyFirstRow + i + 1}</td>
+                    <td className="text-start ps-3 fw-medium" style={{ minWidth: "160px", whiteSpace: "nowrap" }}>
+                      {name}
+                    </td>
+                    {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, dayIndex) => {
+                      const day = dayIndex + 1;
+                      const status = records[day];
+
+                      if (status === "มา") present++;
+                      else if (status === "ขาด") absent++;
+                      else if (status === "ลา") leave++;
+
+                      return (
+                        <td key={day} className="px-1">
+                          {status === "มา" ? <span className="text-success fw-bold">✓</span> : 
+                           status === "ขาด" ? <span className="text-danger fw-bold">ข</span> : 
+                           status === "ลา" ? <span className="text-warning fw-bold">ล</span> : "-"}
+                        </td>
+                      );
+                    })}
+                    <td className="text-success fw-bold">{present}</td>
+                    <td className="text-danger fw-bold">{absent}</td>
+                    <td className="text-warning fw-bold">{leave}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
           {/* Pagination ของตารางประวัติ */}
           {groupedHistory.length > rowsPerPage && (
@@ -428,42 +426,40 @@ export default function CheckinPage() {
       )}
 
       {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ ===== */}
-      <div className="card shadow-sm p-3 bg-white rounded border-0 daily-card">
+      <div className="card shadow-sm p-3 bg-white rounded border-0 milk-table-wrapper">
         <h4 className="mb-3 fw-bold text-secondary section-title">
           รายชื่อนักเรียนวันนี้
         </h4>
-        <div className="table-responsive border rounded">
-          <table className="table table-bordered table-hover align-middle mb-0 text-center">
-            <thead className="table-light">
-              <tr>
-                <th style={{ width: "60px" }}>ลำดับ</th>
-                <th style={{ width: "200px" }} className="text-start ps-3">ชื่อ-นามสกุล</th>
-                <th style={{ width: "120px" }} className="text-start ps-3">ชื่อเล่น</th>
-                <th style={{ width: "160px" }}>สถานะ</th>
-                <th style={{ width: "250px" }}>หมายเหตุ</th>
+        <table className="table table-bordered table-hover align-middle mb-0 text-center">
+          <thead className="table-light">
+            <tr>
+              <th style={{ width: "60px" }}>ลำดับ</th>
+              <th style={{ width: "200px" }} className="text-start ps-3">ชื่อ-นามสกุล</th>
+              <th style={{ width: "120px" }} className="text-start ps-3">ชื่อเล่น</th>
+              <th style={{ width: "140px" }}>สถานะ</th>
+              <th style={{ width: "250px" }}>หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentCheckins.map((r, i) => (
+              <tr key={r.child_id}>
+                <td>{checkinFirstRow + i + 1}</td>
+                <td className="text-start ps-3">{r.name}</td>
+                <td className="text-start ps-3">{r.nickname}</td>
+                <td>
+                  <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "110px" }} value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
+                    <option value="มา">มา</option>
+                    <option value="ขาด">ขาด</option>
+                    <option value="ลา">ลา</option>
+                  </select>
+                </td>
+                <td>
+                  <input className="form-control form-control-sm" value={r.note || ""} onChange={(e) => setNote(r.child_id, e.target.value)} placeholder="ระบุหมายเหตุ (ถ้ามี)"/>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {currentCheckins.map((r, i) => (
-                <tr key={r.child_id}>
-                  <td>{checkinFirstRow + i + 1}</td>
-                  <td className="text-start ps-3">{r.name}</td>
-                  <td className="text-start ps-3">{r.nickname}</td>
-                  <td>
-                    <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "110px" }} value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
-                      <option value="มา">มา</option>
-                      <option value="ขาด">ขาด</option>
-                      <option value="ลา">ลา</option>
-                    </select>
-                  </td>
-                  <td>
-                    <input className="form-control form-control-sm" value={r.note || ""} onChange={(e) => setNote(r.child_id, e.target.value)} placeholder="ระบุหมายเหตุ (ถ้ามี)"/>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
 
         {/* Pagination ของตารางวันนี้ */}
         {filteredRows.length > rowsPerPage && (
