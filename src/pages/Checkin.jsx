@@ -14,10 +14,6 @@ function formatThaiDate(d) {
   return `${day}/${month}/${year}`;
 }
 
-function formatThaiDateFromParts(year, month, day) {
-  return `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year + 543}`;
-}
-
 export default function CheckinPage() {
 
   const [rows, setRows] = useState([]);
@@ -260,18 +256,52 @@ function exportExcel() {
 
 const daysInSelectedMonth = new Date(exportYear, exportMonth, 0).getDate();
 
-const monthDateRows = Array.from(
+const dateHeaderMonths = [
+  "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+  "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+];
+
+const monthDateColumns = Array.from(
   { length: daysInSelectedMonth },
   (_, index) => ({
     day: index + 1,
-    dateText: formatThaiDateFromParts(exportYear, exportMonth, index + 1)
+    label: `${index + 1}${dateHeaderMonths[exportMonth - 1]}${String(exportYear + 543).slice(-2)}`
   })
 );
 
+const monthlyHistory = history.filter((h) => {
+  const d = new Date(h.record_date);
+  return d.getMonth() === exportMonth - 1 && d.getFullYear() === exportYear;
+});
+
+const historyStudentMap = new Map();
+
+rows.forEach((r) => {
+  historyStudentMap.set(r.name, {
+    name: r.name,
+    statuses: {}
+  });
+});
+
+monthlyHistory.forEach((h) => {
+  const d = new Date(h.record_date);
+  const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
+
+  if (!historyStudentMap.has(name)) {
+    historyStudentMap.set(name, {
+      name,
+      statuses: {}
+    });
+  }
+
+  historyStudentMap.get(name).statuses[d.getDate()] = h.status;
+});
+
+const historyStudentRows = Array.from(historyStudentMap.values());
 const historyLastRow = historyPage * rowsPerPage;
 const historyFirstRow = historyLastRow - rowsPerPage;
-const currentHistoryDates = monthDateRows.slice(historyFirstRow, historyLastRow);
-const historyTotalPages = Math.ceil(monthDateRows.length / rowsPerPage);
+const currentHistoryStudents = historyStudentRows.slice(historyFirstRow, historyLastRow);
+const historyTotalPages = Math.ceil(historyStudentRows.length / rowsPerPage);
 
 const checkinLastRow = checkinPage * rowsPerPage;
 const checkinFirstRow = checkinLastRow - rowsPerPage;
@@ -386,29 +416,51 @@ const checkinPageNumbers = Array.from(
       <h5 className="mt-4 fw-bold text-success section-title">
         ประวัติการเช็คชื่อ
       </h5>
-      <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
+      <div className="milk-table-wrapper">
+      <table
+        className="table table-bordered"
+        style={{
+          tableLayout: "fixed",
+          minWidth: `${260 + monthDateColumns.length * 86}px`,
+          width: "max-content"
+        }}
+      >
   <thead>
     <tr>
-      <th style={{ width: "60px" }}>ลำดับ</th>
-      <th style={{ width: "220px" }}>วันที่เช็คชื่อ</th>
+      <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
+      <th rowSpan="2" style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
+      <th colSpan={monthDateColumns.length}>วันที่เช็คชื่อ</th>
+    </tr>
+    <tr>
+      {monthDateColumns.map((d) => (
+        <th key={d.day} style={{ width: "86px" }}>
+          {d.label}
+        </th>
+      ))}
     </tr>
   </thead>
         <tbody>
-          {currentHistoryDates.map((h,i)=>(
+          {currentHistoryStudents.map((h,i)=>(
             <tr key={i}>
               <td>{historyFirstRow + i + 1}</td>
-              <td>{h.dateText}</td>
+              <td style={{ textAlign: "left", paddingLeft: "16px", width: "200px" }}>
+                {h.name}
+              </td>
+              {monthDateColumns.map((d) => (
+                <td key={d.day}>{h.statuses[d.day] || ""}</td>
+              ))}
             </tr>
           ))}
         </tbody>
       </table>
-      {monthDateRows.length > rowsPerPage && (
+      </div>
+      {historyStudentRows.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
     <div className="text-muted small">
       แสดง {historyFirstRow + 1}-
-      {Math.min(historyLastRow, monthDateRows.length)}
-      {" "}จาก {monthDateRows.length} รายการ
+      {Math.min(historyLastRow, historyStudentRows.length)}
+      {" "}จาก {historyStudentRows.length} รายการ
     </div>
 
     <nav>
