@@ -223,17 +223,76 @@ const days = new Date(year, month + 1, 0).getDate();
   );
 }
 
+const dateHeaderMonths = [
+  "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+  "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+];
+
+const daysInSelectedMonth = new Date(exportYear, exportMonth, 0).getDate();
+
+const monthDateColumns = Array.from(
+  { length: daysInSelectedMonth },
+  (_, index) => ({
+    day: index + 1,
+    label: `${index + 1}${dateHeaderMonths[exportMonth - 1]}${String(exportYear + 543).slice(-2)}`
+  })
+);
+
+function milkSymbol(status) {
+  if (status === "ดื่ม") return "✓";
+  if (status === "ไม่ดื่ม") return "✕";
+  return "";
+}
+
+const monthlyHistory = history.filter((h) => {
+  const d = new Date(h.record_date);
+  return d.getMonth() === exportMonth - 1 && d.getFullYear() === exportYear;
+});
+
+const historyStudentMap = new Map();
+
+rows.forEach((r) => {
+  historyStudentMap.set(r.name, {
+    name: r.name,
+    statuses: {}
+  });
+});
+
+monthlyHistory.forEach((h) => {
+  const d = new Date(h.record_date);
+  const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
+
+  if (!historyStudentMap.has(name)) {
+    historyStudentMap.set(name, {
+      name,
+      statuses: {}
+    });
+  }
+
+  historyStudentMap.get(name).statuses[d.getDate()] = h.status;
+});
+
+const historyStudentRows = Array.from(historyStudentMap.values()).map((student) => {
+  const statuses = Object.values(student.statuses);
+
+  return {
+    ...student,
+    drinkCount: statuses.filter((status) => status === "ดื่ม").length,
+    notDrinkCount: statuses.filter((status) => status === "ไม่ดื่ม").length
+  };
+});
+
 const historyLastRow = historyPage * rowsPerPage;
 
 const historyFirstRow = historyLastRow - rowsPerPage;
 
-const currentHistory = history.slice(
+const currentHistory = historyStudentRows.slice(
   historyFirstRow,
   historyLastRow
 );
 
 const historyTotalPages = Math.ceil(
-  history.length / rowsPerPage
+  historyStudentRows.length / rowsPerPage
 );
 
 const checkinLastRow = checkinPage * rowsPerPage;
@@ -357,35 +416,55 @@ const checkinPageNumbers = Array.from(
       <h5 className="mt-4 fw-bold text-success section-title">
         ประวัติการดื่มนม
       </h5>
-      <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
+      <div className="milk-table-wrapper">
+      <table
+        className="table table-bordered"
+        style={{
+          tableLayout: "fixed",
+          minWidth: `${420 + monthDateColumns.length * 86}px`,
+          width: "max-content"
+        }}
+      >
   <thead>
     <tr>
-      <th style={{ width: "60px" }}>ลำดับ</th>
-      <th style={{ width: "120px" }}>วันที่</th>
-      <th style={{ width: "120px" }}>ชื่อ-นามสกุล</th>
-      <th style={{ width: "140px" }}>สถานะ</th>
+      <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
+      <th rowSpan="2" style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
+      <th colSpan={monthDateColumns.length}>วันที่</th>
+      <th rowSpan="2" style={{ width: "80px" }}>ดื่ม</th>
+      <th rowSpan="2" style={{ width: "80px" }}>ไม่ดื่ม</th>
+    </tr>
+    <tr>
+      {monthDateColumns.map((d) => (
+        <th key={d.day} style={{ width: "86px" }}>
+          {d.label}
+        </th>
+      ))}
     </tr>
   </thead>
         <tbody>
           {currentHistory.map((h,i)=>(
             <tr key={i}>
               <td>{historyFirstRow + i + 1}</td>
-              <td>{new Date(h.record_date).toLocaleDateString("th-TH")}</td>
               <td style={{ textAlign: "left", paddingLeft: "16px", width: "160px" }}>
-  {h.prefix}{h.first_name} {h.last_name}
+  {h.name}
 </td>
-              <td>{h.status}</td>
+              {monthDateColumns.map((d) => (
+                <td key={d.day}>{milkSymbol(h.statuses[d.day])}</td>
+              ))}
+              <td>{h.drinkCount}</td>
+              <td>{h.notDrinkCount}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      {history.length > rowsPerPage && (
+      </div>
+      {historyStudentRows.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
     <div className="text-muted small">
       แสดง {historyFirstRow + 1}-
-      {Math.min(historyLastRow, history.length)}
-      {" "}จาก {history.length} รายการ
+      {Math.min(historyLastRow, historyStudentRows.length)}
+      {" "}จาก {historyStudentRows.length} รายการ
     </div>
 
     <nav>

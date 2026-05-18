@@ -239,16 +239,64 @@ const year = exportYear;
     `รายงานบันทึกน้ำหนักส่วนสูง_${months[month]}_${year + 543}.xlsx`
   );
 }
-  const historyLastRow = historyPage * rowsPerPage;
+const dateHeaderMonths = [
+  "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+  "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+];
+
+const daysInSelectedMonth = new Date(exportYear, exportMonth, 0).getDate();
+
+const monthDateColumns = Array.from(
+  { length: daysInSelectedMonth },
+  (_, index) => ({
+    day: index + 1,
+    label: `${index + 1}${dateHeaderMonths[exportMonth - 1]}${String(exportYear + 543).slice(-2)}`
+  })
+);
+
+const monthlyHistory = history.filter((h) => {
+  const d = new Date(h.measurement_date);
+  return d.getMonth() === exportMonth - 1 && d.getFullYear() === exportYear;
+});
+
+const historyStudentMap = new Map();
+
+rows.forEach((r) => {
+  historyStudentMap.set(r.name, {
+    name: r.name,
+    values: {}
+  });
+});
+
+monthlyHistory.forEach((h) => {
+  const d = new Date(h.measurement_date);
+  const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
+
+  if (!historyStudentMap.has(name)) {
+    historyStudentMap.set(name, {
+      name,
+      values: {}
+    });
+  }
+
+  historyStudentMap.get(name).values[d.getDate()] = {
+    weight: h.weight,
+    height: h.height
+  };
+});
+
+const historyStudentRows = Array.from(historyStudentMap.values());
+
+const historyLastRow = historyPage * rowsPerPage;
 const historyFirstRow = historyLastRow - rowsPerPage;
 
-const currentHistory = history.slice(
+const currentHistory = historyStudentRows.slice(
   historyFirstRow,
   historyLastRow
 );
 
 const historyTotalPages = Math.ceil(
-  history.length / rowsPerPage
+  historyStudentRows.length / rowsPerPage
 );
 
 const checkinLastRow = checkinPage * rowsPerPage;
@@ -378,37 +426,53 @@ const checkinPageNumbers = Array.from(
       <div className="table-scroll">
       <table
   className="table table-bordered table-sm align-middle"
-  style={{ fontSize: "14px" }}
+  style={{
+    fontSize: "14px",
+    tableLayout: "fixed",
+    minWidth: `${260 + monthDateColumns.length * 110}px`,
+    width: "max-content"
+  }}
 >
         <thead>
           <tr>
-            <th style={{ width: 60 }}>ลำดับ</th>
-            <th style={{ width: 120 }}>วันที่</th>
-            <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
-            <th style={{ width: 120 }}>น้ำหนัก</th>
-            <th style={{ width: 120 }}>ส่วนสูง</th>
+            <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
+            <th rowSpan="2" style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
+            <th colSpan={monthDateColumns.length}>วันที่วัด</th>
+          </tr>
+          <tr>
+            {monthDateColumns.map((d) => (
+              <th key={d.day} style={{ width: "110px" }}>
+                {d.label}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {currentHistory.map((h, i) => (
             <tr key={i}>
               <td>{historyFirstRow +i + 1}</td>
-              <td>{thaiDate(h.measurement_date)}</td>
-              <td className="text-start ps-3">{h.prefix}{h.first_name} {h.last_name}</td>
-              <td>{h.weight}</td>
-              <td>{h.height}</td>
+              <td className="text-start ps-3">{h.name}</td>
+              {monthDateColumns.map((d) => {
+                const value = h.values[d.day];
+
+                return (
+                  <td key={d.day}>
+                    {value ? `${value.weight || "-"} / ${value.height || "-"}` : ""}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
       </table>
       </div>
-{history.length > rowsPerPage && (
+{historyStudentRows.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
     <div className="text-muted small">
       แสดง {historyFirstRow + 1}-
-      {Math.min(historyLastRow, history.length)}
-      {" "}จาก {history.length} รายการ
+      {Math.min(historyLastRow, historyStudentRows.length)}
+      {" "}จาก {historyStudentRows.length} รายการ
     </div>
 
     <nav>

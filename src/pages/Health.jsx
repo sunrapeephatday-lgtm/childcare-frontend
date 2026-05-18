@@ -259,17 +259,67 @@ XLSX.writeFile(
   `รายงานบันทึกสุขภาพ_${thaiMonths[month]}_${year + 543}.xlsx`
 );
 }
+const dateHeaderMonths = [
+  "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+  "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+];
+
+const daysInSelectedMonth = new Date(exportYear, exportMonth, 0).getDate();
+
+const monthDateColumns = Array.from(
+  { length: daysInSelectedMonth },
+  (_, index) => ({
+    day: index + 1,
+    label: `${index + 1}${dateHeaderMonths[exportMonth - 1]}${String(exportYear + 543).slice(-2)}`
+  })
+);
+
+const monthlyHistory = history.filter((h) => {
+  const d = new Date(h.evaluation_date);
+  return d.getMonth() === exportMonth - 1 && d.getFullYear() === exportYear;
+});
+
+const historyStudentMap = new Map();
+
+rows.forEach((r) => {
+  historyStudentMap.set(r.name, {
+    name: r.name,
+    values: {}
+  });
+});
+
+monthlyHistory.forEach((h) => {
+  const d = new Date(h.evaluation_date);
+  const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
+
+  if (!historyStudentMap.has(name)) {
+    historyStudentMap.set(name, {
+      name,
+      values: {}
+    });
+  }
+
+  historyStudentMap.get(name).values[d.getDate()] = {
+    hair_condition: h.hair_condition,
+    oral_cavity: h.oral_cavity,
+    fingernail: h.fingernail,
+    toenail: h.toenail
+  };
+});
+
+const historyStudentRows = Array.from(historyStudentMap.values());
+
 const historyLastRow = historyPage * rowsPerPage;
 
 const historyFirstRow = historyLastRow - rowsPerPage;
 
-const currentHistory = history.slice(
+const currentHistory = historyStudentRows.slice(
   historyFirstRow,
   historyLastRow
 );
 
 const historyTotalPages = Math.ceil(
-  history.length / rowsPerPage
+  historyStudentRows.length / rowsPerPage
 );
 
 const checkinLastRow = checkinPage * rowsPerPage;
@@ -398,17 +448,26 @@ const checkinPageNumbers = Array.from(
       </h5>
 
       <div className="health-table-wrapper">
-        <table className="table table-bordered">
+        <table
+          className="table table-bordered"
+          style={{
+            tableLayout: "fixed",
+            minWidth: `${260 + monthDateColumns.length * 130}px`,
+            width: "max-content"
+          }}
+        >
           <thead className="table-light">
             <tr>
-              <th style={{ width: "60px" }}>ลำดับ</th>
-              <th style={{ width: "120px" }}>วันที่</th>
-              <th style={{ width: "220px" }}>ชื่อ-นามสกุล</th>
-              <th style={{ width: "120px" }}>ผม</th>
-              <th style={{ width: "120px" }}>ช่องปาก</th>
-              <th style={{ width: "120px" }}>เล็บมือ</th>
-              <th style={{ width: "120px" }}>เล็บเท้า</th>
-              <th style={{ width: "180px" }}>หมายเหตุ</th>
+              <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
+              <th rowSpan="2" style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
+              <th colSpan={monthDateColumns.length}>วันที่บันทึก</th>
+            </tr>
+            <tr>
+              {monthDateColumns.map((d) => (
+                <th key={d.day} style={{ width: "130px" }}>
+                  {d.label}
+                </th>
+              ))}
             </tr>
           </thead>
 
@@ -416,30 +475,32 @@ const checkinPageNumbers = Array.from(
             {currentHistory.map((h, i) => (
               <tr key={i}>
                 <td>{historyFirstRow + i + 1}</td>
-                <td style={{ width: "120px" }}>
-  {formatThaiDate(h.evaluation_date)}
-</td>
-
 <td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
-  {h.prefix}{h.first_name} {h.last_name}
+  {h.name}
 </td>
-                <td>{h.hair_condition}</td>
-                <td>{h.oral_cavity}</td>
-                <td>{h.fingernail}</td>
-                <td>{h.toenail}</td>
-                <td>{h.note || "-"}</td>
+                {monthDateColumns.map((d) => {
+                  const value = h.values[d.day];
+
+                  return (
+                    <td key={d.day}>
+                      {value
+                        ? `${value.hair_condition}/${value.oral_cavity}/${value.fingernail}/${value.toenail}`
+                        : ""}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-{history.length > rowsPerPage && (
+{historyStudentRows.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
     <div className="text-muted small">
       แสดง {historyFirstRow + 1}-
-      {Math.min(historyLastRow, history.length)}
-      {" "}จาก {history.length} รายการ
+      {Math.min(historyLastRow, historyStudentRows.length)}
+      {" "}จาก {historyStudentRows.length} รายการ
     </div>
 
     <nav>
