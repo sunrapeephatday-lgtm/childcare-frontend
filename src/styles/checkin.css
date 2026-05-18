@@ -1,36 +1,32 @@
-.checkin-table-wrapper {
-  overflow-x: auto;
+/* ตารางเลื่อนในมือถือ */
+.table-responsive{
+  overflow-x:auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* ตั้งสัดส่วน min-width ให้รองรับคอลัมน์ประวัติที่ยาวเหยียดได้อย่างลงล็อก */
-.checkin-table-wrapper table {
-  min-width: 100%;
+/* กันตารางโดนบีบ */
+.table-responsive table{
+  min-width: 820px;
 }
 
-.checkin-table-wrapper th,
-.checkin-table-wrapper td {
+/* ไม่ให้ข้อความหักบรรทัด */
+.table-responsive th,
+.table-responsive td{
   white-space: nowrap;
-  vertical-align: middle;
 }
 
-.checkin-table-wrapper .form-select-sm {
+/* select */
+.form-select-sm{
   min-width: 120px;
 }
 
-/* สไตล์แถบสีข้างหัวข้อ */
-.section-title {
-  position: relative;
-  padding-left: 12px;
+/* ช่องหมายเหตุ */
+.form-control-sm{
+  min-width: 180px;
 }
 
-.section-title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 15%;
-  height: 70%;
-  width: 4px;
-  background-color: #198754;
-  border-radius: 4px;
+.table th,
+.table td {
+  padding: 0.45rem 0.6rem;
+  vertical-align: middle;
 }

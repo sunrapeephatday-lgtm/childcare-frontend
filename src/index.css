@@ -174,15 +174,10 @@ textarea{
   min-height:0;              /* 🔥 ตัวแก้บั๊กมือถือ */
   padding:16px;
   overflow-y:auto;
-  overflow-x:auto;
+  overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
 }
-/* เพิ่มท้าย index.css */
-.admin-content .container {
-  max-width: 100% !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
+
 /* ======================================================
    SIDEBAR
 ====================================================== */
