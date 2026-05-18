@@ -327,25 +327,25 @@ export default function CheckinPage() {
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* 🎯 จุดตายที่แก้ไข: ครอบด้วยคลาสสำเร็จรูป .table-scroll จาก index.css เพื่อเปิดแถบเลื่อนแนวนอนสีเทาใต้กล่องขาวพอดี */}
-          <div className="table-scroll">
-            <table className="table table-bordered align-middle mb-0 text-center" style={{ minWidth: "1600px" }}>
+          {/* 🎯 ครอบตารางด้วยคลาสจากธีมกลางของคุณ และบังคับตัดความกว้างไม่ให้ล้นออกนอกแผงสีขาว */}
+          <div className="table-scroll" style={{ width: "100%", maxWidth: "100%", overflowX: "auto" }}>
+            <table className="table table-bordered align-middle mb-0 text-center" style={{ minWidth: "1600px", tableLayout: "fixed" }}>
               <thead className="table-success text-dark">
                 <tr>
-                  <th rowSpan="2" className="align-middle">ลำดับ</th>
-                  <th rowSpan="2" className="align-middle text-start ps-3" style={{ minWidth: "220px" }}>ชื่อ-นามสกุล</th>
+                  <th rowSpan="2" className="align-middle" style={{ width: "60px" }}>ลำดับ</th>
+                  <th rowSpan="2" className="align-middle text-start ps-3" style={{ width: "220px" }}>ชื่อ-นามสกุล</th>
                   <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-center text-dark fw-bold bg-success bg-opacity-10">
                     วันที่เช็คชื่อ
                   </th>
-                  <th rowSpan="2" className="align-middle">มา</th>
-                  <th rowSpan="2" className="align-middle">ขาด</th>
-                  <th rowSpan="2" className="align-middle">ลา</th>
+                  <th rowSpan="2" className="align-middle" style={{ width: "55px" }}>มา</th>
+                  <th rowSpan="2" className="align-middle" style={{ width: "55px" }}>ขาด</th>
+                  <th rowSpan="2" className="align-middle style-th" style={{ width: "55px" }}>ลา</th>
                 </tr>
                 <tr>
                   {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, i) => {
                     const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
                     return (
-                      <th key={i} className="fw-normal small py-1" style={{ minWidth: "45px" }}>
+                      <th key={i} className="fw-normal small py-1" style={{ width: "45px", whiteSpace: "nowrap" }}>
                         {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
                       </th>
                     );
@@ -361,7 +361,7 @@ export default function CheckinPage() {
                   return (
                     <tr key={i}>
                       <td>{historyFirstRow + i + 1}</td>
-                      <td className="text-start ps-3 fw-medium" style={{ minWidth: "220px", whiteSpace: "nowrap" }}>
+                      <td className="text-start ps-3 fw-medium" style={{ width: "220px", whiteSpace: "nowrap" }}>
                         {name}
                       </td>
                       {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, dayIndex) => {
@@ -373,7 +373,7 @@ export default function CheckinPage() {
                         else if (status === "ลา") leave++;
 
                         return (
-                          <td key={day} className="px-1">
+                          <td key={day} className="px-1" style={{ whiteSpace: "nowrap" }}>
                             {status === "มา" ? <span className="text-success fw-bold">✓</span> : 
                              status === "ขาด" ? <span className="text-danger fw-bold">ข</span> : 
                              status === "ลา" ? <span className="text-warning fw-bold">ล</span> : "-"}
