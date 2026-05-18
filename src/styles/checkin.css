@@ -13,9 +13,44 @@
   margin-bottom: 20px;
 }
 
-.history-table-wrapper table{
-  width: max-content;
-  min-width: 100%;
+/* ===== ตารางประวัติ ===== */
+
+.history-table-wrapper{
+  width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  margin-bottom:20px;
+}
+
+.history-table{
+  width:max-content !important;
+  min-width:1400px;
+}
+
+.history-table th,
+.history-table td{
+  white-space:nowrap;
+}
+
+/* ===== ตารางเช็คชื่อ ===== */
+
+.table-responsive{
+  width:100%;
+  overflow-x:hidden !important;
+}
+
+.table-responsive table{
+  width:100%;
+}
+
+.table-responsive input{
+  width:100%;
+  min-width:120px;
+  box-sizing:border-box;
+}
+
+.table-responsive select{
+  width:100%;
 }
 
 /* ===== ตารางเช็คชื่อปกติ ===== */
@@ -62,11 +97,6 @@
 .table-responsive{
   border-radius: 0 !important;
   overflow-x: auto;
-}
-
-.table-responsive table{
-  border-collapse: separate !important;
-  border-spacing: 0;
 }
 
 .table{

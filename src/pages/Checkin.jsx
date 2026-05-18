@@ -451,7 +451,7 @@ const checkinPageNumbers = Array.from(
 <div className="history-table-wrapper">
 
   <table
-  className="table table-bordered table-sm align-middle"
+  className="table table-bordered table-sm align-middle history-table"
   style={{
     fontSize: "14px",
     whiteSpace: "nowrap"
