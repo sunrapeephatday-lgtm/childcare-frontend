@@ -14,6 +14,10 @@ function formatThaiDate(d) {
   return `${day}/${month}/${year}`;
 }
 
+function formatThaiDateFromParts(year, month, day) {
+  return `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year + 543}`;
+}
+
 export default function CheckinPage() {
 
   const [rows, setRows] = useState([]);
@@ -254,10 +258,20 @@ function exportExcel() {
   );
 }
 
+const daysInSelectedMonth = new Date(exportYear, exportMonth, 0).getDate();
+
+const monthDateRows = Array.from(
+  { length: daysInSelectedMonth },
+  (_, index) => ({
+    day: index + 1,
+    dateText: formatThaiDateFromParts(exportYear, exportMonth, index + 1)
+  })
+);
+
 const historyLastRow = historyPage * rowsPerPage;
 const historyFirstRow = historyLastRow - rowsPerPage;
-const currentHistory = history.slice(historyFirstRow, historyLastRow);
-const historyTotalPages = Math.ceil(history.length / rowsPerPage);
+const currentHistoryDates = monthDateRows.slice(historyFirstRow, historyLastRow);
+const historyTotalPages = Math.ceil(monthDateRows.length / rowsPerPage);
 
 const checkinLastRow = checkinPage * rowsPerPage;
 const checkinFirstRow = checkinLastRow - rowsPerPage;
@@ -376,33 +390,25 @@ const checkinPageNumbers = Array.from(
   <thead>
     <tr>
       <th style={{ width: "60px" }}>ลำดับ</th>
-      <th style={{ width: "120px" }}>วันที่</th>
-      <th style={{ width: "120px" }}>ชื่อ-นามสกุล</th>
-      <th style={{ width: "140px" }}>สถานะ</th>
-      <th style={{ width: "140px" }}>หมายเหตุ</th>
+      <th style={{ width: "220px" }}>วันที่เช็คชื่อ</th>
     </tr>
   </thead>
         <tbody>
-          {currentHistory.map((h,i)=>(
+          {currentHistoryDates.map((h,i)=>(
             <tr key={i}>
               <td>{historyFirstRow + i + 1}</td>
-              <td>{formatThaiDate(h.record_date)}</td>
-              <td style={{ textAlign: "left", paddingLeft: "16px", width: "160px" }}>
-  {h.prefix}{h.first_name} {h.last_name}
-</td>
-              <td>{h.status}</td>
-              <td>{h.note || "-"}</td>
+              <td>{h.dateText}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      {history.length > rowsPerPage && (
+      {monthDateRows.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
     <div className="text-muted small">
       แสดง {historyFirstRow + 1}-
-      {Math.min(historyLastRow, history.length)}
-      {" "}จาก {history.length} รายการ
+      {Math.min(historyLastRow, monthDateRows.length)}
+      {" "}จาก {monthDateRows.length} รายการ
     </div>
 
     <nav>
