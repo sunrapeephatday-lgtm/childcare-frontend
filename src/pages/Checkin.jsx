@@ -297,7 +297,16 @@ monthlyHistory.forEach((h) => {
   historyStudentMap.get(name).statuses[d.getDate()] = h.status;
 });
 
-const historyStudentRows = Array.from(historyStudentMap.values());
+const historyStudentRows = Array.from(historyStudentMap.values()).map((student) => {
+  const statuses = Object.values(student.statuses);
+
+  return {
+    ...student,
+    presentCount: statuses.filter((status) => status === "มา").length,
+    leaveCount: statuses.filter((status) => status === "ลา").length,
+    absentCount: statuses.filter((status) => status === "ขาด").length
+  };
+});
 const historyLastRow = historyPage * rowsPerPage;
 const historyFirstRow = historyLastRow - rowsPerPage;
 const currentHistoryStudents = historyStudentRows.slice(historyFirstRow, historyLastRow);
@@ -421,7 +430,7 @@ const checkinPageNumbers = Array.from(
         className="table table-bordered"
         style={{
           tableLayout: "fixed",
-          minWidth: `${260 + monthDateColumns.length * 86}px`,
+          minWidth: `${500 + monthDateColumns.length * 86}px`,
           width: "max-content"
         }}
       >
@@ -430,6 +439,9 @@ const checkinPageNumbers = Array.from(
       <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
       <th rowSpan="2" style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
       <th colSpan={monthDateColumns.length}>วันที่เช็คชื่อ</th>
+      <th rowSpan="2" style={{ width: "80px" }}>มา</th>
+      <th rowSpan="2" style={{ width: "80px" }}>ลา</th>
+      <th rowSpan="2" style={{ width: "80px" }}>ขาด</th>
     </tr>
     <tr>
       {monthDateColumns.map((d) => (
@@ -449,6 +461,9 @@ const checkinPageNumbers = Array.from(
               {monthDateColumns.map((d) => (
                 <td key={d.day}>{h.statuses[d.day] || ""}</td>
               ))}
+              <td>{h.presentCount}</td>
+              <td>{h.leaveCount}</td>
+              <td>{h.absentCount}</td>
             </tr>
           ))}
         </tbody>
