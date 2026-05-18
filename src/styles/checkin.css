@@ -1,15 +1,18 @@
-/* บังคับ Container และ Card หลักให้หดตัวตามกรอบแอปได้ ไม่ยืดตามตารางข้างใน */
+/* บังคับ Container หลักไม่ให้ยืดตามตารางข้างใน */
 .checkin-container {
   max-width: 100% !important;
+  overflow-x: hidden; /* ✅ FIX: ป้องกัน layout ทะลุออกนอกหน้าจอ */
+}
+
+/* ✅ FIX: card ต้องมี overflow: hidden เพื่อกักตารางไว้ข้างใน */
+.history-card,
+.daily-card {
+  max-width: 100% !important;
+  min-width: 0;
   overflow: hidden;
 }
 
-.history-card, .daily-card {
-  max-width: 100% !important;
-  min-width: 0; /* จุดสำคัญ: ป้องกันไม่ให้ Flexbox/Grid ขยายตัวทะลุกรอบ */
-}
-
-/* ตัวครอบจัดการ Scrollbar แนวนอนภายในพื้นที่ตัวเอง */
+/* ตัวครอบตารางประวัติ — รับผิดชอบ scroll แนวนอนเพียงอย่างเดียว */
 .checkin-table-wrapper {
   width: 100%;
   max-width: 100%;
@@ -18,10 +21,10 @@
   display: block;
 }
 
-/* ล็อกโครงสร้างตารางไม่ให้บีบข้อความหัวคอลัมน์ */
+/* ✅ FIX: ตารางข้างในให้ขยายตามเนื้อหา ไม่จำกัด max-width */
 .checkin-table-wrapper table {
   width: max-content;
-  max-width: none;
+  max-width: none !important;
   table-layout: auto;
 }
 
@@ -32,7 +35,7 @@
   text-align: center;
 }
 
-/* สีธีมปุ่มแบบหน้าดื่มนม (เขียวความสำเร็จ) */
+/* สีธีมปุ่ม */
 .btn-success {
   background-color: #198754 !important;
   border-color: #198754 !important;
@@ -42,7 +45,7 @@
   border-color: #146c43 !important;
 }
 
-/* ตกแต่งเส้นหัวข้อบาร์ด้านซ้ายให้เหมือนหน้าดื่มนม */
+/* เส้นหัวข้อบาร์ด้านซ้าย */
 .section-title {
   position: relative;
   padding-left: 12px;

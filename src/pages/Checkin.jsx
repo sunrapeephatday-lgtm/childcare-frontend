@@ -40,7 +40,6 @@ export default function CheckinPage() {
   async function init() {
     const res = await API.get("/checkins/me");
     const tid = res.data.teacher_id;
-
     setTeacherId(tid);
     loadToday(tid);
   }
@@ -97,10 +96,7 @@ export default function CheckinPage() {
     setHistoryPage(1);
     setCheckinPage(1);
     await loadToday(teacherId);
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function mark(id, status) {
@@ -153,9 +149,7 @@ export default function CheckinPage() {
       if (d.getMonth() !== month || d.getFullYear() !== year) return;
       const name = `${h.first_name} ${h.last_name}`;
       const day = d.getDate();
-      if (!map[name]) {
-        map[name] = {};
-      }
+      if (!map[name]) map[name] = {};
       map[name][day] = h.status;
     });
 
@@ -234,9 +228,7 @@ export default function CheckinPage() {
     history.reduce((acc, h) => {
       const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
       const day = new Date(h.record_date).getDate();
-      if (!acc[name]) {
-        acc[name] = {};
-      }
+      if (!acc[name]) acc[name] = {};
       acc[name][day] = h.status;
       return acc;
     }, {})
@@ -258,14 +250,15 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="checkin-container container-fluid px-4 my-4">
+    /* ✅ FIX: เพิ่ม overflow-hidden ที่ container หลัก ป้องกันตารางดัน layout ออกนอกหน้าจอ */
+    <div className="checkin-container container-fluid px-4 my-4" style={{ overflowX: "hidden" }}>
       {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
-  
-      {/* ===== เมนูค้นหา คลุมด้วยสไตล์แบบการ์ดสวยงาม ===== */}
+
+      {/* ===== เมนูค้นหา ===== */}
       <div className="card shadow-sm p-4 mb-4 bg-white rounded border-0">
         <div className="row align-items-end">
           <div className="col-md-3">
@@ -320,16 +313,26 @@ export default function CheckinPage() {
         </div>
       </div>
 
-      {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน (ที่มี 31 วัน) ===== */}
+      {/* ===== ตารางประวัติเช็คชื่อรายเดือน ===== */}
       {showHistory && (
-        <div className="card shadow-sm p-4 mb-4 bg-white rounded border-0 history-card">
+        /* ✅ FIX: เพิ่ม overflow: hidden ใน card ป้องกันไม่ให้ตารางดัน card ออกนอกหน้าจอ */
+        <div
+          className="card shadow-sm p-4 mb-4 bg-white rounded border-0 history-card"
+          style={{ overflow: "hidden" }}
+        >
           <h4 className="mb-3 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* Wrapper บังคับให้เกิด Scrollbar แนวนอนภายในกรอบการ์ดขาวเท่านั้น */}
-          <div className="checkin-table-wrapper border rounded overflow-auto">
-            <table className="table table-bordered align-middle mb-0 text-center" style={{ minWidth: "1600px" }}>
+          {/* ✅ FIX: checkin-table-wrapper รับผิดชอบ scroll แนวนอนเพียงอย่างเดียว */}
+          <div
+            className="checkin-table-wrapper border rounded"
+            style={{ overflowX: "auto", width: "100%", display: "block" }}
+          >
+            <table
+              className="table table-bordered align-middle mb-0 text-center"
+              style={{ minWidth: "1600px", tableLayout: "auto" }}
+            >
               <thead className="table-success text-dark">
                 <tr>
                   <th rowSpan="2" className="align-middle">ลำดับ</th>
@@ -346,7 +349,7 @@ export default function CheckinPage() {
                     const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
                     return (
                       <th key={i} className="fw-normal small py-1" style={{ minWidth: "45px" }}>
-                        {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
+                        {i + 1}<br /><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
                       </th>
                     );
                   })}
@@ -374,8 +377,8 @@ export default function CheckinPage() {
 
                         return (
                           <td key={day} className="px-1">
-                            {status === "มา" ? <span className="text-success fw-bold">✓</span> : 
-                             status === "ขาด" ? <span className="text-danger fw-bold">ข</span> : 
+                            {status === "มา" ? <span className="text-success fw-bold">✓</span> :
+                             status === "ขาด" ? <span className="text-danger fw-bold">ข</span> :
                              status === "ลา" ? <span className="text-warning fw-bold">ล</span> : "-"}
                           </td>
                         );
@@ -390,7 +393,7 @@ export default function CheckinPage() {
             </table>
           </div>
 
-          {/* Pagination ของประวัติ */}
+          {/* Pagination ประวัติ */}
           {groupedHistory.length > rowsPerPage && (
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
               <div className="text-muted small">
@@ -427,8 +430,12 @@ export default function CheckinPage() {
         </div>
       )}
 
-      {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ (ตารางล่าง) ===== */}
-      <div className="card shadow-sm p-4 bg-white rounded border-0 daily-card">
+      {/* ===== ตารางรายชื่อนักเรียนวันนี้ ===== */}
+      {/* ✅ FIX: เพิ่ม overflow: hidden ใน card */}
+      <div
+        className="card shadow-sm p-4 bg-white rounded border-0 daily-card"
+        style={{ overflow: "hidden" }}
+      >
         <h4 className="mb-3 fw-bold text-secondary section-title">
           รายชื่อนักเรียนวันนี้
         </h4>
@@ -450,14 +457,24 @@ export default function CheckinPage() {
                   <td className="text-start ps-3">{r.name}</td>
                   <td className="text-start ps-3">{r.nickname}</td>
                   <td>
-                    <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "110px" }} value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
+                    <select
+                      className="form-select form-select-sm text-center mx-auto"
+                      style={{ maxWidth: "110px" }}
+                      value={r.status}
+                      onChange={(e) => mark(r.child_id, e.target.value)}
+                    >
                       <option value="มา">มา</option>
                       <option value="ขาด">ขาด</option>
                       <option value="ลา">ลา</option>
                     </select>
                   </td>
                   <td>
-                    <input className="form-control form-control-sm" value={r.note || ""} onChange={(e) => setNote(r.child_id, e.target.value)} placeholder="ระบุหมายเหตุ (ถ้ามี)"/>
+                    <input
+                      className="form-control form-control-sm"
+                      value={r.note || ""}
+                      onChange={(e) => setNote(r.child_id, e.target.value)}
+                      placeholder="ระบุหมายเหตุ (ถ้ามี)"
+                    />
                   </td>
                 </tr>
               ))}
@@ -465,7 +482,7 @@ export default function CheckinPage() {
           </table>
         </div>
 
-        {/* Pagination ของตารางเช็คชื่อวันนี้ */}
+        {/* Pagination เช็คชื่อวันนี้ */}
         {filteredRows.length > rowsPerPage && (
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
             <div className="text-muted small">
