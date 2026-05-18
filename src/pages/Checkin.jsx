@@ -449,10 +449,17 @@ const checkinPageNumbers = Array.from(
 </h4>
 
 
- <div className="checkin-table-wrapper">
-  <table
-  className="table table-bordered">
+<div
+  className="checkin-table-wrapper"
+  style={{ maxWidth: "100vw" }}
+>
 
+  <div style={{ overflowX: "auto" }}>
+
+    <table
+      className="table table-bordered"
+      style={{ minWidth: "1600px" }}
+    >
 <thead>
 
 <tr>
@@ -655,6 +662,7 @@ const checkinPageNumbers = Array.from(
     </nav>
   </div>
 )}
+</div>
 </div>
   </>
 )}

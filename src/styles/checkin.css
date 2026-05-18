@@ -3,9 +3,6 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.checkin-table-wrapper table {
-  min-width: 820px;
-}
 
 .checkin-table-wrapper th,
 .checkin-table-wrapper td {
