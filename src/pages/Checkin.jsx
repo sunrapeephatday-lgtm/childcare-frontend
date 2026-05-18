@@ -103,7 +103,6 @@ export default function CheckinPage() {
     });
   }
 
-  /* ===== โค้ดเดิมฟังก์ชันจัดการสถานะ มั่นใจได้ว่าอยู่ครบร้อยเปอร์เซ็นต์ ===== */
   function mark(id, status) {
     setRows(r => r.map(x => (x.child_id === id ? { ...x, status } : x)));
     setFilteredRows(r => r.map(x => (x.child_id === id ? { ...x, status } : x)));
@@ -127,7 +126,7 @@ export default function CheckinPage() {
     setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
   }
 
-  /* ================= EXPORT EXCEL ================= */
+  /* ================= EXPORT ================= */
   function exportExcel() {
     if (!history.length) {
       alert("ไม่มีข้อมูล");
@@ -259,95 +258,97 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="checkin-absolute-container">
+    <div className="container my-4">
       {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
   
-      {/* ===== เมนูเลือกเดือน/ปี และปุ่มคำสั่งต่างๆ ===== */}
-      <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0 checkin-card-element">
-        <div className="row align-items-end">
-          <div className="col-md-3">
-            <label className="form-label fw-bold text-secondary">เดือน</label>
-            <select
-              className="form-select"
-              value={exportMonth}
-              onChange={(e) => setExportMonth(Number(e.target.value))}
-            >
-              {[
-                "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-                "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-              ].map((m, i) => (
-                <option key={i} value={i + 1}>{m}</option>
-              ))}
-            </select>
-          </div>
+      {/* ===== ส่วนปุ่มและตัวเลือกค้นหา ===== */}
+      <div className="row mb-3 align-items-end">
+        <div className="col-md-3">
+          <label className="form-label">เดือน</label>
+          <select
+            className="form-select"
+            value={exportMonth}
+            onChange={(e) => setExportMonth(Number(e.target.value))}
+          >
+            {[
+              "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+              "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+            ].map((m, i) => (
+              <option key={i} value={i + 1}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div className="col-md-2">
-            <label className="form-label fw-bold text-secondary">ปี</label>
-            <select
-              className="form-select"
-              value={exportYear}
-              onChange={(e) => setExportYear(Number(e.target.value))}
-            >
-              {[2568, 2569, 2570].map((y) => (
-                <option key={y} value={y - 543}>{y}</option>
-              ))}
-            </select>
-          </div>
+        <div className="col-md-2">
+          <label className="form-label">ปี</label>
+          <select
+            className="form-select"
+            value={exportYear}
+            onChange={(e) => setExportYear(Number(e.target.value))}
+          >
+            {[2568, 2569, 2570].map((y) => (
+              <option key={y} value={y - 543}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div className="col-12 col-md-7 mt-3 mt-md-0">
-            <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-              <button type="button" className="btn btn-outline-secondary px-3" onClick={handleReload}>
-                รีโหลด
-              </button>
-              <button className="btn btn-primary px-3" onClick={async () => {
-                await loadHistory(teacherId);
-                setHistoryPage(1);
-                setShowHistory(true);
-              }}>
-                ค้นหาประวัติ
-              </button>
-              <button className="btn btn-primary px-3" onClick={saveAll}>
-                บันทึกทั้งหมด
-              </button>
-              <button className="btn btn-primary me-2" onClick={exportExcel}>
-                Export Microsoft Excel
-              </button>
-            </div>
+        <div className="col-12 col-md-7 mt-2 mt-md-0">
+          <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+            <button type="button" className="btn btn-outline-secondary" onClick={handleReload}>
+              รีโหลด
+            </button>
+            <button className="btn btn-primary" onClick={async () => {
+              await loadHistory(teacherId);
+              setHistoryPage(1);
+              setShowHistory(true);
+            }}>
+              ค้นหาประวัติ
+            </button>
+            <button className="btn btn-primary" onClick={saveAll}>
+              บันทึกทั้งหมด
+            </button>
+            <button className="btn btn-primary me-2" onClick={exportExcel}>
+              Export Microsoft Excel
+            </button>
           </div>
         </div>
       </div>
 
       {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน ===== */}
       {showHistory && (
-        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0 checkin-card-element">
+        <>
           <h4 className="mb-3 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* กล่องล็อกพื้นที่การเลื่อนตารางเด็ดขาดเพื่อไม่ให้ดันขอบจอแตก */}
-          <div className="checkin-force-scroll-box border rounded">
-            <table className="table table-bordered align-middle mb-0 text-center">
-              <thead className="table-success text-dark">
+          {/* 🛠️ จุดแก้ไขหลัก: ใส่คลาสครอบตารางตัวนี้เข้าไปเพื่อเปิดใช้ระบบแถบเลื่อนเลื่อนดูประวัติ */}
+          <div className="checkin-history-scroll-box">
+            <table className="table table-bordered">
+              <thead>
                 <tr>
-                  <th rowSpan="2" className="align-middle">ลำดับ</th>
-                  <th rowSpan="2" className="align-middle text-start ps-3" style={{ minWidth: "160px" }}>ชื่อ-นามสกุล</th>
-                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-center text-dark fw-bold bg-success bg-opacity-10">
+                  <th rowSpan="2">ลำดับ</th>
+                  <th rowSpan="2" style={{ minWidth: "220px" }}>ชื่อ-นามสกุล</th>
+                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()}>
                     วันที่เช็คชื่อ
                   </th>
-                  <th rowSpan="2" className="align-middle">มา</th>
-                  <th rowSpan="2" className="align-middle">ขาด</th>
-                  <th rowSpan="2" className="align-middle">ลา</th>
+                  <th rowSpan="2">มา</th>
+                  <th rowSpan="2">ขาด</th>
+                  <th rowSpan="2">ลา</th>
                 </tr>
                 <tr>
                   {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, i) => {
                     const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
                     return (
-                      <th key={i} className="fw-normal small py-1" style={{ minWidth: "45px" }}>
-                        {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
+                      <th key={i}>
+                        {i + 1} {shortMonths[exportMonth - 1]}
                       </th>
                     );
                   })}
@@ -362,7 +363,7 @@ export default function CheckinPage() {
                   return (
                     <tr key={i}>
                       <td>{historyFirstRow + i + 1}</td>
-                      <td className="text-start ps-3 fw-medium" style={{ minWidth: "160px", whiteSpace: "nowrap" }}>
+                      <td className="text-start ps-3" style={{ minWidth: "220px", whiteSpace: "nowrap" }}>
                         {name}
                       </td>
                       {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, dayIndex) => {
@@ -374,16 +375,14 @@ export default function CheckinPage() {
                         else if (status === "ลา") leave++;
 
                         return (
-                          <td key={day} className="px-1">
-                            {status === "มา" ? <span className="text-success fw-bold">✓</span> : 
-                             status === "ขาด" ? <span className="text-danger fw-bold">ข</span> : 
-                             status === "ลา" ? <span className="text-warning fw-bold">ล</span> : "-"}
+                          <td key={day}>
+                            {status === "มา" ? "✓" : status === "ขาด" ? "ข" : status === "ลา" ? "ล" : ""}
                           </td>
                         );
                       })}
-                      <td className="text-success fw-bold">{present}</td>
-                      <td className="text-danger fw-bold">{absent}</td>
-                      <td className="text-warning fw-bold">{leave}</td>
+                      <td>{present}</td>
+                      <td>{absent}</td>
+                      <td>{leave}</td>
                     </tr>
                   );
                 })}
@@ -391,9 +390,9 @@ export default function CheckinPage() {
             </table>
           </div>
 
-          {/* Pagination ของตารางประวัติ */}
+          {/* Pagination ประวัติ */}
           {groupedHistory.length > rowsPerPage && (
-            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
               <div className="text-muted small">
                 แสดง {historyFirstRow + 1}-{Math.min(historyLastRow, groupedHistory.length)} จาก {groupedHistory.length} รายการ
               </div>
@@ -425,82 +424,77 @@ export default function CheckinPage() {
               </nav>
             </div>
           )}
-        </div>
+        </>
       )}
 
-      {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ ===== */}
-      <div className="card shadow-sm p-3 bg-white rounded border-0 checkin-card-element">
-        <h4 className="mb-3 fw-bold text-secondary section-title">
-          รายชื่อนักเรียนวันนี้
-        </h4>
-        <div className="table-responsive border rounded">
-          <table className="table table-bordered table-hover align-middle mb-0 text-center">
-            <thead className="table-light">
-              <tr>
-                <th style={{ width: "60px" }}>ลำดับ</th>
-                <th style={{ width: "200px" }} className="text-start ps-3">ชื่อ-นามสกุล</th>
-                <th style={{ width: "120px" }} className="text-start ps-3">ชื่อเล่น</th>
-                <th style={{ width: "140px" }}>สถานะ</th>
-                <th style={{ width: "250px" }}>หมายเหตุ</th>
+      {/* ===== ส่วนตารางเช็คชื่อประจำวัน ===== */}
+      <div className="table-responsive">
+        <table className="table table-bordered align-middle">
+          <thead>
+            <tr>
+              <th style={{ width: "60px" }}>ลำดับ</th>
+              <th style={{ width: "140px" }}>ชื่อ-นามสกุล</th>
+              <th style={{ width: "120px" }}>ชื่อเล่น</th>
+              <th style={{ width: "160px" }}>สถานะ</th>
+              <th style={{ width: "220px" }}>หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentCheckins.map((r, i) => (
+              <tr key={r.child_id}>
+                <td>{checkinFirstRow + i + 1}</td>
+                <td className="text-start ps-3">{r.name}</td>
+                <td className="text-start ps-3">{r.nickname}</td>
+                <td>
+                  <select value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
+                    <option value="มา">มา</option>
+                    <option value="ขาด">ขาด</option>
+                    <option value="ลา">ลา</option>
+                  </select>
+                </td>
+                <td>
+                  <input value={r.note || ""} onChange={(e) => setNote(r.child_id, e.target.value)} />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {currentCheckins.map((r, i) => (
-                <tr key={r.child_id}>
-                  <td>{checkinFirstRow + i + 1}</td>
-                  <td className="text-start ps-3">{r.name}</td>
-                  <td className="text-start ps-3">{r.nickname}</td>
-                  <td>
-                    <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "110px" }} value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
-                      <option value="มา">มา</option>
-                      <option value="ขาด">ขาด</option>
-                      <option value="ลา">ลา</option>
-                    </select>
-                  </td>
-                  <td>
-                    <input className="form-control form-control-sm" value={r.note || ""} onChange={(e) => setNote(r.child_id, e.target.value)} placeholder="ระบุหมายเหตุ (ถ้ามี)"/>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination ของตารางวันนี้ */}
-        {filteredRows.length > rowsPerPage && (
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
-            <div className="text-muted small">
-              แสดง {checkinFirstRow + 1}-{Math.min(checkinLastRow, filteredRows.length)} จาก {filteredRows.length} รายการ
-            </div>
-            <nav>
-              <ul className="pagination pagination-sm mb-0">
-                <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
-                  <button type="button" className="page-link" onClick={() => setCheckinPage((page) => Math.max(1, page - 1))}>
-                    ก่อนหน้า
-                  </button>
-                </li>
-                {checkinPageNumbers.map((page, index) => {
-                  const prevPage = checkinPageNumbers[index - 1];
-                  const showGap = prevPage && page - prevPage > 1;
-                  return (
-                    <React.Fragment key={page}>
-                      {showGap && <li className="page-item disabled"><span className="page-link">...</span></li>}
-                      <li className={`page-item ${checkinPage === page ? "active" : ""}`}>
-                        <button type="button" className="page-link" onClick={() => setCheckinPage(page)}>{page}</button>
-                      </li>
-                    </React.Fragment>
-                  );
-                })}
-                <li className={`page-item ${checkinPage === checkinTotalPages ? "disabled" : ""}`}>
-                  <button type="button" className="page-link" onClick={() => setCheckinPage((page) => Math.min(checkinTotalPages, page + 1))}>
-                    ถัดไป
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        )}
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {/* Pagination เช็คชื่อประจำวัน */}
+      {filteredRows.length > rowsPerPage && (
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+          <div className="text-muted small">
+            แสดง {checkinFirstRow + 1}-{Math.min(checkinLastRow, filteredRows.length)} จาก {filteredRows.length} รายการ
+          </div>
+          <nav>
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
+                <button type="button" className="page-link" onClick={() => setCheckinPage((page) => Math.max(1, page - 1))}>
+                  ก่อนหน้า
+                </button>
+              </li>
+              {checkinPageNumbers.map((page, index) => {
+                const prevPage = checkinPageNumbers[index - 1];
+                const showGap = prevPage && page - prevPage > 1;
+                return (
+                  <React.Fragment key={page}>
+                    {showGap && <li className="page-item disabled"><span className="page-link">...</span></li>}
+                    <li className={`page-item ${checkinPage === page ? "active" : ""}`}>
+                      <button type="button" className="page-link" onClick={() => setCheckinPage(page)}>{page}</button>
+                    </li>
+                  </React.Fragment>
+                );
+              })}
+              <li className={`page-item ${checkinPage === checkinTotalPages ? "disabled" : ""}`}>
+                <button type="button" className="page-link" onClick={() => setCheckinPage((page) => Math.min(checkinTotalPages, page + 1))}>
+                  ถัดไป
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
     </div>
   );
 }

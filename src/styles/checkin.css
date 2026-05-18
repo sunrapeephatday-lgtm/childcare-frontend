@@ -1,78 +1,37 @@
-/* ท่าไม้ตาย: บังคับตัดมิติกล่องหน้าเว็บฝั่งขวาให้อยู่ตามขอบจอเบราว์เซอร์จริง หักลบพื้นที่ Sidebar */
-.checkin-absolute-container {
-  width: calc(100vw - 260px) !important; /* หักลบความกว้าง Sidebar 260px */
-  max-width: calc(100vw - 260px) !important;
-  padding: 0 1.5rem;
-  box-sizing: border-box;
-  overflow: hidden !important; /* ห้ามยืดออกนอกเขตเด็ดขาด */
-}
-
-/* บังคับตัวกล่องขาว Card ทุกชิ้นให้อยู่ภายในกรอบความกว้างของหน้าจอที่กำหนด */
-.checkin-card-element {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important; /* ป้องกัน Flexbox ฝืนขยายขนาดกล่องการ์ด */
-  box-sizing: border-box;
-}
-
-/* 🛠️ บังคับสร้างแถบเลื่อนแนวนอน (Scrollbar) สีเทาไว้ที่ใต้ตารางประวัติ 31 วันย้อนหลัง */
-.checkin-force-scroll-box {
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow-x: auto !important; /* เปิดแถบเลื่อนแนวนอนอย่างสมบูรณ์ */
-  overflow-y: hidden !important;
+/* คลาสสำหรับสร้างแถบเลื่อนแนวนอนให้กับตารางประวัติ 31 วันย้อนหลัง */
+.checkin-history-scroll-box {
+  width: 100%;
+  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  display: block;
-  background-color: #ffffff;
+  margin-bottom: 1rem;
 }
 
-/* ตั้งค่าให้ตารางกางขนาดความกว้างออกไปข้างใน เพื่อกระตุ้นให้บราวเซอร์เปิด Scrollbar */
-.checkin-force-scroll-box table {
-  width: max-content !important;
-  min-width: 1600px !important;
-  max-width: none !important;
-  table-layout: auto !important;
+/* ล็อกขนาดหัวข้อตารางและเนื้อหาข้างในไม่ให้บีบเบี้ยวตอนเลื่อนแถบ Scrollbar */
+.checkin-history-scroll-box table {
+  width: max-content;
+  min-width: 1600px;
+  max-width: none;
 }
 
-.checkin-force-scroll-box th,
-.checkin-force-scroll-box td {
+.checkin-history-scroll-box th,
+.checkin-history-scroll-box td {
   white-space: nowrap;
   vertical-align: middle;
   text-align: center;
 }
 
-/* ปุ่มสีเขียวตามแบบหน้าสุ่มลงทะเบียนปกติ */
-.btn-primary {
-  background-color: #198754 !important;
-  border-color: #198754 !important;
+/* ส่วนจัดการฟอร์มและปุ่มตารางปกติ */
+.table-responsive th,
+.table-responsive td {
+  white-space: nowrap;
+  vertical-align: middle;
+  text-align: center;
 }
 
-.btn-primary:hover {
-  background-color: #157347 !important;
-  border-color: #146c43 !important;
-}
-
-/* เส้นตกแต่งหัวข้อบาร์ด้านซ้าย */
-.section-title {
-  position: relative;
-  padding-left: 12px;
-}
-
-.section-title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 15%;
-  height: 70%;
-  width: 4px;
-  background-color: #198754;
-  border-radius: 4px;
-}
-
-/* รองรับ Responsive หน้าจอขนาดเล็กหรือการยุบเมนู Sidebar */
-@media (max-width: 992px) {
-  .checkin-absolute-container {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
+.table-responsive select,
+.table-responsive input {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
 }
