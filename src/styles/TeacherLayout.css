@@ -54,7 +54,15 @@
 
 .teacher-content {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   padding: 24px;
+}
+
+.teacher-content > .container,
+.teacher-content > .container-fluid {
+  max-width: 100%;
 }
 
 .teacher-sidebar-toggle {
