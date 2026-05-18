@@ -1,23 +1,24 @@
-.milk-table-wrapper {
+.checkin-table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.milk-table-wrapper table {
-  min-width: 820px;
+/* ตั้งสัดส่วน min-width ให้รองรับคอลัมน์ประวัติที่ยาวเหยียดได้อย่างลงล็อก */
+.checkin-table-wrapper table {
+  min-width: 100%;
 }
 
-.milk-table-wrapper th,
-.milk-table-wrapper td {
+.checkin-table-wrapper th,
+.checkin-table-wrapper td {
   white-space: nowrap;
   vertical-align: middle;
 }
 
-.milk-table-wrapper .form-select-sm {
+.checkin-table-wrapper .form-select-sm {
   min-width: 120px;
 }
 
-/* สไตล์เส้นขีดตกแต่งบาร์ข้างหัวข้อ */
+/* สไตล์แถบสีข้างหัวข้อ */
 .section-title {
   position: relative;
   padding-left: 12px;

@@ -5,6 +5,11 @@ import { saveAs } from "file-saver";
 import "../styles/checkin.css";
 
 /* ===== helper ===== */
+const thaiMonths = [
+  "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+  "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+];
+
 function formatThaiDate(d) {
   if (!d) return "-";
   const date = new Date(d);
@@ -91,7 +96,7 @@ export default function CheckinPage() {
   }
 
   async function handleReload() {
-    setKeyword("");
+    setMsg(null);
     setShowHistory(false);
     setHistory([]);
     setHistoryPage(1);
@@ -122,11 +127,13 @@ export default function CheckinPage() {
         teacher_id: teacherId
       });
     }
-    loadHistory(teacherId);
     setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
+
     setTimeout(() => {
       setMsg(null);
     }, 2000);
+
+    loadHistory(teacherId);
   }
 
   /* ================= EXPORT ================= */
@@ -135,11 +142,6 @@ export default function CheckinPage() {
       alert("ไม่มีข้อมูล");
       return;
     }
-
-    const thaiMonths = [
-      "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-      "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-    ];
 
     const shortMonths = [
       "ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
@@ -249,9 +251,9 @@ export default function CheckinPage() {
 
   const checkinLastRow = checkinPage * rowsPerPage;
   const checkinFirstRow = checkinLastRow - rowsPerPage;
-  const currentCheckins = filteredRows.slice(checkinFirstRow, checkinLastRow);
+  const currentCheckins = rows.slice(checkinFirstRow, checkinLastRow);
 
-  const checkinTotalPages = Math.ceil(filteredRows.length / rowsPerPage);
+  const checkinTotalPages = Math.ceil(rows.length / rowsPerPage);
   const historyTotalPages = Math.ceil(groupedHistory.length / rowsPerPage);
 
   const historyPageNumbers = Array.from({ length: historyTotalPages }, (_, i) => i + 1)
@@ -261,98 +263,97 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="layout-main">
-      {/* ===== หัวข้อหลัก ===== */}
+    <div className="container my-4">
+      {/* ===== หัวข้อสไตล์เหมือนหน้าดื่มนม ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
+
       {msg && <div className="alert alert-success">{msg.text}</div>}
-  
-      {/* ===== เมนูเลือกเดือน/ปี และกลุ่มปุ่มคำสั่งต่างๆ ใช้โครงสร้างแบบหน้า Milk ===== */}
-      <div className="card-panel mb-4">
-        <div className="row align-items-end">
-          <div className="col-md-3">
-            <label className="form-label">เดือน</label>
-            <select
-              className="form-select"
-              value={exportMonth}
-              onChange={(e) => setExportMonth(Number(e.target.value))}
-            >
-              {[
-                "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-                "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-              ].map((m, i) => (
-                <option key={i} value={i + 1}>{m}</option>
-              ))}
-            </select>
-          </div>
 
-          <div className="col-md-2">
-            <label className="form-label">ปี</label>
-            <select
-              className="form-select"
-              value={exportYear}
-              onChange={(e) => setExportYear(Number(e.target.value))}
-            >
-              {[2568, 2569, 2570].map((y) => (
-                <option key={y} value={y - 543}>{y}</option>
-              ))}
-            </select>
-          </div>
+      {/* ===== การวางตำแหน่งแถว ฟอร์ม และปุ่ม เหมือนหน้าดื่มนม เป๊ะ ๆ ===== */}
+      <div className="row mb-4 align-items-end">
+        <div className="col-md-3">
+          <label className="form-label">เดือน</label>
+          <select
+            className="form-select"
+            value={exportMonth}
+            onChange={(e) => setExportMonth(Number(e.target.value))}
+          >
+            {thaiMonths.map((m, i) => (
+              <option key={i} value={i + 1}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div className="col-12 col-md-7 mt-2 mt-md-0">
-            <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-              <button type="button" className="btn btn-outline-secondary" onClick={handleReload}>
-                รีโหลด
-              </button>
-              <button type="button" className="btn btn-primary" onClick={async () => {
-                await loadHistory(teacherId);
-                setHistoryPage(1);
-                setShowHistory(true);
-              }}>
-                ค้นหาประวัติ
-              </button>
-              <button type="button" className="btn btn-primary" onClick={saveAll}>
-                บันทึกทั้งหมด
-              </button>
-              <button type="button" className="btn btn-primary me-2" onClick={exportExcel}>
-                Export Microsoft Excel
-              </button>
-            </div>
+        <div className="col-md-2">
+          <label className="form-label">ปี</label>
+          <select
+            className="form-select"
+            value={exportYear}
+            onChange={(e) => setExportYear(Number(e.target.value))}
+          >
+            {[2568, 2569, 2570].map((y) => (
+              <option key={y} value={y - 543}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="col-12 col-md-7 mt-2 mt-md-0">
+          <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+            <button type="button" className="btn btn-outline-secondary" onClick={handleReload}>
+              รีโหลด
+            </button>
+
+            <button type="button" className="btn btn-primary" onClick={async () => {
+              await loadHistory(teacherId);
+              setHistoryPage(1);
+              setShowHistory(true);
+            }}>
+              ค้นหาประวัติ
+            </button>
+
+            <button type="button" className="btn btn-primary" onClick={saveAll}>
+              บันทึกทั้งหมด
+            </button>
+
+            <button type="button" className="btn btn-primary me-2" onClick={exportExcel}>
+              Export Microsoft Excel
+            </button>
           </div>
         </div>
       </div>
 
-      {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน ===== */}
+      {/* ===== ตารางประวัติรายเดือนย้อนหลัง ลอกแบบโครงสร้างคลาสเลื่อนและสไตล์หน้าจอมาร้อยเปอร์เซ็นต์ ===== */}
       {showHistory && (
-        <div className="card-panel mb-4">
-          <h5 className="mb-3 fw-bold text-success section-title">
+        <>
+          <h5 className="mt-4 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
           </h5>
-
-          {/* ครอบด้วยคลาสสำเร็จรูป .table-scroll จากระบบหลักเพื่อเปิดแถบเลื่อนและบล็อกไม่ให้การ์ดขาวทะลุ */}
-          <div className="table-scroll">
-            <table className="table table-bordered align-middle mb-0 text-center" style={{ minWidth: "1600px", tableLayout: "fixed" }}>
-              <thead className="table-success text-dark">
+          {/* ล็อกให้อยู่ในคลาสตัวเลื่อนแนวนอนของระบบหลักเพื่อปราบปัญหากล่องทะลุ */}
+          <div className="checkin-table-wrapper">
+            <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
+              <thead>
                 <tr>
-                  <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
-                  <th rowSpan="2" className="text-start ps-3" style={{ width: "220px" }}>ชื่อ-นามสกุล</th>
-                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-center text-dark fw-bold bg-success bg-opacity-10">
-                    วันที่เช็คชื่อ
-                  </th>
-                  <th rowSpan="2" style={{ width: "55px" }}>มา</th>
-                  <th rowSpan="2" style={{ width: "55px" }}>ขาด</th>
-                  <th rowSpan="2" style={{ width: "55px" }}>ลา</th>
-                </tr>
-                <tr>
+                  <th style={{ width: "60px" }}>ลำดับ</th>
+                  <th style={{ width: "220px" }}>ชื่อ-นามสกุล</th>
                   {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, i) => {
                     const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
                     return (
-                      <th key={i} className="fw-normal small py-1" style={{ width: "45px" }}>
-                        {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
+                      <th key={i} style={{ width: "55px" }}>
+                        {i + 1}
+                        <br />
+                        <span style={{ fontSize: "10px", fontWeight: "normal" }}>{shortMonths[exportMonth - 1]}</span>
                       </th>
                     );
                   })}
+                  <th style={{ width: "55px" }}>มา</th>
+                  <th style={{ width: "55px" }}>ขาด</th>
+                  <th style={{ width: "55px" }}>ลา</th>
                 </tr>
               </thead>
               <tbody>
@@ -364,9 +365,7 @@ export default function CheckinPage() {
                   return (
                     <tr key={i}>
                       <td>{historyFirstRow + i + 1}</td>
-                      <td className="text-start ps-3 fw-medium" style={{ width: "220px" }}>
-                        {name}
-                      </td>
+                      <td style={{ textAlign: "left", paddingLeft: "16px" }}>{name}</td>
                       {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, dayIndex) => {
                         const day = dayIndex + 1;
                         const status = records[day];
@@ -376,10 +375,8 @@ export default function CheckinPage() {
                         else if (status === "ลา") leave++;
 
                         return (
-                          <td key={day} className="px-1">
-                            {status === "มา" ? <span className="text-success fw-bold">✓</span> : 
-                             status === "ขาด" ? <span className="text-danger fw-bold">ข</span> : 
-                             status === "ลา" ? <span className="text-warning fw-bold">ล</span> : "-"}
+                          <td key={day}>
+                            {status === "มา" ? "✓" : status === "ขาด" ? "ข" : status === "ลา" ? "ล" : "-"}
                           </td>
                         );
                       })}
@@ -393,9 +390,9 @@ export default function CheckinPage() {
             </table>
           </div>
 
-          {/* Pagination ประวัติ */}
+          {/* Pagination ของฝั่งประวัติ */}
           {groupedHistory.length > rowsPerPage && (
-            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
               <div className="text-muted small">
                 แสดง {historyFirstRow + 1}-{Math.min(historyLastRow, groupedHistory.length)} จาก {groupedHistory.length} รายการ
               </div>
@@ -427,56 +424,59 @@ export default function CheckinPage() {
               </nav>
             </div>
           )}
-        </div>
+        </>
       )}
 
-      {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ (ตารางล่าง) ===== */}
-      <div className="card-panel">
-        <h4 className="mb-3 fw-bold text-secondary section-title">
-          รายชื่อนักเรียนวันนี้
-        </h4>
-        <div className="table-responsive border rounded">
-          <table className="table table-bordered table-hover align-middle mb-0 text-center" style={{ tableLayout: "fixed", width: "100%" }}>
-            <thead className="table-light">
-              <tr>
-                <th style={{ width: "60px" }}>ลำดับ</th>
-                <th style={{ width: "200px" }} className="text-start ps-3">ชื่อ-นามสกุล</th>
-                <th style={{ width: "120px" }} className="text-start ps-3">ชื่อเล่น</th>
-                <th style={{ width: "160px" }}>สถานะ</th>
-                <th style={{ width: "250px" }}>หมายเหตุ</th>
+      {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ (ตารางล่าง ลอกพิมพ์เขียวมาจากหน้า Milk เป๊ะ ๆ) ===== */}
+      <h4 className="mt-4 mb-3 fw-bold text-secondary section-title">
+        รายชื่อนักเรียนวันนี้
+      </h4>
+      <div className="checkin-table-wrapper">
+        <table className="table table-bordered" style={{ tableLayout: "fixed", width: "100%" }}>
+          <thead>
+            <tr>
+              <th style={{ width: "60px" }}>ลำดับ</th>
+              <th style={{ width: "180px" }}>ชื่อ-นามสกุล</th>
+              <th style={{ width: "120px" }}>ชื่อเล่น</th>
+              <th style={{ width: "140px" }}>สถานะ</th>
+              <th style={{ width: "220px" }}>หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentCheckins.map((r, i) => (
+              <tr key={r.child_id}>
+                <td>{checkinFirstRow + i + 1}</td>
+                <td style={{ textAlign: "left", paddingLeft: "16px" }}>{r.name}</td>
+                <td>{r.nickname}</td>
+                <td>
+                  <select
+                    className="form-select-sm"
+                    value={r.status || "มา"}
+                    onChange={(e) => mark(r.child_id, e.target.value)}
+                  >
+                    <option value="มา">มา</option>
+                    <option value="ขาด">ขาด</option>
+                    <option value="ลา">ลา</option>
+                  </select>
+                </td>
+                <td>
+                  <input
+                    className="form-control form-control-sm"
+                    value={r.note || ""}
+                    onChange={(e) => setNote(r.child_id, e.target.value)}
+                    style={{ width: "100%", padding: "4px 8px" }}
+                  />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {currentCheckins.map((r, i) => (
-                <tr key={r.child_id}>
-                  <td>{checkinFirstRow + i + 1}</td>
-                  <td className="text-start ps-3" style={{ textAlign: "left", paddingLeft: "16px", width: "160px" }}>{r.name}</td>
-                  <td>{r.nickname}</td>
-                  <td>
-                    <select
-                      className="form-select-sm"
-                      value={r.status}
-                      onChange={(e) => mark(r.child_id, e.target.value)}
-                    >
-                      <option value="มา">มา</option>
-                      <option value="ขาด">ขาด</option>
-                      <option value="ลา">ลา</option>
-                    </select>
-                  </td>
-                  <td>
-                    <input className="form-control form-control-sm" value={r.note || ""} onChange={(e) => setNote(r.child_id, e.target.value)} placeholder="ระบุหมายเหตุ (ถ้ามี)"/>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
 
-        {/* Pagination เช็คชื่อประจำวัน */}
-        {filteredRows.length > rowsPerPage && (
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+        {/* Pagination ของตารางเช็คชื่อวันนี้ */}
+        {rows.length > rowsPerPage && (
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
             <div className="text-muted small">
-              แสดง {checkinFirstRow + 1}-{Math.min(checkinLastRow, filteredRows.length)} จาก {filteredRows.length} รายการ
+              แสดง {checkinFirstRow + 1}-{Math.min(checkinLastRow, rows.length)} จาก {rows.length} รายการ
             </div>
             <nav>
               <ul className="pagination pagination-sm mb-0">
