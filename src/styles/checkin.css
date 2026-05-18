@@ -30,3 +30,18 @@
   padding: 0.45rem 0.6rem;
   vertical-align: middle;
 }
+/* ===== แก้มุมขาวทะลุ ===== */
+
+.table-responsive{
+  border-radius: 0 !important;
+  overflow-x: auto;
+}
+
+.table-responsive table{
+  border-collapse: separate !important;
+  border-spacing: 0;
+}
+
+.table{
+  margin-bottom: 0 !important;
+}
