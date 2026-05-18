@@ -1,31 +1,54 @@
-/* ล็อกให้ตัวการ์ดขาวกางขนาดพอดีกรอบ Layout ฝั่งขวา และสร้าง Scrollbar แนวนอนภายในตัวเอง */
-.milk-table-wrapper {
-  width: 100% !important;
+/* ล็อกคอมโพเนนต์หลักให้อยู่ในสัดส่วนหน้าเว็ปดั้งเดิม */
+.checkin-container-fixed {
   max-width: 100% !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch;
+  width: 100% !important;
   box-sizing: border-box;
 }
 
-/* บังคับตารางไม่ให้บีบขนาดช่องคอลัมน์ เพื่อความสวยงามตอนเลื่อน Scrollbar */
-.milk-table-wrapper table {
+/* คุมกล่อง Card ทุกอันไม่ให้โดนสิ่งแปลกปลอมดันขนาดจนแตก */
+.checkin-container-fixed .card {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  overflow: hidden; /* บล็อกเนื้อหาที่ล้นออกไปข้างนอก */
+}
+
+/* 🛠️ จุดแก้ปัญหาหลัก: กล่องสำหรับจัดการสร้างแถบ Scrollbar แนวนอนสีเทาโดยเฉพาะ */
+.checkin-scroll-box {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important; /* เปิดใช้งาน Scrollbar แนวนอน */
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  display: block;
+}
+
+/* สั่งให้โครงสร้างตารางกางขนาดความกว้างเต็มที่เพื่อเปิดระบบแถบเลื่อน */
+.checkin-scroll-box table {
   width: max-content !important;
+  min-width: 1500px !important;
+  max-width: none !important;
   table-layout: auto;
 }
 
-.milk-table-wrapper th,
-.milk-table-wrapper td {
+.checkin-scroll-box th,
+.checkin-scroll-box td {
   white-space: nowrap;
   vertical-align: middle;
   text-align: center;
 }
 
-/* ปรับแต่งความกว้างอินพุตฟอร์มย่อยในตาราง */
-.milk-table-wrapper .form-select-sm {
-  min-width: 110px;
+/* สไตล์สีปุ่มหลักและธีมหัวข้อบาร์เขียว */
+.btn-primary {
+  background-color: #198754 !important;
+  border-color: #198754 !important;
 }
 
-/* ตกแต่งเส้นแถบสีข้างหัวข้อ */
+.btn-primary:hover {
+  background-color: #157347 !important;
+  border-color: #146c43 !important;
+}
+
 .section-title {
   position: relative;
   padding-left: 12px;
