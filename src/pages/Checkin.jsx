@@ -660,11 +660,11 @@ const checkinPageNumbers = Array.from(
 <thead>
 <tr>
 
-<th>ลำดับ</th>
-<th>ชื่อ-นามสกุล</th>
-<th>ชื่อเล่น</th>
-<th>สถานะ</th>
-<th>หมายเหตุ</th>
+<th style={{ width: "60px" }}>ลำดับ</th>
+    <th style={{ width: "140px" }}>ชื่อ-นามสกุล</th>
+    <th style={{ width: "120px" }}>ชื่อเล่น</th>
+    <th style={{ width: "160px" }}>สถานะ</th>
+    <th style={{ width: "220px" }}>หมายเหตุ</th>
 
 </tr>
 </thead>

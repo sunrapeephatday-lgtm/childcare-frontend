@@ -6,8 +6,7 @@
 
 /* กันตารางโดนบีบ */
 .table-responsive table{
-  width: max-content;
-  min-width: 100%;
+  min-width: 820px;
 }
 
 /* ไม่ให้ข้อความหักบรรทัด */

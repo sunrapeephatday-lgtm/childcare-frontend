@@ -417,7 +417,7 @@ const pageNumbers = Array.from(
             <thead className="table-success">
               <tr>
                 <th style={{width:150}}>วันที่</th>
-                <th>รายการอาหาร</th>
+                <th style={{width:250}}>รายการอาหาร</th>
                 <th style={{width:250}}>หมายเหตุ</th>
                 <th style={{width:120}}>จัดการ</th>
               </tr>
