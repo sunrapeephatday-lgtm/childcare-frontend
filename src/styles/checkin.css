@@ -1,17 +1,41 @@
 .checkin-table-wrapper {
+  width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  display: block;
 }
 
+/* บังคับให้โครงสร้างตารางไม่ถูกบีบอัดจนเละ */
+.checkin-table-wrapper table {
+  width: max-content;
+  max-width: none;
+  table-layout: auto;
+}
 
 .checkin-table-wrapper th,
 .checkin-table-wrapper td {
   white-space: nowrap;
   vertical-align: middle;
+  text-align: center;
 }
 
 .checkin-table-wrapper .form-select-sm {
   min-width: 120px;
 }
 
+/* เพิ่มเติมสไตล์ตกแต่งให้น่าใช้งาน */
+.section-title {
+  position: relative;
+  padding-left: 10px;
+}
 
+.section-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 4px;
+  background-color: #198754; /* สีเขียว Bootstrap Success */
+  border-radius: 2px;
+}
