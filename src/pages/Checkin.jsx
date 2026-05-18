@@ -296,10 +296,34 @@ function exportExcel() {
 const historyLastRow = historyPage * rowsPerPage;
 const historyFirstRow = historyLastRow - rowsPerPage;
 
-const currentHistory = history.slice(
+const groupedHistory = Object.entries(
+
+  history.reduce((acc, h) => {
+
+    const name =
+      `${h.prefix}${h.first_name} ${h.last_name}`;
+
+    const day =
+      new Date(h.record_date).getDate();
+
+    if (!acc[name]) {
+      acc[name] = {};
+    }
+
+    acc[name][day] = h.status;
+
+    return acc;
+
+  }, {})
+
+);
+
+const currentHistory = groupedHistory.slice(
   historyFirstRow,
   historyLastRow
 );
+
+
 
 const checkinLastRow = checkinPage * rowsPerPage;
 const checkinFirstRow = checkinLastRow - rowsPerPage;
@@ -312,7 +336,7 @@ const currentCheckins = filteredRows.slice(
 const checkinTotalPages = Math.ceil(filteredRows.length / rowsPerPage);
 
 const historyTotalPages = Math.ceil(
-  history.length / rowsPerPage
+  groupedHistory.length / rowsPerPage
 );
 
 const historyPageNumbers = Array.from(
