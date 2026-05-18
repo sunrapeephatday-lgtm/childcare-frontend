@@ -459,7 +459,8 @@ const checkinPageNumbers = Array.from(
 
   <th rowSpan="2">ลำดับ</th>
 
-  <th rowSpan="2">
+  <th rowSpan="2"
+  style={{ minWidth: "220px" }}>
     ชื่อ-นามสกุล
   </th>
 
@@ -523,7 +524,11 @@ const checkinPageNumbers = Array.from(
 
       <td>{i + 1}</td>
 
-      <td className="text-start ps-3">
+      <td className="text-start ps-3"
+      style={{
+    minWidth: "220px",
+    whiteSpace: "nowrap"
+  }}>
         {name}
       </td>
 

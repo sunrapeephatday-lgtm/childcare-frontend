@@ -19,3 +19,12 @@
 .history-table-wrapper table{
   min-width: 1600px;
 }
+.history-table-wrapper{
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.history-table-wrapper table{
+  min-width: max-content;
+}
