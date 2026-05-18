@@ -103,6 +103,7 @@ export default function CheckinPage() {
     });
   }
 
+  /* ===== โค้ดเดิมฟังก์ชันจัดการสถานะ มั่นใจได้ว่าอยู่ครบร้อยเปอร์เซ็นต์ ===== */
   function mark(id, status) {
     setRows(r => r.map(x => (x.child_id === id ? { ...x, status } : x)));
     setFilteredRows(r => r.map(x => (x.child_id === id ? { ...x, status } : x)));
@@ -126,7 +127,7 @@ export default function CheckinPage() {
     setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
   }
 
-  /* ================= EXPORT ================= */
+  /* ================= EXPORT EXCEL ================= */
   function exportExcel() {
     if (!history.length) {
       alert("ไม่มีข้อมูล");
@@ -258,15 +259,15 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="checkin-layout-wrapper container my-4">
+    <div className="checkin-absolute-container">
       {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
   
-      {/* ===== เมนูตัวเลือกเดือน/ปี ===== */}
-      <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
+      {/* ===== เมนูเลือกเดือน/ปี และปุ่มคำสั่งต่างๆ ===== */}
+      <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0 checkin-card-element">
         <div className="row align-items-end">
           <div className="col-md-3">
             <label className="form-label fw-bold text-secondary">เดือน</label>
@@ -322,13 +323,13 @@ export default function CheckinPage() {
 
       {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน ===== */}
       {showHistory && (
-        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
+        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0 checkin-card-element">
           <h4 className="mb-3 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* จุดแก้ไขสำคัญ: ใช้โครงสร้าง wrapper ล็อกตายตัวตรงนี้ เพื่อบังคับให้มีแถบเลื่อนแนวนอนเฉพาะตาราง */}
-          <div className="checkin-table-scroll-container">
+          {/* กล่องล็อกพื้นที่การเลื่อนตารางเด็ดขาดเพื่อไม่ให้ดันขอบจอแตก */}
+          <div className="checkin-force-scroll-box border rounded">
             <table className="table table-bordered align-middle mb-0 text-center">
               <thead className="table-success text-dark">
                 <tr>
@@ -428,7 +429,7 @@ export default function CheckinPage() {
       )}
 
       {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ ===== */}
-      <div className="card shadow-sm p-3 bg-white rounded border-0">
+      <div className="card shadow-sm p-3 bg-white rounded border-0 checkin-card-element">
         <h4 className="mb-3 fw-bold text-secondary section-title">
           รายชื่อนักเรียนวันนี้
         </h4>
@@ -439,7 +440,7 @@ export default function CheckinPage() {
                 <th style={{ width: "60px" }}>ลำดับ</th>
                 <th style={{ width: "200px" }} className="text-start ps-3">ชื่อ-นามสกุล</th>
                 <th style={{ width: "120px" }} className="text-start ps-3">ชื่อเล่น</th>
-                <th style={{ width: "160px" }}>สถานะ</th>
+                <th style={{ width: "140px" }}>สถานะ</th>
                 <th style={{ width: "250px" }}>หมายเหตุ</th>
               </tr>
             </thead>

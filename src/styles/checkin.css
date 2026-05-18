@@ -1,47 +1,47 @@
-/* ล็อกพื้นที่เนื้อหาหลักฝั่งขวา ไม่ให้กางขยายตามตาราง */
-.checkin-layout-wrapper {
-  max-width: 100% !important;
-  width: 100% !important;
+/* ท่าไม้ตาย: บังคับตัดมิติกล่องหน้าเว็บฝั่งขวาให้อยู่ตามขอบจอเบราว์เซอร์จริง หักลบพื้นที่ Sidebar */
+.checkin-absolute-container {
+  width: calc(100vw - 260px) !important; /* หักลบความกว้าง Sidebar 260px */
+  max-width: calc(100vw - 260px) !important;
+  padding: 0 1.5rem;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: hidden !important; /* ห้ามยืดออกนอกเขตเด็ดขาด */
 }
 
-/* ล็อกขนาดกรอบ Card สีขาวให้กางเท่าหน้าปกติ ไม่แตกทะลุขอบ */
-.checkin-layout-wrapper .card {
+/* บังคับตัวกล่องขาว Card ทุกชิ้นให้อยู่ภายในกรอบความกว้างของหน้าจอที่กำหนด */
+.checkin-card-element {
   width: 100% !important;
   max-width: 100% !important;
-  min-width: 0 !important; /* ป้องกัน Flexbox บังคับขยายขนาดการ์ด */
+  min-width: 0 !important; /* ป้องกัน Flexbox ฝืนขยายขนาดกล่องการ์ด */
   box-sizing: border-box;
 }
 
-/* 🛠️ ฟิกซ์จุดสำคัญ: ตัวคุมแถบเลื่อนแนวนอนสีเทาเฉพาะสำหรับตารางประวัติย้อนหลัง */
-.checkin-table-scroll-container {
+/* 🛠️ บังคับสร้างแถบเลื่อนแนวนอน (Scrollbar) สีเทาไว้ที่ใต้ตารางประวัติ 31 วันย้อนหลัง */
+.checkin-force-scroll-box {
   width: 100% !important;
   max-width: 100% !important;
-  overflow-x: auto !important; /* เปิดแถบเลื่อนแนวนอน */
+  overflow-x: auto !important; /* เปิดแถบเลื่อนแนวนอนอย่างสมบูรณ์ */
   overflow-y: hidden !important;
   -webkit-overflow-scrolling: touch;
   display: block;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
+  background-color: #ffffff;
 }
 
-/* ตั้งค่าขนาดตารางให้ขยายกางออกไปเพื่อเปิดแถบ Scrollbar แนวนอน */
-.checkin-table-scroll-container table {
+/* ตั้งค่าให้ตารางกางขนาดความกว้างออกไปข้างใน เพื่อกระตุ้นให้บราวเซอร์เปิด Scrollbar */
+.checkin-force-scroll-box table {
   width: max-content !important;
-  min-width: 1550px !important;
+  min-width: 1600px !important;
   max-width: none !important;
   table-layout: auto !important;
 }
 
-.checkin-table-scroll-area th,
-.checkin-table-scroll-area td {
+.checkin-force-scroll-box th,
+.checkin-force-scroll-box td {
   white-space: nowrap;
   vertical-align: middle;
   text-align: center;
 }
 
-/* สไตล์ปุ่มและสีธีมตามหน้าเช็คชื่อดั้งเดิม */
+/* ปุ่มสีเขียวตามแบบหน้าสุ่มลงทะเบียนปกติ */
 .btn-primary {
   background-color: #198754 !important;
   border-color: #198754 !important;
@@ -52,6 +52,7 @@
   border-color: #146c43 !important;
 }
 
+/* เส้นตกแต่งหัวข้อบาร์ด้านซ้าย */
 .section-title {
   position: relative;
   padding-left: 12px;
@@ -66,4 +67,12 @@
   width: 4px;
   background-color: #198754;
   border-radius: 4px;
+}
+
+/* รองรับ Responsive หน้าจอขนาดเล็กหรือการยุบเมนู Sidebar */
+@media (max-width: 992px) {
+  .checkin-absolute-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
