@@ -575,7 +575,7 @@ const checkinPageNumbers = Array.from(
               <td style={{ textAlign: "left", paddingLeft: "16px", width: "160px" }}>
                 {r.name}
               </td>
-              <td>{r.nickname}</td>
+              <td style={{ textAlign: "left", paddingLeft: "16px" }}>{r.nickname}</td>
 
               <td>
                 <select
