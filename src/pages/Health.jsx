@@ -33,6 +33,28 @@ function healthToNumber(v) {
   return "";
 }
 
+function healthSummary(value) {
+  if (!value) return "";
+
+  const statuses = [
+    value.hair_condition,
+    value.oral_cavity,
+    value.fingernail,
+    value.toenail
+  ].filter(Boolean);
+
+  const counts = statuses.reduce((acc, status) => {
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {});
+
+  if ((counts["ดี"] || 0) > 2) return "ดี";
+  if ((counts["ปานกลาง"] || 0) >= 2) return "ปานกลาง";
+  if ((counts["ปรับปรุง"] || 0) >= 2) return "ปรับปรุง";
+
+  return statuses[0] || "";
+}
+
 /* ================= component ================= */
 
 export default function HealthPage() {
@@ -483,9 +505,7 @@ const checkinPageNumbers = Array.from(
 
                   return (
                     <td key={d.day}>
-                      {value
-                        ? `${value.hair_condition}/${value.oral_cavity}/${value.fingernail}/${value.toenail}`
-                        : ""}
+                      {healthSummary(value)}
                     </td>
                   );
                 })}

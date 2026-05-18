@@ -21,6 +21,22 @@ function todayThai() {
   return `${day}/${month}/${year}`;
 }
 
+function measurementDisplay(value) {
+  if (!value) return "";
+
+  const parts = [];
+
+  if (value.weight !== null && value.weight !== undefined && value.weight !== "") {
+    parts.push(value.weight);
+  }
+
+  if (value.height !== null && value.height !== undefined && value.height !== "") {
+    parts.push(value.height);
+  }
+
+  return parts.join(" / ");
+}
+
 
 function thaiMonthYear(d) {
   const date = new Date(d);
@@ -457,7 +473,7 @@ const checkinPageNumbers = Array.from(
 
                 return (
                   <td key={d.day}>
-                    {value ? `${value.weight || "-"} / ${value.height || "-"}` : ""}
+                    {measurementDisplay(value)}
                   </td>
                 );
               })}
