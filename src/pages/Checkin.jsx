@@ -450,9 +450,8 @@ const checkinPageNumbers = Array.from(
 
 
  <div className="history-table-wrapper">
-  <div className="history-table-wrapper">
   <table
-  className="table table-bordered table-sm align-middle history-table"
+  className="table table-bordered"
   style={{
     fontSize: "14px",
     whiteSpace: "nowrap"
@@ -656,7 +655,6 @@ const checkinPageNumbers = Array.from(
     </nav>
   </div>
 )}
-</div>
 </div>
   </>
 )}
