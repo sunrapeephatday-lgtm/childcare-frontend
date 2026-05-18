@@ -311,7 +311,9 @@ const currentCheckins = filteredRows.slice(
 
 const checkinTotalPages = Math.ceil(filteredRows.length / rowsPerPage);
 
-const historyTotalPages = Math.ceil(history.length / rowsPerPage);
+const historyTotalPages = Math.ceil(
+  groupedRows.length / rowsPerPage
+);
 const historyPageNumbers = Array.from(
   { length: historyTotalPages },
   (_, i) => i + 1
@@ -542,50 +544,125 @@ const checkinPageNumbers = Array.from(
   </>
 )}
   <div className="table-responsive">
-
-      <table
+<table
   className="table table-bordered table-sm align-middle"
-  style={{ fontSize: "14px" }}
+  style={{
+    fontSize: "14px",
+    whiteSpace: "nowrap"
+  }}
 >
-        <thead>
-          <tr>
-           <th style={{ width: 60 }}>ลำดับ</th>
-          <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
-          <th style={{ width: 120 }}>ชื่อเล่น</th>
-          <th style={{ width: 120 }}>สถานะ</th>
-          <th style={{ width: 120 }}>หมายเหตุ</th>
-          </tr>
-        </thead>
 
-        <tbody>
-          {currentCheckins.map((r, i) => (
-            <tr key={r.child_id}>
-              <td>{checkinFirstRow + i + 1}</td>
-              <td className="text-start ps-3">
-                {r.name}
-              </td>
-              <td className="text-start ps-3">{r.nickname}</td>
-              <td>
-                <select
-                  value={r.status}
-                  onChange={e => mark(r.child_id, e.target.value)}
-                >
-                  <option value="มา">มา</option>
-                  <option value="ขาด">ขาด</option>
-                  <option value="ลา">ลา</option>
-                </select>
-              </td>
+<thead>
 
-              <td>
-                <input
-                  value={r.note || ""}
-                  onChange={e => setNote(r.child_id, e.target.value)}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  {/* ===== header ชั้นบน ===== */}
+  <tr>
+
+    <th rowSpan="2">
+      ลำดับ
+    </th>
+
+    <th rowSpan="2">
+      ชื่อ-นามสกุล
+    </th>
+
+    <th colSpan={daysInMonth}>
+      วันที่เช็คชื่อ
+    </th>
+
+    <th rowSpan="2">
+      มา
+    </th>
+
+    <th rowSpan="2">
+      ขาด
+    </th>
+
+    <th rowSpan="2">
+      ลา
+    </th>
+
+  </tr>
+
+  {/* ===== header ชั้นล่าง ===== */}
+  <tr>
+
+    {Array.from(
+      { length: daysInMonth },
+      (_, i) => (
+        <th key={i}>
+          {i + 1}
+          {shortMonths[exportMonth - 1]}
+        </th>
+      )
+    )}
+
+  </tr>
+
+</thead>
+
+<tbody>
+
+{currentHistory.map(([name, records], i) => {
+
+  let present = 0;
+  let absent = 0;
+  let leave = 0;
+
+  return (
+
+    <tr key={i}>
+
+      <td>
+        {historyFirstRow + i + 1}
+      </td>
+
+      <td className="text-start ps-3">
+        {name}
+      </td>
+
+      {Array.from(
+        { length: daysInMonth },
+        (_, dayIndex) => {
+
+          const day = dayIndex + 1;
+
+          const status = records[day];
+
+          if (status === "มา") present++;
+          else if (status === "ขาด") absent++;
+          else if (status === "ลา") leave++;
+
+          return (
+            <td key={day}>
+
+              {status === "มา"
+                ? "✓"
+                : status === "ขาด"
+                ? "ข"
+                : status === "ลา"
+                ? "ล"
+                : ""}
+
+            </td>
+          );
+        }
+      )}
+
+      <td>{present}</td>
+
+      <td>{absent}</td>
+
+      <td>{leave}</td>
+
+    </tr>
+
+  );
+})}
+
+</tbody>
+
+</table>
+     
       </div>
      {filteredRows.length > rowsPerPage && (
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
