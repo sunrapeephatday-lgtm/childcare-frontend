@@ -259,80 +259,84 @@ export default function CheckinPage() {
 
   return (
     <div className="container-fluid px-4 my-4">
-      {/* ===== หัวข้อ ===== */}
+      {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
   
-      {/* ===== ส่วนปุ่มและตัวเลือกค้นหา ===== */}
-      <div className="row mb-4 align-items-end bg-light p-3 rounded shadow-sm mx-1">
-        <div className="col-md-3 mb-2 mb-md-0">
-          <label className="form-label fw-bold text-secondary">เดือน</label>
-          <select
-            className="form-select"
-            value={exportMonth}
-            onChange={(e) => setExportMonth(Number(e.target.value))}
-          >
-            {[
-              "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-              "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-            ].map((m, i) => (
-              <option key={i} value={i + 1}>{m}</option>
-            ))}
-          </select>
-        </div>
+      {/* ===== เมนูค้นหา คลุมด้วยสไตล์แบบการ์ดสวยงาม ===== */}
+      <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
+        <div className="row align-items-end">
+          <div className="col-md-3">
+            <label className="form-label fw-bold text-secondary">เดือน</label>
+            <select
+              className="form-select"
+              value={exportMonth}
+              onChange={(e) => setExportMonth(Number(e.target.value))}
+            >
+              {[
+                "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+                "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+              ].map((m, i) => (
+                <option key={i} value={i + 1}>{m}</option>
+              ))}
+            </select>
+          </div>
 
-        <div className="col-md-2 mb-2 mb-md-0">
-          <label className="form-label fw-bold text-secondary">ปี</label>
-          <select
-            className="form-select"
-            value={exportYear}
-            onChange={(e) => setExportYear(Number(e.target.value))}
-          >
-            {[2568, 2569, 2570].map((y) => (
-              <option key={y} value={y - 543}>{y}</option>
-            ))}
-          </select>
-        </div>
+          <div className="col-md-2">
+            <label className="form-label fw-bold text-secondary">ปี</label>
+            <select
+              className="form-select"
+              value={exportYear}
+              onChange={(e) => setExportYear(Number(e.target.value))}
+            >
+              {[2568, 2569, 2570].map((y) => (
+                <option key={y} value={y - 543}>{y}</option>
+              ))}
+            </select>
+          </div>
 
-        <div className="col-12 col-md-7 mt-2 mt-md-0">
-          <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-            <button type="button" className="btn btn-outline-secondary px-3" onClick={handleReload}>
-              รีโหลด
-            </button>
-            <button className="btn btn-success px-3" onClick={async () => {
-              await loadHistory(teacherId);
-              setHistoryPage(1);
-              setShowHistory(true);
-            }}>
-              ค้นหาประวัติ
-            </button>
-            <button className="btn btn-primary px-3" onClick={saveAll}>
-              บันทึกทั้งหมด
-            </button>
-            <button className="btn btn-outline-primary px-3" onClick={exportExcel}>
-              Export Microsoft Excel
-            </button>
+          <div className="col-12 col-md-7 mt-3 mt-md-0">
+            <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+              <button type="button" className="btn btn-outline-secondary px-3" onClick={handleReload}>
+                รีโหลด
+              </button>
+              <button className="btn btn-success px-3" onClick={async () => {
+                await loadHistory(teacherId);
+                setHistoryPage(1);
+                setShowHistory(true);
+              }}>
+                ค้นหาประวัติ
+              </button>
+              <button className="btn btn-primary px-3" onClick={saveAll}>
+                บันทึกทั้งหมด
+              </button>
+              <button className="btn btn-outline-primary px-3" onClick={exportExcel}>
+                Export Microsoft Excel
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ===== ส่วนของประวัติย้อนหลังรายเดือน (ตารางที่มีปัญหา) ===== */}
+      {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน (ที่มี 31 วัน) ===== */}
       {showHistory && (
-        <div className="mb-5 shadow-sm p-3 bg-white rounded">
-          <h4 className="mb-3 fw-bold text-success section-title border-bottom pb-2">
+        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
+          <h4 className="mb-3 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* แกไขจุดหลัก: เปลี่ยนไปใช้คลาสของ Bootstrap เพื่อคุมกรอบเลื่อนให้เสถียร */}
-          <div className="checkin-table-wrapper w-100 overflow-auto border rounded">
-            <table className="table table-bordered table-striped text-center align-middle mb-0" style={{ minWidth: "1600px" }}>
+          {/* จุดสำคัญ: ใช้ wrapper บังคับ Scrollbar แนวนอนภายในกรอบการ์ด ไม่ให้ทะลุออกจอหลัก */}
+          <div className="checkin-table-wrapper border rounded overflow-auto w-100">
+            <table className="table table-bordered align-middle mb-0 text-center" style={{ minWidth: "1600px" }}>
               <thead className="table-success text-dark">
                 <tr>
                   <th rowSpan="2" className="align-middle">ลำดับ</th>
                   <th rowSpan="2" className="align-middle text-start ps-3" style={{ minWidth: "220px" }}>ชื่อ-นามสกุล</th>
-                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2">วันที่เช็คชื่อ</th>
+                  <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-end pe-3 small text-muted fw-normal">
+                    วันที่เช็คชื่อ
+                  </th>
                   <th rowSpan="2" className="align-middle">มา</th>
                   <th rowSpan="2" className="align-middle">ขาด</th>
                   <th rowSpan="2" className="align-middle">ลา</th>
@@ -341,8 +345,8 @@ export default function CheckinPage() {
                   {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, i) => {
                     const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
                     return (
-                      <th key={i} className="fw-normal small py-1 px-1" style={{ minWidth: "45px" }}>
-                        {i + 1}<br/>{shortMonths[exportMonth - 1]}
+                      <th key={i} className="fw-normal small py-1" style={{ minWidth: "45px" }}>
+                        {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
                       </th>
                     );
                   })}
@@ -357,7 +361,7 @@ export default function CheckinPage() {
                   return (
                     <tr key={i}>
                       <td>{historyFirstRow + i + 1}</td>
-                      <td className="text-start ps-3 fw-bold" style={{ minWidth: "220px", whiteSpace: "nowrap" }}>
+                      <td className="text-start ps-3 fw-medium" style={{ minWidth: "220px", whiteSpace: "nowrap" }}>
                         {name}
                       </td>
                       {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, dayIndex) => {
@@ -386,7 +390,7 @@ export default function CheckinPage() {
             </table>
           </div>
 
-          {/* Pagination ประวัติ */}
+          {/* Pagination ของประวัติ */}
           {groupedHistory.length > rowsPerPage && (
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
               <div className="text-muted small">
@@ -423,9 +427,9 @@ export default function CheckinPage() {
         </div>
       )}
 
-      {/* ===== ส่วนตารางเช็คชื่อประจำวัน (ตารางล่าง) ===== */}
-      <div className="shadow-sm p-3 bg-white rounded">
-        <h4 className="mb-3 fw-bold text-secondary section-title border-bottom pb-2">
+      {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ (ตารางล่าง) ===== */}
+      <div className="card shadow-sm p-3 bg-white rounded border-0">
+        <h4 className="mb-3 fw-bold text-secondary section-title">
           รายชื่อนักเรียนวันนี้
         </h4>
         <div className="table-responsive border rounded">
@@ -446,7 +450,7 @@ export default function CheckinPage() {
                   <td className="text-start ps-3">{r.name}</td>
                   <td className="text-start ps-3">{r.nickname}</td>
                   <td>
-                    <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "100px" }} value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
+                    <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "110px" }} value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
                       <option value="มา">มา</option>
                       <option value="ขาด">ขาด</option>
                       <option value="ลา">ลา</option>
@@ -461,7 +465,7 @@ export default function CheckinPage() {
           </table>
         </div>
 
-        {/* Pagination เช็คชื่อ */}
+        {/* Pagination ของตารางเช็คชื่อวันนี้ */}
         {filteredRows.length > rowsPerPage && (
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
             <div className="text-muted small">

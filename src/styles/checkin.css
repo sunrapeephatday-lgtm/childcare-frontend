@@ -5,7 +5,7 @@
   display: block;
 }
 
-/* บังคับให้โครงสร้างตารางไม่ถูกบีบอัดจนเละ */
+/* บังคับไม่ให้คอลัมน์ของตารางยืดหดจนสัดส่วนเบี้ยว */
 .checkin-table-wrapper table {
   width: max-content;
   max-width: none;
@@ -19,14 +19,10 @@
   text-align: center;
 }
 
-.checkin-table-wrapper .form-select-sm {
-  min-width: 120px;
-}
-
-/* เพิ่มเติมสไตล์ตกแต่งให้น่าใช้งาน */
+/* ตกแต่งเส้นหัวข้อบาร์ด้านซ้ายให้เหมือนหน้าดื่มนม */
 .section-title {
   position: relative;
-  padding-left: 10px;
+  padding-left: 12px;
 }
 
 .section-title::before {
@@ -36,6 +32,6 @@
   top: 15%;
   height: 70%;
   width: 4px;
-  background-color: #198754; /* สีเขียว Bootstrap Success */
-  border-radius: 2px;
+  background-color: #198754;
+  border-radius: 4px;
 }
