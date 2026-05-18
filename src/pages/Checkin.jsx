@@ -449,7 +449,7 @@ const checkinPageNumbers = Array.from(
 </h4>
 
 
- <div className="history-table-wrapper">
+ <div className="checkin-table-wrapper">
   <table
   className="table table-bordered">
 
