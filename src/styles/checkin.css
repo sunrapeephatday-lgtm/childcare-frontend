@@ -1,66 +1,18 @@
-/* ตารางเลื่อนในมือถือ */
-.table-responsive{
-  overflow-x:auto;
+.checkin-table-wrapper {
+  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* ===== ตารางประวัติรายเดือน ===== */
-
-.history-table-wrapper{
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  margin-bottom: 20px;
+.checkin-table-wrapper table {
+  min-width: 820px;
 }
 
-
-
-/* ===== ตารางเช็คชื่อปกติ ===== */
-
-.table-responsive{
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* ===== ตารางประวัติ ===== */
-
-.history-table-wrapper th,
-.history-table-wrapper td{
+.checkin-table-wrapper th,
+.checkin-table-wrapper td {
   white-space: nowrap;
-}
-
-.table-responsive input{
-  width: 100%;
-  min-width: 120px;
-}
-
-.table-responsive select{
-  width: 100%;
-}
-
-/* select */
-.form-select-sm{
-  min-width: 120px;
-}
-
-/* ช่องหมายเหตุ */
-.form-control-sm{
-  min-width: 180px;
-}
-
-.table th,
-.table td {
-  padding: 0.45rem 0.6rem;
   vertical-align: middle;
 }
-/* ===== แก้มุมขาวทะลุ ===== */
 
-.table-responsive{
-  border-radius: 0 !important;
-  overflow-x: auto;
-}
-
-
-.table{
-  margin-bottom: 0 !important;
+.checkin-table-wrapper .form-select-sm {
+  min-width: 120px;
 }

@@ -452,10 +452,7 @@ const checkinPageNumbers = Array.from(
  <div className="history-table-wrapper">
   <table
   className="table table-bordered"
-  style={{
-    fontSize: "14px",
-    whiteSpace: "nowrap"
-  }}
+   style={{ tableLayout: "fixed", width: "100%" }}
 >
 
 <thead>
