@@ -679,11 +679,11 @@ const checkinPageNumbers = Array.from(
 {checkinFirstRow + i + 1}
 </td>
 
-<td>
+<td className="text-start ps-3">
 {r.name}
 </td>
 
-<td>
+<td className="text-start ps-3">
 {r.nickname}
 </td>
 
