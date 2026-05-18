@@ -1,37 +1,27 @@
-/* คลาสสำหรับสร้างแถบเลื่อนแนวนอนให้กับตารางประวัติ 31 วันย้อนหลัง */
-.checkin-history-scroll-box {
+.checkin-table-wrapper {
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  margin-bottom: 1rem;
+  box-sizing: border-box;
 }
 
-/* ล็อกขนาดหัวข้อตารางและเนื้อหาข้างในไม่ให้บีบเบี้ยวตอนเลื่อนแถบ Scrollbar */
-.checkin-history-scroll-box table {
-  width: max-content;
-  min-width: 1600px;
-  max-width: none;
-}
-
-.checkin-history-scroll-box th,
-.checkin-history-scroll-box td {
+.checkin-table-wrapper th,
+.checkin-table-wrapper td {
   white-space: nowrap;
   vertical-align: middle;
   text-align: center;
 }
 
-/* ส่วนจัดการฟอร์มและปุ่มตารางปกติ */
-.table-responsive th,
-.table-responsive td {
-  white-space: nowrap;
-  vertical-align: middle;
-  text-align: center;
+.section-title {
+  position: relative;
+  padding-left: 12px;
 }
 
-.table-responsive select,
-.table-responsive input {
-  width: 100%;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
+.section-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 4px;
+  background-color: #198754;
+  border-radius: 4px;
 }

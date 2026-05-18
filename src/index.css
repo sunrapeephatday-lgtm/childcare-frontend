@@ -174,7 +174,7 @@ textarea{
   min-height:0;              /* 🔥 ตัวแก้บั๊กมือถือ */
   padding:16px;
   overflow-y:auto;
-  overflow-x:hidden;
+  overflow-x:auto;
   -webkit-overflow-scrolling:touch;
 }
 
