@@ -1,3 +1,23 @@
+.milk-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.milk-table-wrapper table {
+  min-width: 820px;
+}
+
+.milk-table-wrapper th,
+.milk-table-wrapper td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.milk-table-wrapper .form-select-sm {
+  min-width: 120px;
+}
+
+/* สไตล์เส้นขีดตกแต่งบาร์ข้างหัวข้อ */
 .section-title {
   position: relative;
   padding-left: 12px;

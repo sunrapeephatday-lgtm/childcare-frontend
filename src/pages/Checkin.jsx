@@ -124,6 +124,9 @@ export default function CheckinPage() {
     }
     loadHistory(teacherId);
     setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
+    setTimeout(() => {
+      setMsg(null);
+    }, 2000);
   }
 
   /* ================= EXPORT ================= */
@@ -258,18 +261,18 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="content-layout-main">
+    <div className="layout-main">
       {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
-      {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
+      {msg && <div className="alert alert-success">{msg.text}</div>}
   
-      {/* ===== เมนูเลือกเดือน/ปี และกลุ่มปุ่มคำสั่งต่างๆ ===== */}
+      {/* ===== เมนูเลือกเดือน/ปี และกลุ่มปุ่มคำสั่งต่างๆ ใช้โครงสร้างแบบหน้า Milk ===== */}
       <div className="card-panel mb-4">
         <div className="row align-items-end">
           <div className="col-md-3">
-            <label className="form-label fw-bold text-secondary">เดือน</label>
+            <label className="form-label">เดือน</label>
             <select
               className="form-select"
               value={exportMonth}
@@ -285,7 +288,7 @@ export default function CheckinPage() {
           </div>
 
           <div className="col-md-2">
-            <label className="form-label fw-bold text-secondary">ปี</label>
+            <label className="form-label">ปี</label>
             <select
               className="form-select"
               value={exportYear}
@@ -297,22 +300,22 @@ export default function CheckinPage() {
             </select>
           </div>
 
-          <div className="col-12 col-md-7 mt-3 mt-md-0">
+          <div className="col-12 col-md-7 mt-2 mt-md-0">
             <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-              <button type="button" className="btn btn-outline-secondary px-3" onClick={handleReload}>
+              <button type="button" className="btn btn-outline-secondary" onClick={handleReload}>
                 รีโหลด
               </button>
-              <button className="btn btn-primary px-3" onClick={async () => {
+              <button type="button" className="btn btn-primary" onClick={async () => {
                 await loadHistory(teacherId);
                 setHistoryPage(1);
                 setShowHistory(true);
               }}>
                 ค้นหาประวัติ
               </button>
-              <button className="btn btn-primary px-3" onClick={saveAll}>
+              <button type="button" className="btn btn-primary" onClick={saveAll}>
                 บันทึกทั้งหมด
               </button>
-              <button className="btn btn-primary me-2" onClick={exportExcel}>
+              <button type="button" className="btn btn-primary me-2" onClick={exportExcel}>
                 Export Microsoft Excel
               </button>
             </div>
@@ -323,29 +326,29 @@ export default function CheckinPage() {
       {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน ===== */}
       {showHistory && (
         <div className="card-panel mb-4">
-          <h4 className="mb-3 fw-bold text-success section-title">
+          <h5 className="mb-3 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
-          </h4>
+          </h5>
 
-          {/* 🎯 ครอบตารางด้วยคลาสจากธีมกลางของคุณ และบังคับตัดความกว้างไม่ให้ล้นออกนอกแผงสีขาว */}
-          <div className="table-scroll" style={{ width: "100%", maxWidth: "100%", overflowX: "auto" }}>
+          {/* ครอบด้วยคลาสสำเร็จรูป .table-scroll จากระบบหลักเพื่อเปิดแถบเลื่อนและบล็อกไม่ให้การ์ดขาวทะลุ */}
+          <div className="table-scroll">
             <table className="table table-bordered align-middle mb-0 text-center" style={{ minWidth: "1600px", tableLayout: "fixed" }}>
               <thead className="table-success text-dark">
                 <tr>
-                  <th rowSpan="2" className="align-middle" style={{ width: "60px" }}>ลำดับ</th>
-                  <th rowSpan="2" className="align-middle text-start ps-3" style={{ width: "220px" }}>ชื่อ-นามสกุล</th>
+                  <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
+                  <th rowSpan="2" className="text-start ps-3" style={{ width: "220px" }}>ชื่อ-นามสกุล</th>
                   <th colSpan={new Date(exportYear, exportMonth, 0).getDate()} className="py-2 text-center text-dark fw-bold bg-success bg-opacity-10">
                     วันที่เช็คชื่อ
                   </th>
-                  <th rowSpan="2" className="align-middle" style={{ width: "55px" }}>มา</th>
-                  <th rowSpan="2" className="align-middle" style={{ width: "55px" }}>ขาด</th>
-                  <th rowSpan="2" className="align-middle style-th" style={{ width: "55px" }}>ลา</th>
+                  <th rowSpan="2" style={{ width: "55px" }}>มา</th>
+                  <th rowSpan="2" style={{ width: "55px" }}>ขาด</th>
+                  <th rowSpan="2" style={{ width: "55px" }}>ลา</th>
                 </tr>
                 <tr>
                   {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, i) => {
                     const shortMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
                     return (
-                      <th key={i} className="fw-normal small py-1" style={{ width: "45px", whiteSpace: "nowrap" }}>
+                      <th key={i} className="fw-normal small py-1" style={{ width: "45px" }}>
                         {i + 1}<br/><span className="text-muted" style={{ fontSize: "10px" }}>{shortMonths[exportMonth - 1]}</span>
                       </th>
                     );
@@ -361,7 +364,7 @@ export default function CheckinPage() {
                   return (
                     <tr key={i}>
                       <td>{historyFirstRow + i + 1}</td>
-                      <td className="text-start ps-3 fw-medium" style={{ width: "220px", whiteSpace: "nowrap" }}>
+                      <td className="text-start ps-3 fw-medium" style={{ width: "220px" }}>
                         {name}
                       </td>
                       {Array.from({ length: new Date(exportYear, exportMonth, 0).getDate() }, (_, dayIndex) => {
@@ -373,7 +376,7 @@ export default function CheckinPage() {
                         else if (status === "ลา") leave++;
 
                         return (
-                          <td key={day} className="px-1" style={{ whiteSpace: "nowrap" }}>
+                          <td key={day} className="px-1">
                             {status === "มา" ? <span className="text-success fw-bold">✓</span> : 
                              status === "ขาด" ? <span className="text-danger fw-bold">ข</span> : 
                              status === "ลา" ? <span className="text-warning fw-bold">ล</span> : "-"}
@@ -390,7 +393,7 @@ export default function CheckinPage() {
             </table>
           </div>
 
-          {/* Pagination ของตารางประวัติ */}
+          {/* Pagination ประวัติ */}
           {groupedHistory.length > rowsPerPage && (
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
               <div className="text-muted small">
@@ -433,7 +436,7 @@ export default function CheckinPage() {
           รายชื่อนักเรียนวันนี้
         </h4>
         <div className="table-responsive border rounded">
-          <table className="table table-bordered table-hover align-middle mb-0 text-center">
+          <table className="table table-bordered table-hover align-middle mb-0 text-center" style={{ tableLayout: "fixed", width: "100%" }}>
             <thead className="table-light">
               <tr>
                 <th style={{ width: "60px" }}>ลำดับ</th>
@@ -447,10 +450,14 @@ export default function CheckinPage() {
               {currentCheckins.map((r, i) => (
                 <tr key={r.child_id}>
                   <td>{checkinFirstRow + i + 1}</td>
-                  <td className="text-start ps-3">{r.name}</td>
-                  <td className="text-start ps-3">{r.nickname}</td>
+                  <td className="text-start ps-3" style={{ textAlign: "left", paddingLeft: "16px", width: "160px" }}>{r.name}</td>
+                  <td>{r.nickname}</td>
                   <td>
-                    <select className="form-select form-select-sm text-center mx-auto" style={{ maxWidth: "110px" }} value={r.status} onChange={(e) => mark(r.child_id, e.target.value)}>
+                    <select
+                      className="form-select-sm"
+                      value={r.status}
+                      onChange={(e) => mark(r.child_id, e.target.value)}
+                    >
                       <option value="มา">มา</option>
                       <option value="ขาด">ขาด</option>
                       <option value="ลา">ลา</option>
@@ -465,7 +472,7 @@ export default function CheckinPage() {
           </table>
         </div>
 
-        {/* Pagination ของตารางวันนี้ */}
+        {/* Pagination เช็คชื่อประจำวัน */}
         {filteredRows.length > rowsPerPage && (
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
             <div className="text-muted small">
