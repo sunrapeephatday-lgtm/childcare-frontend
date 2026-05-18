@@ -1,3 +1,9 @@
+/* ตารางเลื่อนในมือถือ */
+.table-responsive{
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ===== ตารางประวัติรายเดือน ===== */
 
 .history-table-wrapper{
@@ -5,60 +11,56 @@
   overflow-x: auto;
   overflow-y: hidden;
   margin-bottom: 20px;
-  -webkit-overflow-scrolling: touch;
 }
 
-.history-table{
-  min-width: 1600px;
-  table-layout: fixed;
-  width: 100%;
-}
 
-.history-table th,
-.history-table td{
-  white-space: nowrap;
-}
 
 /* ===== ตารางเช็คชื่อปกติ ===== */
 
 .table-responsive{
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
-.table-responsive table{
-  width: 100%;
-  table-layout: fixed;
+/* ไม่ให้ข้อความหักบรรทัด */
+/* ===== ตารางประวัติ ===== */
+
+.history-table-wrapper th,
+.history-table-wrapper td{
+  white-space: nowrap;
 }
 
 .table-responsive input{
   width: 100%;
   min-width: 120px;
-  box-sizing: border-box;
 }
 
 .table-responsive select{
   width: 100%;
 }
 
-/* ===== form ===== */
-
+/* select */
 .form-select-sm{
   min-width: 120px;
 }
 
+/* ช่องหมายเหตุ */
 .form-control-sm{
   min-width: 180px;
 }
 
-/* ===== table ===== */
-
 .table th,
-.table td{
+.table td {
   padding: 0.45rem 0.6rem;
   vertical-align: middle;
 }
+/* ===== แก้มุมขาวทะลุ ===== */
+
+.table-responsive{
+  border-radius: 0 !important;
+  overflow-x: auto;
+}
+
 
 .table{
   margin-bottom: 0 !important;
