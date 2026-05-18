@@ -258,15 +258,15 @@ export default function CheckinPage() {
     .filter((page) => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
 
   return (
-    <div className="container my-4">
+    <div className="content-layout-main">
       {/* ===== หัวข้อหลัก ===== */}
       <h3 className="mb-3 fw-bold text-success section-title">
         บันทึกการเช็คชื่อ (วันที่ {thaiDate})
       </h3>
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
   
-      {/* ===== เมนูเลือกเดือน/ปี และปุ่มคำสั่งต่างๆ ===== */}
-      <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0">
+      {/* ===== เมนูเลือกเดือน/ปี และกลุ่มปุ่มคำสั่งต่างๆ ===== */}
+      <div className="card-panel mb-4">
         <div className="row align-items-end">
           <div className="col-md-3">
             <label className="form-label fw-bold text-secondary">เดือน</label>
@@ -322,13 +322,13 @@ export default function CheckinPage() {
 
       {/* ===== ส่วนตารางประวัติเช็คชื่อรายเดือน ===== */}
       {showHistory && (
-        <div className="card shadow-sm p-3 mb-4 bg-white rounded border-0 checkin-table-wrapper">
+        <div className="card-panel mb-4">
           <h4 className="mb-3 fw-bold text-success section-title">
             ประวัติการเช็คชื่อรายเดือน
           </h4>
 
-          {/* ตารางใช้ระบบ table-responsive ครอบไว้เพื่อทำตัวเลื่อนให้เหมือนหน้าดื่มนม */}
-          <div className="table-responsive border rounded">
+          {/* 🎯 จุดตายที่แก้ไข: ครอบด้วยคลาสสำเร็จรูป .table-scroll จาก index.css เพื่อเปิดแถบเลื่อนแนวนอนสีเทาใต้กล่องขาวพอดี */}
+          <div className="table-scroll">
             <table className="table table-bordered align-middle mb-0 text-center" style={{ minWidth: "1600px" }}>
               <thead className="table-success text-dark">
                 <tr>
@@ -427,8 +427,8 @@ export default function CheckinPage() {
         </div>
       )}
 
-      {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ ===== */}
-      <div className="card shadow-sm p-3 bg-white rounded border-0">
+      {/* ===== ส่วนตารางรายชื่อนักเรียนวันนี้ (ตารางล่าง) ===== */}
+      <div className="card-panel">
         <h4 className="mb-3 fw-bold text-secondary section-title">
           รายชื่อนักเรียนวันนี้
         </h4>

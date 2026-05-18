@@ -1,15 +1,3 @@
-.checkin-table-wrapper {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.checkin-table-wrapper th,
-.checkin-table-wrapper td {
-  white-space: nowrap;
-  vertical-align: middle;
-  text-align: center;
-}
-
 .section-title {
   position: relative;
   padding-left: 12px;
