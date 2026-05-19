@@ -29,8 +29,6 @@ export default function AdminDashboard() {
 
   const [selectedChild, setSelectedChild] = useState(null);
   const [detailData, setDetailData] = useState(null);
-  
-  // เปลี่ยนจาก showModal เป็นระบบเปิดปิดหน้าแสดงรายละเอียดบน Dashboard
   const [showDetail, setShowDetail] = useState(false);
 
   const rowsPerPage = 10;
@@ -78,7 +76,7 @@ export default function AdminDashboard() {
       });
       setSearchResults(res.data);
       setCurrentPage(1);
-      setShowDetail(false); // ค้นหาใหม่ให้ปิดหน้ารายละเอียดเก่าก่อน
+      setShowDetail(false);
     } catch (err) {
       console.error(err);
     }
@@ -94,7 +92,7 @@ export default function AdminDashboard() {
       });
       setSelectedChild(child);
       setDetailData(res.data);
-      setShowDetail(true); // เปิดการแสดงผลตารางรายละเอียดในหน้าจอหลัก
+      setShowDetail(true);
     } catch (err) {
       console.error(err);
     }
@@ -165,7 +163,7 @@ export default function AdminDashboard() {
         </div>
       </form>
 
-      {/* SEARCH RESULT (โชว์เมื่อมีผลลัพธ์และไม่ได้เปิดดูรายละเอียดอยู่) */}
+      {/* SEARCH RESULT */}
       {searchResults.length > 0 && !showDetail && (
         <div className="card mb-4 border-success shadow-sm">
           <div className="card-body">
@@ -229,7 +227,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ===================== DETAIL IN-LINE SECTION (แสดงแทนกล่องค้นหาแบบหน้า MilkPage) ===================== */}
+      {/* ===================== DETAIL IN-LINE SECTION ===================== */}
       {showDetail && detailData && (
         <div className="card mb-4 border-success shadow-sm">
           {/* HEADER */}
@@ -386,13 +384,58 @@ function getDaysInMonth(month, year) {
   return new Date(year, month, 0).getDate();
 }
 
-function displaySymbol(title, value) {
+function displaySymbol(title, value, allData = []) {
   if (!value || value === "-") return "-";
-  
-  if (value === "ดื่ม" || value === "มา" || value === "ปฏิบัติ" || value === "ปกติ") return "✓";
-  if (value === "ไม่ดื่ม" || value === "ขาด" || value === "ไม่ปฏิบัติ" || value === "ผิดปกติ") return "✕";
-  
-  return value; 
+
+  const strValue = String(value).trim();
+
+  // 1. เงื่อนไขหมวดเช็คชื่อ (มา = ✓, ลา = ล, ขาด = ข)
+  if (title === "เช็คชื่อ") {
+    if (strValue === "มา") return "✓";
+    if (strValue === "ลา") return "ล";
+    if (strValue === "ขาด") return "ข";
+    return strValue;
+  }
+
+  // 2. เงื่อนไขหมวดสุขภาพ (ไล่เช็คความถี่ ดี > ปานกลาง > ปรับปรุง เกิน 3 วัน)
+  if (title === "สุขภาพ") {
+    if (!allData || allData.length === 0) return strValue;
+    
+    let goodCount = 0;
+    let normalCount = 0;
+    let improveCount = 0;
+    
+    allData.forEach(item => {
+      const noteStr = String(item.note || "").trim();
+      if (noteStr.includes("ดี")) goodCount++;
+      if (noteStr.includes("ปานกลาง")) normalCount++;
+      if (noteStr.includes("ปรับปรุง")) improveCount++;
+    });
+
+    if (goodCount >= 3) return "ดี";
+    if (normalCount >= 3) return "ปานกลาง";
+    if (improveCount >= 3) return "ปรับปรุง";
+    
+    return strValue;
+  }
+
+  // 3. เงื่อนไขหมวดกิจกรรม ดื่มนม / รับประทานอาหาร / แปรงฟัน (เปลี่ยนคำยาว ๆ ให้เป็น ติ๊กถูก)
+  if (
+    strValue === "ดื่ม" || 
+    strValue === "รับประทาน" || 
+    strValue === "แปรงฟันแล้ว" || 
+    strValue === "ปฏิบัติ" || 
+    strValue === "ปกติ" ||
+    strValue === "✓"
+  ) {
+    return "✓";
+  }
+
+  if (strValue === "ไม่ดื่ม" || strValue === "ไม่ปฏิบัติ" || strValue === "ผิดปกติ" || strValue === "✕") {
+    return "✕";
+  }
+
+  return strValue;
 }
 
 /* ==================================================
@@ -417,7 +460,7 @@ function MonthlyDataRow({ title, data, dateKey, valueKey, month, year }) {
 
         return (
           <td key={day} style={{ width: "86px" }}>
-            {displaySymbol(title, rawValue)}
+            {displaySymbol(title, rawValue, data)}
           </td>
         );
       })}
@@ -443,10 +486,11 @@ function MeasurementRow({ title, data, month, year }) {
           return itemDate.getDate() === day;
         });
 
+        // แสดงผลหน่วย กก. และ ซม. โดยใช้ parseFloat เพื่อลบเลขศูนย์ (.00) ท้ายทศนิยมออก
         return (
-          <td key={day} style={{ width: "86px", fontSize: "12px" }}>
-            {found
-              ? `${found.weight ?? "-"} / ${found.height ?? "-"}`
+          <td key={day} style={{ width: "86px", fontSize: "11px", whiteSpace: "nowrap" }}>
+            {found && (found.weight || found.height)
+              ? `${found.weight ? parseFloat(found.weight) + " กก." : "-"} / ${found.height ? parseFloat(found.height) + " ซม." : "-"}`
               : "-"}
           </td>
         );
