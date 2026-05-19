@@ -26,12 +26,16 @@ function measurementDisplay(value) {
 
   const parts = [];
 
+  // ตรวจสอบน้ำหนัก: แปลงเป็นตัวเลขเพื่อตัด .00 ออก แล้วใส่หน่วย กก.
   if (value.weight !== null && value.weight !== undefined && value.weight !== "") {
-    parts.push(value.weight);
+    const w = Number(value.weight);
+    parts.push(`${w} กก.`);
   }
 
+  // ตรวจสอบส่วนสูง: แปลงเป็นตัวเลขเพื่อตัด .00 ออก แล้วใส่หน่วย ซม.
   if (value.height !== null && value.height !== undefined && value.height !== "") {
-    parts.push(value.height);
+    const h = Number(value.height);
+    parts.push(`${h} ซม.`);
   }
 
   return parts.join(" / ");
