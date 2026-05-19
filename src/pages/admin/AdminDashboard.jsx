@@ -153,7 +153,7 @@ const totalPages = Math.ceil(searchResults.length / rowsPerPage);
             <table className="table table-bordered">
               <thead>
                 <tr>
-                  <th>ชื่อ</th>
+                  <th>ชื่อ-นามสกุล</th>
                   <th>ห้องเรียน</th>
                   <th>เช็คชื่อ</th>
                   <th>ดื่มนม</th>
