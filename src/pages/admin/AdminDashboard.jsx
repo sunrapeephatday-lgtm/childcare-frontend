@@ -30,11 +30,13 @@ export default function AdminDashboard() {
   );
 
   const [year, setYear] = useState(
-    new Date().getFullYear()
+    new Date().getFullYear() + 543
   );
 
   const [selectedChild, setSelectedChild] = useState(null);
+
   const [detailData, setDetailData] = useState(null);
+
   const [showModal, setShowModal] = useState(false);
 
   const rowsPerPage = 10;
@@ -55,6 +57,7 @@ export default function AdminDashboard() {
   ];
 
   async function loadDashboard() {
+
     try {
 
       const dev = await API.get(
@@ -70,21 +73,28 @@ export default function AdminDashboard() {
       setChildrenCount(child.data);
 
     } catch (err) {
+
       console.error(err);
     }
   }
 
   useEffect(() => {
+
     loadDashboard();
+
   }, []);
 
   function handleReload() {
+
     setKeyword("");
+
     setSearchResults([]);
+
     setCurrentPage(1);
   }
 
   async function handleSearch(e) {
+
     e.preventDefault();
 
     try {
@@ -99,14 +109,17 @@ export default function AdminDashboard() {
       );
 
       setSearchResults(res.data);
+
       setCurrentPage(1);
 
     } catch (err) {
+
       console.error(err);
     }
   }
 
   async function handleViewDetail(child) {
+
     try {
 
       const res = await API.get(
@@ -120,15 +133,19 @@ export default function AdminDashboard() {
       );
 
       setSelectedChild(child);
+
       setDetailData(res.data);
+
       setShowModal(true);
 
     } catch (err) {
+
       console.error(err);
     }
   }
 
-  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfLastRow =
+    currentPage * rowsPerPage;
 
   const indexOfFirstRow =
     indexOfLastRow - rowsPerPage;
@@ -143,6 +160,7 @@ export default function AdminDashboard() {
   );
 
   return (
+
     <div>
 
       <h5 className="mb-4 fw-bold text-success section-title">
@@ -164,39 +182,53 @@ export default function AdminDashboard() {
             placeholder="ค้นหาเด็ก / ห้องเรียน"
             style={{ width: "280px" }}
             value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            onChange={(e) =>
+              setKeyword(e.target.value)
+            }
           />
 
           <select
             className="form-select"
-            style={{ width: "100px" }}
+            style={{ width: "120px" }}
             value={month}
-            onChange={(e) => setMonth(e.target.value)}
+            onChange={(e) =>
+              setMonth(Number(e.target.value))
+            }
           >
+
             {[...Array(12)].map((_, i) => (
+
               <option
                 key={i + 1}
                 value={i + 1}
               >
                 {thaiMonths[i]}
               </option>
+
             ))}
+
           </select>
 
           <select
             className="form-select"
             style={{ width: "120px" }}
             value={year}
-            onChange={(e) => setYear(e.target.value)}
+            onChange={(e) =>
+              setYear(Number(e.target.value))
+            }
           >
+
             {[2567, 2568, 2569].map((y) => (
+
               <option
                 key={y}
                 value={y}
               >
                 {y}
               </option>
+
             ))}
+
           </select>
 
           <button className="btn btn-success">
@@ -234,11 +266,19 @@ export default function AdminDashboard() {
                 <thead className="table-success">
 
                   <tr>
-                    <th>ชื่อ-นามสกุล</th>
-                    <th>ห้องเรียน</th>
+
+                    <th>
+                      ชื่อ-นามสกุล
+                    </th>
+
+                    <th>
+                      ห้องเรียน
+                    </th>
+
                     <th width="140">
                       รายละเอียด
                     </th>
+
                   </tr>
 
                 </thead>
@@ -250,21 +290,30 @@ export default function AdminDashboard() {
                     <tr key={c.child_id}>
 
                       <td className="text-start ps-3">
+
                         {c.prefix}
+
                         {c.first_name}
+
                         {" "}
+
                         {c.last_name}
+
                       </td>
 
                       <td className="text-start ps-3">
+
                         {c.classroom_name}
+
                       </td>
 
                       <td className="text-center">
 
                         <button
                           className="btn btn-primary btn-sm"
-                          onClick={() => handleViewDetail(c)}
+                          onClick={() =>
+                            handleViewDetail(c)
+                          }
                         >
                           รายละเอียด
                         </button>
@@ -289,14 +338,26 @@ export default function AdminDashboard() {
                 className="btn btn-outline-success btn-sm"
                 disabled={currentPage === 1}
                 onClick={() =>
-                  setCurrentPage(currentPage - 1)
+                  setCurrentPage(
+                    currentPage - 1
+                  )
                 }
               >
                 ก่อนหน้า
               </button>
 
               <span className="fw-bold">
-                หน้า {currentPage} / {totalPages || 1}
+
+                หน้า
+
+                {" "}
+
+                {currentPage}
+
+                {" / "}
+
+                {totalPages || 1}
+
               </span>
 
               <button
@@ -306,7 +367,9 @@ export default function AdminDashboard() {
                   totalPages === 0
                 }
                 onClick={() =>
-                  setCurrentPage(currentPage + 1)
+                  setCurrentPage(
+                    currentPage + 1
+                  )
                 }
               >
                 ถัดไป
@@ -326,7 +389,9 @@ export default function AdminDashboard() {
 
         <div className="col-12 col-xl-6 d-flex">
           <div className="w-100">
-            <ChildrenCountChart data={childrenCount} />
+            <ChildrenCountChart
+              data={childrenCount}
+            />
           </div>
         </div>
 
@@ -384,7 +449,8 @@ export default function AdminDashboard() {
           className="modal d-block"
           tabIndex="-1"
           style={{
-            backgroundColor: "rgba(0,0,0,0.5)"
+            backgroundColor:
+              "rgba(0,0,0,0.5)"
           }}
         >
 
@@ -401,6 +467,7 @@ export default function AdminDashboard() {
                   {" "}
 
                   {selectedChild?.prefix}
+
                   {selectedChild?.first_name}
 
                   {" "}
@@ -411,12 +478,64 @@ export default function AdminDashboard() {
 
                 <button
                   className="btn-close"
-                  onClick={() => setShowModal(false)}
+                  onClick={() =>
+                    setShowModal(false)
+                  }
                 />
 
               </div>
 
               <div className="modal-body">
+
+                <div className="alert alert-success">
+
+                  <div>
+
+                    <strong>
+                      ชื่อ:
+                    </strong>
+
+                    {" "}
+
+                    {selectedChild?.prefix}
+
+                    {selectedChild?.first_name}
+
+                    {" "}
+
+                    {selectedChild?.last_name}
+
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      ห้องเรียน:
+                    </strong>
+
+                    {" "}
+
+                    {selectedChild?.classroom_name}
+
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      เดือน:
+                    </strong>
+
+                    {" "}
+
+                    {thaiMonths[month - 1]}
+
+                    {" "}
+
+                    พ.ศ. {year}
+
+                  </div>
+
+                </div>
 
                 {/* ATTENDANCE */}
 
@@ -425,6 +544,8 @@ export default function AdminDashboard() {
                   data={detailData.attendance}
                   dateKey="record_date"
                   valueKey="status"
+                  month={month}
+                  year={year}
                 />
 
                 {/* MILK */}
@@ -434,6 +555,8 @@ export default function AdminDashboard() {
                   data={detailData.milk}
                   dateKey="record_date"
                   valueKey="status"
+                  month={month}
+                  year={year}
                 />
 
                 {/* LUNCH */}
@@ -443,6 +566,8 @@ export default function AdminDashboard() {
                   data={detailData.lunch}
                   dateKey="record_date"
                   valueKey="status"
+                  month={month}
+                  year={year}
                 />
 
                 {/* TOOTHBRUSH */}
@@ -452,6 +577,8 @@ export default function AdminDashboard() {
                   data={detailData.toothbrush}
                   dateKey="record_date"
                   valueKey="status"
+                  month={month}
+                  year={year}
                 />
 
                 {/* HEALTH */}
@@ -461,47 +588,9 @@ export default function AdminDashboard() {
                   data={detailData.health}
                   dateKey="evaluation_date"
                   valueKey="note"
+                  month={month}
+                  year={year}
                 />
-
-                {/* MEASUREMENT */}
-
-                <h6 className="fw-bold text-success mt-4 mb-2">
-                  น้ำหนัก / ส่วนสูง
-                </h6>
-
-                <div className="table-responsive">
-
-                  <table className="table table-bordered">
-
-                    <thead className="table-success">
-
-                      <tr>
-                        <th>วันที่</th>
-                        <th>น้ำหนัก</th>
-                        <th>ส่วนสูง</th>
-                      </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                      {detailData.measurements.map((m, idx) => (
-
-                        <tr key={idx}>
-
-                          <td>{m.measurement_date}</td>
-                          <td>{m.weight}</td>
-                          <td>{m.height}</td>
-
-                        </tr>
-
-                      ))}
-
-                    </tbody>
-
-                  </table>
-
-                </div>
 
               </div>
 
@@ -518,6 +607,22 @@ export default function AdminDashboard() {
 }
 
 /* ==================================================
+   HELPER
+================================================== */
+
+function getDaysInMonth(
+  month,
+  year
+) {
+
+  return new Date(
+    year,
+    month,
+    0
+  ).getDate();
+}
+
+/* ==================================================
    SECTION TABLE
 ================================================== */
 
@@ -525,51 +630,87 @@ function SectionTable({
   title,
   data,
   dateKey,
-  valueKey
+  valueKey,
+  month,
+  year
 }) {
 
-  return (
-    <>
+  const totalDays = getDaysInMonth(
+    month,
+    year - 543
+  );
 
-      <h6 className="fw-bold text-success mt-4 mb-2">
+  const rows = [];
+
+  for (
+    let day = 1;
+    day <= totalDays;
+    day++
+  ) {
+
+    const found = data.find((item) => {
+
+      const itemDate =
+        new Date(item[dateKey]);
+
+      return (
+        itemDate.getDate() === day
+      );
+    });
+
+    rows.push({
+      day,
+      value: found
+        ? found[valueKey]
+        : "-"
+    });
+  }
+
+  return (
+
+    <div className="mb-4">
+
+      <h6 className="fw-bold text-success mb-2">
         {title}
       </h6>
 
       <div className="table-responsive">
 
-        <table className="table table-bordered">
+        <table className="table table-bordered table-hover">
 
           <thead className="table-success">
 
             <tr>
-              <th>วันที่</th>
-              <th>ข้อมูล</th>
+
+              <th width="120">
+                วันที่
+              </th>
+
+              <th>
+                ข้อมูล
+              </th>
+
             </tr>
 
           </thead>
 
           <tbody>
 
-            {data.length > 0 ? (
+            {rows.map((row) => (
 
-              data.map((item, idx) => (
+              <tr key={row.day}>
 
-                <tr key={idx}>
-                  <td>{item[dateKey]}</td>
-                  <td>{item[valueKey]}</td>
-                </tr>
-
-              ))
-
-            ) : (
-
-              <tr>
-                <td colSpan="2" className="text-center">
-                  ไม่มีข้อมูล
+                <td>
+                  {row.day}
                 </td>
+
+                <td>
+                  {row.value}
+                </td>
+
               </tr>
 
-            )}
+            ))}
 
           </tbody>
 
@@ -577,6 +718,6 @@ function SectionTable({
 
       </div>
 
-    </>
+    </div>
   );
 }
