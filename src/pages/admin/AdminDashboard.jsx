@@ -1,7 +1,7 @@
 // src/pages/admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import API from "../../api/api";
-import ChildrenCountChart from "../../components/charts/ChildrenCountChart"; 
+import ChildrenCountChart from "../../components/charts/ChildrenCountChart";
 import AttendanceSummaryUnder3Chart from "../../components/charts/AttendanceSummaryUnder3Chart";
 import AttendanceSummary3YearsChart from "../../components/charts/AttendanceSummary3YearsChart";
 import MilkSummaryUnder3Chart from "../../components/charts/MilkSummaryUnder3Chart";
@@ -21,15 +21,27 @@ export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [year, setYear] = useState(new Date().getFullYear());
-  
-  // ⭐ เพิ่ม State สำหรับเก็บข้อมูลเด็กที่เลือกดูรายละเอียดรายเดือน
+
+  // ✅ ปีเริ่มต้นเป็น พ.ศ. ปัจจุบัน
+  const [year, setYear] = useState(new Date().getFullYear() + 543);
+
   const [selectedChild, setSelectedChild] = useState(null);
 
   const thaiMonths = [
     "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
   ];
+
+  // สถานะ → emoji/ข้อความที่อ่านง่าย (ปรับตามค่าจริงในฐานข้อมูลของคุณ)
+  const statusLabel = (val) => {
+    if (val === null || val === undefined || val === "") return "-";
+    if (val === "present" || val === "มา")    return "✅";
+    if (val === "absent"  || val === "ขาด")   return "❌";
+    if (val === "late"    || val === "สาย")   return "⏰";
+    if (val === "yes"     || val === "ดื่ม")   return "✅";
+    if (val === "no"      || val === "ไม่ดื่ม") return "❌";
+    return val; // แสดงค่าดิบถ้าไม่ตรงกับ case ใด
+  };
 
   async function loadDashboard() {
     try {
@@ -60,36 +72,32 @@ export default function AdminDashboard() {
 
   async function handleSearch(e) {
     e.preventDefault();
+    if (!keyword.trim()) return;
     try {
       const res = await API.get("/admin/dashboard/search-child", {
-        params: {
-          q: keyword,
-          month,
-          year
-        }
+        params: { q: keyword, month, year },
       });
       setSearchResults(res.data);
       setCurrentPage(1);
-      setSelectedChild(null); // รีเซ็ตรายละเอียดเก่าเมื่อค้นหาใหม่
+      setSelectedChild(null);
     } catch (err) {
       console.error("SEARCH ERROR =", err);
     }
   }
 
-  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfLastRow  = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = searchResults.slice(indexOfFirstRow, indexOfLastRow);
-  const totalPages = Math.ceil(searchResults.length / rowsPerPage);
+  const currentRows     = searchResults.slice(indexOfFirstRow, indexOfLastRow);
+  const totalPages      = Math.ceil(searchResults.length / rowsPerPage);
 
-  // คำนวณจำนวนวันในเดือนที่เลือกเพื่อนำมาใช้วาดหัวตารางรายละเอียด
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  // จำนวนวันในเดือนที่เลือก (แปลงปีเป็น ค.ศ. ก่อนส่งให้ Date)
+  const ceYear     = year > 2500 ? year - 543 : year;
+  const daysInMonth = new Date(ceYear, month, 0).getDate();
+  const daysArray   = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   return (
     <div>
-      <h5 className="mb-4 fw-bold text-success section-title ">
-        แดชบอร์ด
-      </h5>
+      <h5 className="mb-4 fw-bold text-success section-title">แดชบอร์ด</h5>
 
       {/* 🔍 SEARCH */}
       <form onSubmit={handleSearch} className="mb-4 d-flex justify-content-end">
@@ -105,7 +113,7 @@ export default function AdminDashboard() {
 
           <select
             className="form-select"
-            style={{ width: "100px" }}
+            style={{ width: "130px" }}
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
@@ -116,13 +124,14 @@ export default function AdminDashboard() {
             ))}
           </select>
 
+          {/* ✅ ปีแสดงเป็น พ.ศ. */}
           <select
             className="form-select"
             style={{ width: "110px" }}
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
           >
-            {[2567, 2568, 2569].map((y) => (
+            {[2566, 2567, 2568, 2569, 2570].map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
@@ -138,12 +147,17 @@ export default function AdminDashboard() {
         </div>
       </form>
 
-      {/* 📊 ผลการค้นหาหลัก (ตารางแบบย่นย่อตามที่ต้องการ) */}
+      {/* 📊 ผลการค้นหาหลัก */}
       {searchResults.length > 0 && !selectedChild && (
         <div className="card mb-4 shadow-sm">
           <div className="card-body">
-            <h6 className="fw-bold mb-3 text-secondary">ผลการค้นหาข้อมูลนักเรียน</h6>
-            <table className="table table-hover table-bordered align-middle text-center" style={{ fontSize: "14px" }}>
+            <h6 className="fw-bold mb-3 text-secondary">
+              ผลการค้นหาข้อมูลนักเรียน ({searchResults.length} คน)
+            </h6>
+            <table
+              className="table table-hover table-bordered align-middle text-center"
+              style={{ fontSize: "14px" }}
+            >
               <thead className="table-light">
                 <tr>
                   <th style={{ width: "80px" }}>ลำดับ</th>
@@ -173,8 +187,8 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
-            
-            {/* Pagination สำหรับหน้าค้นหาหลัก */}
+
+            {/* Pagination */}
             <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
               <button
                 className="btn btn-outline-success btn-sm"
@@ -198,29 +212,37 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* 🔍 หน้ารายละเอียดรายเดือน (แสดงเมื่อคลิกปุ่มรายละเอียด) */}
+      {/* 🔍 หน้ารายละเอียดรายเดือน */}
       {selectedChild && (
         <div className="card mb-4 border-success shadow-sm">
           <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
             <h6 className="mb-0 fw-bold">
-              ประวัติรายเดือนประจำเดือน {thaiMonths[month - 1]} {year} : {selectedChild.prefix || ""}{selectedChild.first_name} {selectedChild.last_name} ({selectedChild.classroom_name})
+              ประวัติรายเดือนประจำเดือน {thaiMonths[month - 1]} {year} :{" "}
+              {selectedChild.prefix || ""}{selectedChild.first_name} {selectedChild.last_name}{" "}
+              ({selectedChild.classroom_name || "-"})
             </h6>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-light btn-sm fw-bold"
               onClick={() => setSelectedChild(null)}
             >
               ย้อนกลับ
             </button>
           </div>
+
           <div className="card-body">
             <div className="table-responsive">
-              <table className="table table-bordered table-sm align-middle text-center" style={{ fontSize: "13px", minWidth: "1200px" }}>
+              <table
+                className="table table-bordered table-sm align-middle text-center"
+                style={{ fontSize: "13px", minWidth: "1200px" }}
+              >
                 <thead className="table-light fw-bold">
                   <tr>
-                    <th style={{ width: "150px" }} className="align-middle">หัวข้อ / วันที่</th>
+                    <th style={{ width: "160px" }} className="align-middle">
+                      หัวข้อ / วันที่
+                    </th>
                     {daysArray.map((day) => (
-                      <th key={day} style={{ minWidth: "40px" }}>{day}</th>
+                      <th key={day} style={{ minWidth: "36px" }}>{day}</th>
                     ))}
                   </tr>
                 </thead>
@@ -229,60 +251,82 @@ export default function AdminDashboard() {
                   <tr>
                     <td className="text-start fw-bold ps-2 table-light">เช็คชื่อ</td>
                     {daysArray.map((day) => (
-                      <td key={day}>{selectedChild.attendance || "-"}</td>
+                      <td key={day}>
+                        {statusLabel(selectedChild.dailyData?.attendance?.[day])}
+                      </td>
                     ))}
                   </tr>
+
                   {/* 2. ดื่มนม */}
                   <tr>
                     <td className="text-start fw-bold ps-2 table-light">ดื่มนม</td>
                     {daysArray.map((day) => (
-                      <td key={day}>{selectedChild.milk || "-"}</td>
+                      <td key={day}>
+                        {statusLabel(selectedChild.dailyData?.milk?.[day])}
+                      </td>
                     ))}
                   </tr>
+
                   {/* 3. รับประทานอาหาร */}
                   <tr>
                     <td className="text-start fw-bold ps-2 table-light">รับประทานอาหาร</td>
                     {daysArray.map((day) => (
-                      <td key={day}>{selectedChild.lunch || "-"}</td>
+                      <td key={day}>
+                        {statusLabel(selectedChild.dailyData?.lunch?.[day])}
+                      </td>
                     ))}
                   </tr>
+
                   {/* 4. แปรงฟัน */}
                   <tr>
                     <td className="text-start fw-bold ps-2 table-light">แปรงฟัน</td>
                     {daysArray.map((day) => (
-                      <td key={day}>{selectedChild.toothbrush || "-"}</td>
+                      <td key={day}>
+                        {statusLabel(selectedChild.dailyData?.toothbrush?.[day])}
+                      </td>
                     ))}
                   </tr>
+
                   {/* 5. สุขภาพ */}
                   <tr>
                     <td className="text-start fw-bold ps-2 table-light">สุขภาพ</td>
                     {daysArray.map((day) => (
-                      <td key={day}>{selectedChild.health_note || "-"}</td>
+                      <td key={day}>
+                        {selectedChild.dailyData?.health?.[day] || "-"}
+                      </td>
                     ))}
                   </tr>
+
                   {/* 6. น้ำหนัก */}
                   <tr>
                     <td className="text-start fw-bold ps-2 table-light">น้ำหนัก (กก.)</td>
                     {daysArray.map((day) => (
-                      <td key={day}>{selectedChild.weight || "-"}</td>
+                      <td key={day}>
+                        {selectedChild.dailyData?.measurements?.[day]?.weight ?? "-"}
+                      </td>
                     ))}
                   </tr>
+
                   {/* 7. ส่วนสูง */}
                   <tr>
                     <td className="text-start fw-bold ps-2 table-light">ส่วนสูง (ซม.)</td>
                     {daysArray.map((day) => (
-                      <td key={day}>{selectedChild.height || "-"}</td>
+                      <td key={day}>
+                        {selectedChild.dailyData?.measurements?.[day]?.height ?? "-"}
+                      </td>
                     ))}
                   </tr>
                 </tbody>
               </table>
             </div>
-            <p className="text-muted small mt-2 mb-0">* หมายเหตุ: ข้อมูลด้านบนดึงผลรวมหรือสถานะหลักประจำเดือนที่ถูกส่งมาจากระบบคลังข้อมูล</p>
+            <p className="text-muted small mt-2 mb-0">
+              * หมายเหตุ: ✅ = มา/ดื่ม/ทำ &nbsp;|&nbsp; ❌ = ขาด/ไม่ดื่ม/ไม่ทำ &nbsp;|&nbsp; - = ไม่มีข้อมูล
+            </p>
           </div>
         </div>
       )}
 
-      {/* 📉 กราฟสรุปผลต่างๆ (แสดงอยู่ด้านล่างเสมอ) */}
+      {/* 📉 กราฟสรุปผลต่างๆ */}
       <div className="row g-4">
         <div className="col-12 col-xl-6 d-flex">
           <div className="w-100">
