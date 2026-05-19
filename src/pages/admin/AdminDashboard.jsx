@@ -18,12 +18,17 @@ import HealthSummary3YearsChart from "../../components/charts/HealthSummary3Year
 export default function AdminDashboard() {
 
   const [rooms, setRooms] = useState([]);
-  const [childrenCount, setChildrenCount] = useState(null);
+  const [childrenCount, setChildrenCount] =
+    useState(null);
 
-  const [keyword, setKeyword] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [keyword, setKeyword] =
+    useState("");
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchResults, setSearchResults] =
+    useState([]);
+
+  const [currentPage, setCurrentPage] =
+    useState(1);
 
   const [month, setMonth] =
     useState(new Date().getMonth() + 1);
@@ -158,9 +163,23 @@ export default function AdminDashboard() {
     searchResults.length / rowsPerPage
   );
 
+  const totalDays =
+    getDaysInMonth(
+      month,
+      year - 543
+    );
+
+  const daysArray =
+    Array.from(
+      { length: totalDays },
+      (_, i) => i + 1
+    );
+
   return (
 
     <div>
+
+      {/* TITLE */}
 
       <h5 className="mb-4 fw-bold text-success section-title">
         แดชบอร์ด
@@ -442,7 +461,8 @@ export default function AdminDashboard() {
           className="modal d-block"
           tabIndex="-1"
           style={{
-            backgroundColor: "rgba(0,0,0,0.5)"
+            backgroundColor:
+              "rgba(0,0,0,0.5)"
           }}
         >
 
@@ -459,7 +479,7 @@ export default function AdminDashboard() {
 
               <div className="modal-header">
 
-                <h3 className="fw-bold text-success mb-0">
+                <h2 className="fw-bold text-success mb-0">
 
                   รายละเอียดประจำเดือน
 
@@ -473,7 +493,7 @@ export default function AdminDashboard() {
 
                   {selectedChild?.last_name}
 
-                </h3>
+                </h2>
 
                 <button
                   className="btn-close"
@@ -486,7 +506,7 @@ export default function AdminDashboard() {
 
               {/* BODY */}
 
-              <div className="modal-body bg-light">
+              <div className="modal-body p-0">
 
                 <div className="card border-success shadow-sm">
 
@@ -494,7 +514,7 @@ export default function AdminDashboard() {
 
                   <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
 
-                    <h5 className="fw-bold mb-0">
+                    <h4 className="fw-bold mb-0">
 
                       ประวัติกิจกรรมรายเดือนประจำเดือน
 
@@ -522,10 +542,10 @@ export default function AdminDashboard() {
 
                       {")"}
 
-                    </h5>
+                    </h4>
 
                     <button
-                      className="btn btn-light btn-sm fw-bold"
+                      className="btn btn-light fw-bold"
                       onClick={() =>
                         setShowModal(false)
                       }
@@ -542,16 +562,14 @@ export default function AdminDashboard() {
                     <div className="health-table-wrapper">
 
                       <table
-                        className="table table-bordered mb-0 text-center align-middle"
+                        className="table table-bordered mb-0"
                         style={{
-                          tableLayout: "fixed",
                           minWidth:
-                            `${260 + getDaysInMonth(month, year - 543) * 130}px`,
-                          width: "max-content"
+                            `${260 + totalDays * 130}px`
                         }}
                       >
 
-                        {/* ================= THEAD ================= */}
+                        {/* THEAD */}
 
                         <thead className="table-success">
 
@@ -567,12 +585,7 @@ export default function AdminDashboard() {
                               หัวข้อ
                             </th>
 
-                            <th colSpan={
-                              getDaysInMonth(
-                                month,
-                                year - 543
-                              )
-                            }>
+                            <th colSpan={daysArray.length}>
                               วันที่บันทึก
                             </th>
 
@@ -580,46 +593,38 @@ export default function AdminDashboard() {
 
                           <tr>
 
-                            {Array.from({
-                              length: getDaysInMonth(
-                                month,
-                                year - 543
-                              )
-                            }).map((_, index) => {
+                            {daysArray.map((day) => (
 
-                              const day = index + 1;
+                              <th
+                                key={day}
+                                style={{
+                                  width: "130px"
+                                }}
+                              >
 
-                              return (
+                                {day}
 
-                                <th
-                                  key={day}
-                                  style={{
-                                    width: "130px"
-                                  }}
-                                >
+                                {thaiMonths[
+                                  month - 1
+                                ].slice(0, 3)}
 
-                                  {day}
+                                .
 
-                                  {thaiMonths[
-                                    month - 1
-                                  ].slice(0, 3)}
+                                {String(year).slice(-2)}
 
-                                  .
+                              </th>
 
-                                  {String(year).slice(-2)}
-
-                                </th>
-
-                              );
-                            })}
+                            ))}
 
                           </tr>
 
                         </thead>
 
-                        {/* ================= TBODY ================= */}
+                        {/* TBODY */}
 
                         <tbody>
+
+                          {/* เช็คชื่อ */}
 
                           <MonthlyDataRow
                             title="เช็คชื่อ"
@@ -630,6 +635,8 @@ export default function AdminDashboard() {
                             year={year}
                           />
 
+                          {/* ดื่มนม */}
+
                           <MonthlyDataRow
                             title="ดื่มนม"
                             data={detailData.milk}
@@ -638,6 +645,8 @@ export default function AdminDashboard() {
                             month={month}
                             year={year}
                           />
+
+                          {/* รับประทานอาหาร */}
 
                           <MonthlyDataRow
                             title="รับประทานอาหาร"
@@ -648,6 +657,8 @@ export default function AdminDashboard() {
                             year={year}
                           />
 
+                          {/* แปรงฟัน */}
+
                           <MonthlyDataRow
                             title="แปรงฟัน"
                             data={detailData.toothbrush}
@@ -657,6 +668,8 @@ export default function AdminDashboard() {
                             year={year}
                           />
 
+                          {/* สุขภาพ */}
+
                           <MonthlyDataRow
                             title="สุขภาพ"
                             data={detailData.health}
@@ -665,6 +678,8 @@ export default function AdminDashboard() {
                             month={month}
                             year={year}
                           />
+
+                          {/* น้ำหนัก/ส่วนสูง */}
 
                           <MeasurementRow
                             title="น้ำหนัก/ส่วนสูง"
@@ -759,7 +774,10 @@ function MonthlyDataRow({
 
         return (
 
-          <td key={day}>
+          <td
+            key={day}
+            className="text-center"
+          >
 
             {found
               ? found[valueKey]
@@ -782,7 +800,7 @@ function MeasurementRow({
   title,
   data,
   month,
-  year
+ year
 }) {
 
   const totalDays =
@@ -819,7 +837,10 @@ function MeasurementRow({
 
         return (
 
-          <td key={day}>
+          <td
+            key={day}
+            className="text-center"
+          >
 
             {found
               ? `${found.weight ?? "-"} / ${found.height ?? "-"}`
