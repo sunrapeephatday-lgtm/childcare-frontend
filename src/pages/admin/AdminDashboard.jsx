@@ -18,26 +18,33 @@ import HealthSummary3YearsChart from "../../components/charts/HealthSummary3Year
 export default function AdminDashboard() {
 
   const [rooms, setRooms] = useState([]);
-  const [childrenCount, setChildrenCount] = useState(null);
 
-  const [keyword, setKeyword] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [childrenCount, setChildrenCount] =
+    useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [keyword, setKeyword] =
+    useState("");
 
-  const [month, setMonth] = useState(
-    new Date().getMonth() + 1
-  );
+  const [searchResults, setSearchResults] =
+    useState([]);
 
-  const [year, setYear] = useState(
-    new Date().getFullYear() + 543
-  );
+  const [currentPage, setCurrentPage] =
+    useState(1);
 
-  const [selectedChild, setSelectedChild] = useState(null);
+  const [month, setMonth] =
+    useState(new Date().getMonth() + 1);
 
-  const [detailData, setDetailData] = useState(null);
+  const [year, setYear] =
+    useState(new Date().getFullYear() + 543);
 
-  const [showModal, setShowModal] = useState(false);
+  const [selectedChild, setSelectedChild] =
+    useState(null);
+
+  const [detailData, setDetailData] =
+    useState(null);
+
+  const [showModal, setShowModal] =
+    useState(false);
 
   const rowsPerPage = 10;
 
@@ -180,7 +187,7 @@ export default function AdminDashboard() {
             type="text"
             className="form-control"
             placeholder="ค้นหาเด็ก / ห้องเรียน"
-            style={{ width: "280px" }}
+            style={{ width: "320px" }}
             value={keyword}
             onChange={(e) =>
               setKeyword(e.target.value)
@@ -189,20 +196,20 @@ export default function AdminDashboard() {
 
           <select
             className="form-select"
-            style={{ width: "120px" }}
+            style={{ width: "140px" }}
             value={month}
             onChange={(e) =>
               setMonth(Number(e.target.value))
             }
           >
 
-            {[...Array(12)].map((_, i) => (
+            {thaiMonths.map((m, i) => (
 
               <option
                 key={i + 1}
                 value={i + 1}
               >
-                {thaiMonths[i]}
+                {m}
               </option>
 
             ))}
@@ -251,11 +258,11 @@ export default function AdminDashboard() {
 
       {searchResults.length > 0 && (
 
-        <div className="card mb-4">
+        <div className="card mb-4 border-success shadow-sm">
 
           <div className="card-body">
 
-            <h6 className="fw-bold mb-3">
+            <h6 className="fw-bold mb-3 text-success">
               ผลการค้นหา
             </h6>
 
@@ -275,7 +282,7 @@ export default function AdminDashboard() {
                       ห้องเรียน
                     </th>
 
-                    <th width="140">
+                    <th width="150">
                       รายละเอียด
                     </th>
 
@@ -289,7 +296,7 @@ export default function AdminDashboard() {
 
                     <tr key={c.child_id}>
 
-                      <td className="text-start ps-3">
+                      <td className="ps-3 text-start">
 
                         {c.prefix}
 
@@ -301,7 +308,7 @@ export default function AdminDashboard() {
 
                       </td>
 
-                      <td className="text-start ps-3">
+                      <td className="ps-3 text-start">
 
                         {c.classroom_name}
 
@@ -310,7 +317,7 @@ export default function AdminDashboard() {
                       <td className="text-center">
 
                         <button
-                          className="btn btn-primary btn-sm"
+                          className="btn btn-success btn-sm"
                           onClick={() =>
                             handleViewDetail(c)
                           }
@@ -332,7 +339,7 @@ export default function AdminDashboard() {
 
             {/* PAGINATION */}
 
-            <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
+            <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
 
               <button
                 className="btn btn-outline-success btn-sm"
@@ -387,24 +394,18 @@ export default function AdminDashboard() {
 
       <div className="row g-4">
 
-        <div className="col-12 col-xl-6 d-flex">
-          <div className="w-100">
-            <ChildrenCountChart
-              data={childrenCount}
-            />
-          </div>
+        <div className="col-12 col-xl-6">
+          <ChildrenCountChart
+            data={childrenCount}
+          />
         </div>
 
-        <div className="col-12 col-xl-6 d-flex">
-          <div className="w-100">
-            <AttendanceSummaryUnder3Chart />
-          </div>
+        <div className="col-12 col-xl-6">
+          <AttendanceSummaryUnder3Chart />
         </div>
 
-        <div className="col-12 col-xl-6 d-flex">
-          <div className="w-100">
-            <AttendanceSummary3YearsChart />
-          </div>
+        <div className="col-12 col-xl-6">
+          <AttendanceSummary3YearsChart />
         </div>
 
         <div className="col-12 col-lg-6">
@@ -454,13 +455,13 @@ export default function AdminDashboard() {
           }}
         >
 
-          <div className="modal-dialog modal-xl modal-dialog-scrollable">
+          <div className="modal-dialog modal-fullscreen">
 
             <div className="modal-content">
 
               <div className="modal-header">
 
-                <h5 className="modal-title">
+                <h4 className="fw-bold text-success mb-0">
 
                   รายละเอียดประจำเดือน
 
@@ -474,7 +475,7 @@ export default function AdminDashboard() {
 
                   {selectedChild?.last_name}
 
-                </h5>
+                </h4>
 
                 <button
                   className="btn-close"
@@ -485,112 +486,161 @@ export default function AdminDashboard() {
 
               </div>
 
-              <div className="modal-body">
+              <div className="modal-body bg-light">
 
-                <div className="alert alert-success">
+                <div className="card border-success shadow-sm">
 
-                  <div>
+                  <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
 
-                    <strong>
-                      ชื่อ:
-                    </strong>
+                    <h5 className="mb-0 fw-bold">
 
-                    {" "}
+                      ประวัติรายเดือนประจำเดือน
 
-                    {selectedChild?.prefix}
+                      {" "}
 
-                    {selectedChild?.first_name}
+                      {thaiMonths[month - 1]}
 
-                    {" "}
+                      {" "}
 
-                    {selectedChild?.last_name}
+                      {year}
+
+                      {" : "}
+
+                      {selectedChild?.prefix}
+
+                      {selectedChild?.first_name}
+
+                      {" "}
+
+                      {selectedChild?.last_name}
+
+                      {" ("}
+
+                      {selectedChild?.classroom_name}
+
+                      {")"}
+
+                    </h5>
+
+                    <button
+                      className="btn btn-light btn-sm fw-bold"
+                      onClick={() =>
+                        setShowModal(false)
+                      }
+                    >
+                      ย้อนกลับ
+                    </button>
 
                   </div>
 
-                  <div>
+                  <div className="card-body p-0">
 
-                    <strong>
-                      ห้องเรียน:
-                    </strong>
+                    <div
+                      className="table-responsive"
+                      style={{
+                        overflowX: "auto"
+                      }}
+                    >
 
-                    {" "}
+                      <table className="table table-bordered text-center align-middle mb-0">
 
-                    {selectedChild?.classroom_name}
+                        <thead className="table-success">
 
-                  </div>
+                          <tr>
 
-                  <div>
+                            <th
+                              style={{
+                                minWidth: "220px"
+                              }}
+                            >
+                              หัวข้อ / วันที่
+                            </th>
 
-                    <strong>
-                      เดือน:
-                    </strong>
+                            {Array.from({
+                              length: getDaysInMonth(
+                                month,
+                                year - 543
+                              )
+                            }).map((_, index) => (
 
-                    {" "}
+                              <th
+                                key={index + 1}
+                                style={{
+                                  minWidth: "65px"
+                                }}
+                              >
+                                {index + 1}
+                              </th>
 
-                    {thaiMonths[month - 1]}
+                            ))}
 
-                    {" "}
+                          </tr>
 
-                    พ.ศ. {year}
+                        </thead>
+
+                        <tbody>
+
+                          <MonthlyRow
+                            title="เช็คชื่อ"
+                            data={detailData.attendance}
+                            dateKey="record_date"
+                            valueKey="status"
+                            month={month}
+                            year={year}
+                          />
+
+                          <MonthlyRow
+                            title="ดื่มนม"
+                            data={detailData.milk}
+                            dateKey="record_date"
+                            valueKey="status"
+                            month={month}
+                            year={year}
+                          />
+
+                          <MonthlyRow
+                            title="รับประทานอาหาร"
+                            data={detailData.lunch}
+                            dateKey="record_date"
+                            valueKey="status"
+                            month={month}
+                            year={year}
+                          />
+
+                          <MonthlyRow
+                            title="แปรงฟัน"
+                            data={detailData.toothbrush}
+                            dateKey="record_date"
+                            valueKey="status"
+                            month={month}
+                            year={year}
+                          />
+
+                          <MonthlyRow
+                            title="สุขภาพ"
+                            data={detailData.health}
+                            dateKey="evaluation_date"
+                            valueKey="note"
+                            month={month}
+                            year={year}
+                          />
+
+                          <MeasurementRow
+                            title="น้ำหนัก/ส่วนสูง"
+                            data={detailData.measurements}
+                            month={month}
+                            year={year}
+                          />
+
+                        </tbody>
+
+                      </table>
+
+                    </div>
 
                   </div>
 
                 </div>
-
-                {/* ATTENDANCE */}
-
-                <SectionTable
-                  title="เช็คชื่อ"
-                  data={detailData.attendance}
-                  dateKey="record_date"
-                  valueKey="status"
-                  month={month}
-                  year={year}
-                />
-
-                {/* MILK */}
-
-                <SectionTable
-                  title="ดื่มนม"
-                  data={detailData.milk}
-                  dateKey="record_date"
-                  valueKey="status"
-                  month={month}
-                  year={year}
-                />
-
-                {/* LUNCH */}
-
-                <SectionTable
-                  title="รับประทานอาหาร"
-                  data={detailData.lunch}
-                  dateKey="record_date"
-                  valueKey="status"
-                  month={month}
-                  year={year}
-                />
-
-                {/* TOOTHBRUSH */}
-
-                <SectionTable
-                  title="แปรงฟัน"
-                  data={detailData.toothbrush}
-                  dateKey="record_date"
-                  valueKey="status"
-                  month={month}
-                  year={year}
-                />
-
-                {/* HEALTH */}
-
-                <SectionTable
-                  title="สุขภาพ"
-                  data={detailData.health}
-                  dateKey="evaluation_date"
-                  valueKey="note"
-                  month={month}
-                  year={year}
-                />
 
               </div>
 
@@ -623,10 +673,10 @@ function getDaysInMonth(
 }
 
 /* ==================================================
-   SECTION TABLE
+   MONTHLY ROW
 ================================================== */
 
-function SectionTable({
+function MonthlyRow({
   title,
   data,
   dateKey,
@@ -640,84 +690,114 @@ function SectionTable({
     year - 543
   );
 
-  const rows = [];
+  return (
 
-  for (
-    let day = 1;
-    day <= totalDays;
-    day++
-  ) {
+    <tr>
 
-    const found = data.find((item) => {
+      <td
+        className="fw-bold text-start ps-3"
+        style={{
+          backgroundColor: "#f1fff4",
+          minWidth: "220px"
+        }}
+      >
+        {title}
+      </td>
 
-      const itemDate =
-        new Date(item[dateKey]);
+      {Array.from({
+        length: totalDays
+      }).map((_, index) => {
 
-      return (
-        itemDate.getDate() === day
-      );
-    });
+        const day = index + 1;
 
-    rows.push({
-      day,
-      value: found
-        ? found[valueKey]
-        : "-"
-    });
-  }
+        const found = data.find((item) => {
+
+          const itemDate =
+            new Date(item[dateKey]);
+
+          return (
+            itemDate.getDate() === day
+          );
+        });
+
+        return (
+
+          <td key={day}>
+
+            {found
+              ? found[valueKey]
+              : "-"}
+
+          </td>
+
+        );
+      })}
+
+    </tr>
+  );
+}
+
+/* ==================================================
+   MEASUREMENT ROW
+================================================== */
+
+function MeasurementRow({
+  title,
+  data,
+  month,
+  year
+}) {
+
+  const totalDays = getDaysInMonth(
+    month,
+    year - 543
+  );
 
   return (
 
-    <div className="mb-4">
+    <tr>
 
-      <h6 className="fw-bold text-success mb-2">
+      <td
+        className="fw-bold text-start ps-3"
+        style={{
+          backgroundColor: "#f1fff4",
+          minWidth: "220px"
+        }}
+      >
         {title}
-      </h6>
+      </td>
 
-      <div className="table-responsive">
+      {Array.from({
+        length: totalDays
+      }).map((_, index) => {
 
-        <table className="table table-bordered table-hover">
+        const day = index + 1;
 
-          <thead className="table-success">
+        const found = data.find((item) => {
 
-            <tr>
+          const itemDate =
+            new Date(
+              item.measurement_date
+            );
 
-              <th width="120">
-                วันที่
-              </th>
+          return (
+            itemDate.getDate() === day
+          );
+        });
 
-              <th>
-                ข้อมูล
-              </th>
+        return (
 
-            </tr>
+          <td key={day}>
 
-          </thead>
+            {found
+              ? `${found.weight ?? "-"} / ${found.height ?? "-"}`
+              : "-"}
 
-          <tbody>
+          </td>
 
-            {rows.map((row) => (
+        );
+      })}
 
-              <tr key={row.day}>
-
-                <td>
-                  {row.day}
-                </td>
-
-                <td>
-                  {row.value}
-                </td>
-
-              </tr>
-
-            ))}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>
+    </tr>
   );
 }
