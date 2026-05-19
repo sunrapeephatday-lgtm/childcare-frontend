@@ -112,7 +112,8 @@ async function handleReload() {
       date,
       items: rows.map(r => ({
         child_id: r.child_id,
-        status: r.status
+        status: r.status,
+        note: r.note
       }))
     });
     setMsg({ type: "success", text: "บันทึกเรียบร้อย" });
@@ -545,6 +546,7 @@ const checkinPageNumbers = Array.from(
       <th style={{ width: "120px" }}>ชื่อ-นามสกุล</th>
       <th style={{ width: "120px" }}>ชื่อเล่น</th>
       <th style={{ width: "140px" }}>สถานะ</th>
+      <th style={{ width: "140px" }}>หมายเหตุ</th>
     </tr>
   </thead>
         <tbody>
@@ -568,6 +570,17 @@ const checkinPageNumbers = Array.from(
                   <option value="ดื่ม">ดื่ม</option>
                   <option value="ไม่ดื่ม">ไม่ดื่ม</option>
                 </select>
+              </td>
+              <td>
+                <input
+                  className="form-control-sm"
+                  value={r.note || ""}
+                  onChange={e =>
+                    setRows(rs => rs.map(x =>
+                      x.child_id === r.child_id ? { ...x, note: e.target.value } : x
+                    ))
+                  }
+                />
               </td>
             </tr>
           ))}
