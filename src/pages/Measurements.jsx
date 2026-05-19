@@ -37,7 +37,6 @@ function measurementDisplay(value) {
   return parts.join(" / ");
 }
 
-
 function thaiMonthYear(d) {
   const date = new Date(d);
   const months = [
@@ -59,88 +58,74 @@ export default function MeasurementsPage() {
   const [teacherId, setTeacherId] = useState(null);
   const [msg, setMsg] = useState(null);
   const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
-const [exportYear, setExportYear] = useState(new Date().getFullYear());
+  const [exportYear, setExportYear] = useState(new Date().getFullYear());
 
- useEffect(() => {
-  init();
-}, []);
+  useEffect(() => {
+    init();
+  }, []);
 
-useEffect(() => {
-  if (teacherId) {
-    loadToday(teacherId);
-  }
-}, [teacherId, exportMonth, exportYear]);
-
-async function init() {
-  try {
-    const user = JSON.parse(sessionStorage.getItem("user"));
-
-    if (!user || user.role !== "teacher") {
-      setMsg({ type: "danger", text: "หน้านี้สำหรับครูเท่านั้น" });
-      return;
+  useEffect(() => {
+    if (teacherId) {
+      loadToday(teacherId);
     }
+  }, [teacherId, exportMonth, exportYear]);
 
-    /* ⭐ ดึง teacher_id จาก backend เหมือนหน้า checkin */
-    const res = await API.get("/measurements/me");
+  async function init() {
+    try {
+      const user = JSON.parse(sessionStorage.getItem("user"));
 
-    const tId = res.data.teacher_id;
+      if (!user || user.role !== "teacher") {
+        setMsg({ type: "danger", text: "หน้านี้สำหรับครูเท่านั้น" });
+        return;
+      }
 
-    setTeacherId(tId);
-
-    loadToday(tId);
-  
-  } catch (err) {
-    console.error(err);
-    setMsg({ type: "danger", text: "โหลดข้อมูลครูไม่สำเร็จ" });
+      const res = await API.get("/measurements/me");
+      const tId = res.data.teacher_id;
+      setTeacherId(tId);
+      loadToday(tId);
+    } catch (err) {
+      console.error(err);
+      setMsg({ type: "danger", text: "โหลดข้อมูลครูไม่สำเร็จ" });
+    }
   }
-}
 
   async function loadToday(tid) {
-  const res = await API.get("/measurements/today", {
-    params: {
-      teacher_id: tid,
-      month: exportMonth,
-      year: exportYear
-    }
-  });
-
-  setRows(res.data.rows || []);
-}
+    const res = await API.get("/measurements/today", {
+      params: {
+        teacher_id: tid,
+        month: exportMonth,
+        year: exportYear
+      }
+    });
+    setRows(res.data.rows || []);
+  }
 
   async function loadHistory(tid) {
-  const res = await API.get("/measurements/history", {
-    params: { teacher_id: tid }
-  });
-  setHistory(res.data.rows || []);
-}
-async function handleReload() {
+    const res = await API.get("/measurements/history", {
+      params: { teacher_id: tid }
+    });
+    setHistory(res.data.rows || []);
+  }
 
-  const currentDate = new Date();
+  async function handleReload() {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
 
-  const currentMonth = currentDate.getMonth() + 1;
+    setExportMonth(currentMonth);
+    setExportYear(currentYear);
+    setShowHistory(false);
+    setHistory([]);
+    setHistoryPage(1);
+    setCheckinPage(1);
 
-  const currentYear = currentDate.getFullYear();
+    await loadToday(teacherId);
 
-  setExportMonth(currentMonth);
-
-  setExportYear(currentYear);
-
-  setShowHistory(false);
-
-  setHistory([]);
-
-  setHistoryPage(1);
-
-  setCheckinPage(1);
-
-  await loadToday(teacherId);
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
-}
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
 
   function changeVal(child_id, key, value) {
     setRows(prev =>
@@ -159,550 +144,498 @@ async function handleReload() {
   }
 
   async function saveAll() {
-
-  if (!teacherId) {
-    alert("ไม่พบ teacher id");
-    return;
-  }
-
-  const items = rows.map(r => ({
-    child_id: r.child_id,
-    measurement_date: date,
-    weight: r.measurement?.weight || null,
-    height: r.measurement?.height || null,
-    teacher_id: teacherId
-  }));
-
-  await API.post("/measurements", { items });
-
-  setMsg({ type: "success", text: "บันทึกข้อมูลเรียบร้อย" });
-
-  loadHistory(teacherId);
-}
-  /* ================= Export Excel ================= */
- function exportExcel() {
-  if (!history.length) {
-    alert("ไม่มีข้อมูล");
-    return;
-  }
-
-  const months = [
-    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-    "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-  ];
-
-  const shortMonths = [
-    "ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
-    "ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."
-  ];
-
-const month = exportMonth - 1;
-const year = exportYear;
-
-  const monthHistory = history.filter(h => {
-    const d = new Date(h.measurement_date);
-    return d.getMonth() === month && d.getFullYear() === year;
-  });
-
-  const header = [
-    [`รายงานบันทึกน้ำหนักและส่วนสูง ประจำเดือน ${months[month]} ${year + 543}`],
-    [],
-    ["วันที่", "ชื่อ", "น้ำหนัก", "ส่วนสูง", "BMI"]
-  ];
-
-  const body = monthHistory.map((h, i) => {
-    const d = new Date(h.measurement_date);
-
-    const day = d.getDate();
-    const monthShort = shortMonths[d.getMonth()];
-
-    const rowNumber = i + 4;
-
-    return [
-      `${day}-${monthShort}`,
-      `${h.prefix}${h.first_name} ${h.last_name}`,
-      h.weight || "",
-      h.height || "",
-      {
-  t: "n",
-  f: `IF(AND(C${rowNumber}<>\"\",D${rowNumber}<>\"\"),ROUND(C${rowNumber}/((D${rowNumber}/100)*(D${rowNumber}/100)),2),\"\")`
-}
-    ];
-  });
-
-  const ws = XLSX.utils.aoa_to_sheet([...header, ...body]);
-
-  ws["!merges"] = [
-    {
-      s: { r: 0, c: 0 },
-      e: { r: 0, c: 4 }
+    if (!teacherId) {
+      alert("ไม่พบ teacher id");
+      return;
     }
+
+    const items = rows.map(r => ({
+      child_id: r.child_id,
+      measurement_date: date,
+      weight: r.measurement?.weight || null,
+      height: r.measurement?.height || null,
+      teacher_id: teacherId
+    }));
+
+    await API.post("/measurements", { items });
+    setMsg({ type: "success", text: "บันทึกข้อมูลเรียบร้อย" });
+    loadHistory(teacherId);
+  }
+
+  /* ================= Export Excel ================= */
+  function exportExcel() {
+    if (!history.length) {
+      alert("ไม่มีข้อมูล");
+      return;
+    }
+
+    const months = [
+      "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+      "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+    ];
+
+    const shortMonths = [
+      "ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
+      "ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."
+    ];
+
+    const month = exportMonth - 1;
+    const year = exportYear;
+
+    const monthHistory = history.filter(h => {
+      const dateStr = h.measurement_date.split('T')[0];
+      const d = new Date(dateStr);
+      return d.getMonth() === month && d.getFullYear() === year;
+    });
+
+    const header = [
+      [`รายงานบันทึกน้ำหนักและส่วนสูง ประจำเดือน ${months[month]} ${year + 543}`],
+      [],
+      ["วันที่", "ชื่อ", "น้ำหนัก", "ส่วนสูง", "BMI"]
+    ];
+
+    const body = monthHistory.map((h, i) => {
+      const dateStr = h.measurement_date.split('T')[0];
+      const d = new Date(dateStr);
+
+      const day = d.getDate();
+      const monthShort = shortMonths[d.getMonth()];
+      const rowNumber = i + 4;
+
+      return [
+        `${day}-${monthShort}`,
+        `${h.prefix || ""}${h.first_name} ${h.last_name}`,
+        h.weight || "",
+        h.height || "",
+        {
+          t: "n",
+          f: `IF(AND(C${rowNumber}<>\"\",D${rowNumber}<>\"\"),ROUND(C${rowNumber}/((D${rowNumber}/100)*(D${rowNumber}/100)),2),\"\")`
+        }
+      ];
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet([...header, ...body]);
+
+    ws["!merges"] = [
+      {
+        s: { r: 0, c: 0 },
+        e: { r: 0, c: 4 }
+      }
+    ];
+
+    ws["!cols"] = [
+      { wch: 12 },
+      { wch: 30 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 12 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "รายงานน้ำหนัก");
+
+    XLSX.writeFile(
+      wb,
+      `รายงานบันทึกน้ำหนักส่วนสูง_${months[month]}_${year + 543}.xlsx`
+    );
+  }
+
+  const dateHeaderMonths = [
+    "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+    "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
   ];
 
-  ws["!cols"] = [
-    { wch: 12 },
-    { wch: 30 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 12 }
-  ];
+  const daysInSelectedMonth = new Date(exportYear, exportMonth, 0).getDate();
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "รายงานน้ำหนัก");
-
-  XLSX.writeFile(
-    wb,
-    `รายงานบันทึกน้ำหนักส่วนสูง_${months[month]}_${year + 543}.xlsx`
+  const monthDateColumns = Array.from(
+    { length: daysInSelectedMonth },
+    (_, index) => ({
+      day: index + 1,
+      label: `${index + 1}${dateHeaderMonths[exportMonth - 1]}${String(exportYear + 543).slice(-2)}`
+    })
   );
-}
-const dateHeaderMonths = [
-  "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
-  "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
-];
 
-const daysInSelectedMonth = new Date(exportYear, exportMonth, 0).getDate();
-
-const monthDateColumns = Array.from(
-  { length: daysInSelectedMonth },
-  (_, index) => ({
-    day: index + 1,
-    label: `${index + 1}${dateHeaderMonths[exportMonth - 1]}${String(exportYear + 543).slice(-2)}`
-  })
-);
-
-const monthlyHistory = history.filter((h) => {
-  const d = new Date(h.measurement_date);
-  return d.getMonth() === exportMonth - 1 && d.getFullYear() === exportYear;
-});
-
-const historyStudentMap = new Map();
-
-rows.forEach((r) => {
-  historyStudentMap.set(r.name, {
-    name: r.name,
-    values: {}
+  // ⭐ แก้ไขการกรองประวัติประจำเดือนเพื่อป้องกันปัญหา Timezone เลื่อนวัน
+  const monthlyHistory = history.filter((h) => {
+    const dateStr = h.measurement_date.split('T')[0];
+    const d = new Date(dateStr);
+    return d.getMonth() === exportMonth - 1 && d.getFullYear() === exportYear;
   });
-});
 
-monthlyHistory.forEach((h) => {
-  const d = new Date(h.measurement_date);
-  const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
+  const historyStudentMap = new Map();
 
-  if (!historyStudentMap.has(name)) {
-    historyStudentMap.set(name, {
-      name,
+  rows.forEach((r) => {
+    historyStudentMap.set(r.name, {
+      name: r.name,
       values: {}
     });
-  }
+  });
 
-  historyStudentMap.get(name).values[d.getDate()] = {
-    weight: h.weight,
-    height: h.height
-  };
-});
+  // ⭐ แก้ไขการ Map ข้อมูลประวัติให้ลงตัวเลขวันที่อย่างถูกต้องเป็นคีย์ Number
+  monthlyHistory.forEach((h) => {
+    const dateStr = h.measurement_date.split('T')[0];
+    const d = new Date(dateStr);
+    const dayNum = d.getDate();
+    const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
 
-const historyStudentRows = Array.from(historyStudentMap.values());
+    if (!historyStudentMap.has(name)) {
+      historyStudentMap.set(name, {
+        name,
+        values: {}
+      });
+    }
 
-const historyLastRow = historyPage * rowsPerPage;
-const historyFirstRow = historyLastRow - rowsPerPage;
+    historyStudentMap.get(name).values[dayNum] = {
+      weight: h.weight,
+      height: h.height
+    };
+  });
 
-const currentHistory = historyStudentRows.slice(
-  historyFirstRow,
-  historyLastRow
-);
+  const historyStudentRows = Array.from(historyStudentMap.values());
+  const historyLastRow = historyPage * rowsPerPage;
+  const historyFirstRow = historyLastRow - rowsPerPage;
+  const currentHistory = historyStudentRows.slice(historyFirstRow, historyLastRow);
+  const historyTotalPages = Math.ceil(historyStudentRows.length / rowsPerPage);
 
-const historyTotalPages = Math.ceil(
-  historyStudentRows.length / rowsPerPage
-);
+  const checkinLastRow = checkinPage * rowsPerPage;
+  const checkinFirstRow = checkinLastRow - rowsPerPage;
+  const currentCheckins = rows.slice(checkinFirstRow, checkinLastRow);
+  const checkinTotalPages = Math.ceil(rows.length / rowsPerPage);
 
-const checkinLastRow = checkinPage * rowsPerPage;
-const checkinFirstRow = checkinLastRow - rowsPerPage;
+  const historyPageNumbers = Array.from(
+    { length: historyTotalPages },
+    (_, i) => i + 1
+  ).filter(
+    (page) =>
+      page === 1 ||
+      page === historyTotalPages ||
+      Math.abs(page - historyPage) <= 2
+  );
 
-const currentCheckins = rows.slice(
-  checkinFirstRow,
-  checkinLastRow
-);
-
-const checkinTotalPages = Math.ceil(
-  rows.length / rowsPerPage
-);
-const historyPageNumbers = Array.from(
-  { length: historyTotalPages },
-  (_, i) => i + 1
-).filter(
-  (page) =>
-    page === 1 ||
-    page === historyTotalPages ||
-    Math.abs(page - historyPage) <= 2
-);
-
-const checkinPageNumbers = Array.from(
-  { length: checkinTotalPages },
-  (_, i) => i + 1
-).filter(
-  (page) =>
-    page === 1 ||
-    page === checkinTotalPages ||
-    Math.abs(page - checkinPage) <= 2
-);
+  const checkinPageNumbers = Array.from(
+    { length: checkinTotalPages },
+    (_, i) => i + 1
+  ).filter(
+    (page) =>
+      page === 1 ||
+      page === checkinTotalPages ||
+      Math.abs(page - checkinPage) <= 2
+  );
 
   /* ================= UI ================= */
- return (
-  <div className="container my-4">
-    {/* ===== หัวข้อ ===== */}
-    <h3 className="mb-3 fw-bold text-success section-title">
-      บันทึกน้ำหนัก-ส่วนสูง (วันที่ {todayThai()})
-    </h3>
-    {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
-    {/* ===== ปุ่มอยู่ฝั่งขวา เหมือนหน้าดื่มนม ===== */}
-<div className="row mb-3 align-items-end">
-  <div className="col-md-3">
-    <label className="form-label">เดือน</label>
-    <select
-      className="form-select"
-      value={exportMonth}
-      onChange={(e) => setExportMonth(Number(e.target.value))}
-    >
-      {[
-        "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-        "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-      ].map((m, i) => (
-        <option key={i} value={i + 1}>
-          {m}
-        </option>
-      ))}
-    </select>
-  </div>
-
-  <div className="col-md-2">
-    <label className="form-label">ปี</label>
-    <select
-      className="form-select"
-      value={exportYear}
-      onChange={(e) => setExportYear(Number(e.target.value))}
-    >
-      {[2568, 2569, 2570].map((y) => (
-        <option key={y} value={y - 543}>
-          {y}
-        </option>
-      ))}
-    </select>
-  </div>
- <div className="col-12 col-md-7 mt-2 mt-md-0">
-    <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-
-  <button
-    type="button"
-    className="btn btn-outline-secondary"
-    onClick={handleReload}
-  >
-    รีโหลด
-  </button>
-
-  <button
-    type="button"
-    className="btn btn-primary"
-    onClick={async () => {
-
-      await loadHistory(teacherId);
-
-      setHistoryPage(1);
-
-      setShowHistory(true);
-
-    }}
-  >
-    ค้นหาประวัติ
-  </button>
-
-  <button
-    type="button"
-    className="btn btn-primary"
-    onClick={saveAll}
-  >
-    บันทึกทั้งหมด
-  </button>
-
-  <button
-    type="button"
-    className="btn btn-primary me-2"
-    onClick={exportExcel}
-  >
-    Export Microsoft Excel
-  </button>
-
-</div>
-  </div>
-</div>
-{showHistory && (
-  <>
-      <h5 className="mb-3 fw-bold text-success section-title">
-        ประวัติการบันทึกน้ำหนัก-ส่วนสูง
-      </h5>
-      <div className="table-scroll">
-      <table
-  className="table table-bordered table-sm align-middle"
-  style={{
-    fontSize: "14px",
-    tableLayout: "fixed",
-    minWidth: `${260 + monthDateColumns.length * 110}px`,
-    width: "max-content"
-  }}
->
-        <thead>
-          <tr>
-            <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
-            <th rowSpan="2" style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
-            <th colSpan={monthDateColumns.length}>วันที่วัด</th>
-          </tr>
-          <tr>
-            {monthDateColumns.map((d) => (
-              <th key={d.day} style={{ width: "110px" }}>
-                {d.label}
-              </th>
+  return (
+    <div className="container my-4">
+      {/* ===== หัวข้อ ===== */}
+      <h3 className="mb-3 fw-bold text-success section-title">
+        บันทึกน้ำหนัก-ส่วนสูง (วันที่ {todayThai()})
+      </h3>
+      {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
+      
+      {/* ===== ตัวเลือกเดือน/ปี และ ปุ่มจัดการ ===== */}
+      <div className="row mb-3 align-items-end">
+        <div className="col-md-3">
+          <label className="form-label">เดือน</label>
+          <select
+            className="form-select"
+            value={exportMonth}
+            onChange={(e) => setExportMonth(Number(e.target.value))}
+          >
+            {[
+              "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+              "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+            ].map((m, i) => (
+              <option key={i} value={i + 1}>
+                {m}
+              </option>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {currentHistory.map((h, i) => (
-            <tr key={i}>
-              <td>{historyFirstRow +i + 1}</td>
-              <td className="text-start ps-3">{h.name}</td>
-              {monthDateColumns.map((d) => {
-                const value = h.values[d.day];
+          </select>
+        </div>
 
-                return (
-                  <td key={d.day}>
-                    {measurementDisplay(value)}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div className="col-md-2">
+          <label className="form-label">ปี</label>
+          <select
+            className="form-select"
+            value={exportYear}
+            onChange={(e) => setExportYear(Number(e.target.value))}
+          >
+            {[2568, 2569, 2570].map((y) => (
+              <option key={y} value={y - 543}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="col-12 col-md-7 mt-2 mt-md-0">
+          <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={handleReload}
+            >
+              รีโหลด
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={async () => {
+                await loadHistory(teacherId);
+                setHistoryPage(1);
+                setShowHistory(true);
+              }}
+            >
+              ค้นหาประวัติ
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={saveAll}
+            >
+              บันทึกทั้งหมด
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-primary me-2"
+              onClick={exportExcel}
+            >
+              Export Microsoft Excel
+            </button>
+          </div>
+        </div>
       </div>
-{historyStudentRows.length > rowsPerPage && (
-  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
 
-    <div className="text-muted small">
-      แสดง {historyFirstRow + 1}-
-      {Math.min(historyLastRow, historyStudentRows.length)}
-      {" "}จาก {historyStudentRows.length} รายการ
-    </div>
+      {showHistory && (
+        <>
+          <h5 className="mb-3 fw-bold text-success section-title">
+            ประวัติการบันทึกน้ำหนัก-ส่วนสูง
+          </h5>
+          <div className="table-scroll">
+            <table
+              className="table table-bordered table-sm align-middle"
+              style={{
+                fontSize: "14px",
+                tableLayout: "fixed",
+                minWidth: `${260 + monthDateColumns.length * 110}px`,
+                width: "max-content"
+              }}
+            >
+              <thead>
+                <tr>
+                  <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
+                  <th rowSpan="2" style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
+                  <th colSpan={monthDateColumns.length}>วันที่วัด</th>
+                </tr>
+                <tr>
+                  {monthDateColumns.map((d) => (
+                    <th key={d.day} style={{ width: "110px" }}>
+                      {d.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {currentHistory.map((h, i) => (
+                  <tr key={i}>
+                    <td>{historyFirstRow + i + 1}</td>
+                    <td className="text-start ps-3">{h.name}</td>
+                    {monthDateColumns.map((d) => {
+                      // ⭐ ตอนนี้ คีย์ d.day (เลขวันที่) และ Object value โครงสร้างแมปกันตรงแล้ว
+                      const value = h.values[d.day];
+                      return (
+                        <td key={d.day}>
+                          {measurementDisplay(value)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-    <nav>
-      <ul className="pagination pagination-sm mb-0">
+          {historyStudentRows.length > rowsPerPage && (
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+              <div className="text-muted small">
+                แสดง {historyFirstRow + 1}-
+                {Math.min(historyLastRow, historyStudentRows.length)}
+                {" "}จาก {historyStudentRows.length} รายการ
+              </div>
 
-        <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
-          <button
-            type="button"
-            className="page-link"
-            onClick={() =>
-              setHistoryPage((page) => Math.max(1, page - 1))
-            }
-          >
-            ก่อนหน้า
-          </button>
-        </li>
+              <nav>
+                <ul className="pagination pagination-sm mb-0">
+                  <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => setHistoryPage((page) => Math.max(1, page - 1))}
+                    >
+                      ก่อนหน้า
+                    </button>
+                  </li>
 
-        {historyPageNumbers.map((page, index) => {
-          const prevPage = historyPageNumbers[index - 1];
-          const showGap = prevPage && page - prevPage > 1;
+                  {historyPageNumbers.map((page, index) => {
+                    const prevPage = historyPageNumbers[index - 1];
+                    const showGap = prevPage && page - prevPage > 1;
 
-          return (
-            <React.Fragment key={page}>
+                    return (
+                      <React.Fragment key={page}>
+                        {showGap && (
+                          <li className="page-item disabled">
+                            <span className="page-link">...</span>
+                          </li>
+                        )}
+                        <li className={`page-item ${historyPage === page ? "active" : ""}`}>
+                          <button
+                            type="button"
+                            className="page-link"
+                            onClick={() => setHistoryPage(page)}
+                          >
+                            {page}
+                          </button>
+                        </li>
+                      </React.Fragment>
+                    );
+                  })}
 
-              {showGap && (
-                <li className="page-item disabled">
-                  <span className="page-link">...</span>
-                </li>
-              )}
+                  <li className={`page-item ${historyPage === historyTotalPages ? "disabled" : ""}`}>
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => setHistoryPage((page) => Math.min(historyTotalPages, page + 1))}
+                    >
+                      ถัดไป
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          )}
+        </>
+      )}
 
-              <li
-                className={`page-item ${
-                  historyPage === page ? "active" : ""
-                }`}
-              >
-                <button
-                  type="button"
-                  className="page-link"
-                  onClick={() => setHistoryPage(page)}
-                >
-                  {page}
-                </button>
-              </li>
-
-            </React.Fragment>
-          );
-        })}
-
-        <li
-          className={`page-item ${
-            historyPage === historyTotalPages ? "disabled" : ""
-          }`}
+      {/* ตารางบันทึกปัจจุบัน */}
+      <div className="measurements-table">
+        <table
+          className="table table-bordered table-sm align-middle mb-3"
+          style={{ fontSize: "14px" }}
         >
-          <button
-            type="button"
-            className="page-link"
-            onClick={() =>
-              setHistoryPage((page) =>
-                Math.min(historyTotalPages, page + 1)
-              )
-            }
-          >
-            ถัดไป
-          </button>
-        </li>
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>ลำดับ</th>
+              <th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
+              <th style={{ width: 120 }}>ชื่อเล่น</th>
+              <th style={{ width: 140 }}>น้ำหนัก</th>
+              <th style={{ width: 140 }}>ส่วนสูง</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentCheckins.map((r, i) => (
+              <tr key={r.child_id}>
+                <td>{checkinFirstRow + i + 1}</td>
+                <td className="text-start ps-3">{r.name}</td>
+                <td className="text-start ps-3">{r.nickname || "-"}</td>
+                <td>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="form-control-sm"
+                    value={r.measurement?.weight ?? ""}
+                    onChange={e =>
+                      changeVal(
+                        r.child_id,
+                        "weight",
+                        e.target.value === ""
+                          ? ""
+                          : Math.max(0, Number(e.target.value))
+                      )
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="form-control-sm"
+                    value={r.measurement?.height ?? ""}
+                    onChange={e =>
+                      changeVal(
+                        r.child_id,
+                        "height",
+                        e.target.value === ""
+                          ? ""
+                          : Math.max(0, Number(e.target.value))
+                      )
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      </ul>
-    </nav>
-  </div>
-)}
-  </>
-)}
+        {rows.length > rowsPerPage && (
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+            <div className="text-muted small">
+              แสดง {checkinFirstRow + 1}-
+              {Math.min(checkinLastRow, rows.length)}
+              {" "}จาก {rows.length} รายการ
+            </div>
 
-{/* ตารางบันทึก */}
-<div className="measurements-table">
-  <table
-  className="table table-bordered table-sm align-middle mb-3"
-  style={{ fontSize: "14px" }}
->
-    <thead>
-      <tr>
-        <th style={{ width: 60 }}>ลำดับ</th>
-<th style={{ width: 200 }}>ชื่อ-นามสกุล</th>
-<th style={{ width: 120 }}>ชื่อเล่น</th>
-<th style={{ width: 140 }}>น้ำหนัก</th>
-<th style={{ width: 140 }}>ส่วนสูง</th>
-      </tr>
-    </thead>
-    <tbody>
-      {currentCheckins.map((r, i) => (
-        <tr key={r.child_id}>
-          <td>{checkinFirstRow + i + 1}</td>
-          <td className="text-start ps-3">
-  {r.name}
-</td>
-          <td className="text-start ps-3">{r.nickname || "-"}</td>
-          <td>
-            <input
-  type="number"
-  min="0"
-  step="0.01"
-  className="form-control-sm"
-  value={r.measurement?.weight ?? ""}
-  onChange={e =>
-    changeVal(
-      r.child_id,
-      "weight",
-      e.target.value === ""
-        ? ""
-        : Math.max(0, Number(e.target.value))
-    )
-  }
-/>
-          </td>
-          <td>
-            <input
-  type="number"
-  min="0"
-  step="0.01"
-  className="form-control-sm"
-  value={r.measurement?.height ?? ""}
-  onChange={e =>
-    changeVal(
-      r.child_id,
-      "height",
-      e.target.value === ""
-        ? ""
-        : Math.max(0, Number(e.target.value))
-    )
-  }
-/>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-  {rows.length > rowsPerPage && (
-  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
-
-    <div className="text-muted small">
-      แสดง {checkinFirstRow + 1}-
-      {Math.min(checkinLastRow, rows.length)}
-      {" "}จาก {rows.length} รายการ
-    </div>
-
-    <nav>
-      <ul className="pagination pagination-sm mb-0">
-
-        <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
-          <button
-            type="button"
-            className="page-link"
-            onClick={() =>
-              setCheckinPage((page) => Math.max(1, page - 1))
-            }
-          >
-            ก่อนหน้า
-          </button>
-        </li>
-
-        {checkinPageNumbers.map((page, index) => {
-          const prevPage = checkinPageNumbers[index - 1];
-          const showGap = prevPage && page - prevPage > 1;
-
-          return (
-            <React.Fragment key={page}>
-
-              {showGap && (
-                <li className="page-item disabled">
-                  <span className="page-link">...</span>
+            <nav>
+              <ul className="pagination pagination-sm mb-0">
+                <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
+                  <button
+                    type="button"
+                    className="page-link"
+                    onClick={() => setCheckinPage((page) => Math.max(1, page - 1))}
+                  >
+                    ก่อนหน้า
+                  </button>
                 </li>
-              )}
 
-              <li
-                className={`page-item ${
-                  checkinPage === page ? "active" : ""
-                }`}
-              >
-                <button
-                  type="button"
-                  className="page-link"
-                  onClick={() => setCheckinPage(page)}
-                >
-                  {page}
-                </button>
-              </li>
+                {checkinPageNumbers.map((page, index) => {
+                  const prevPage = checkinPageNumbers[index - 1];
+                  const showGap = prevPage && page - prevPage > 1;
 
-            </React.Fragment>
-          );
-        })}
+                  return (
+                    <React.Fragment key={page}>
+                      {showGap && (
+                        <li className="page-item disabled">
+                          <span className="page-link">...</span>
+                        </li>
+                      )}
+                      <li className={`page-item ${checkinPage === page ? "active" : ""}`}>
+                        <button
+                          type="button"
+                          className="page-link"
+                          onClick={() => setCheckinPage(page)}
+                        >
+                          {page}
+                        </button>
+                      </li>
+                    </React.Fragment>
+                  );
+                })}
 
-        <li
-          className={`page-item ${
-            checkinPage === checkinTotalPages ? "disabled" : ""
-          }`}
-        >
-          <button
-            type="button"
-            className="page-link"
-            onClick={() =>
-              setCheckinPage((page) =>
-                Math.min(checkinTotalPages, page + 1)
-              )
-            }
-          >
-            ถัดไป
-          </button>
-        </li>
-
-      </ul>
-    </nav>
-  </div>
-)}
-</div>
+                <li className={`page-item ${checkinPage === checkinTotalPages ? "disabled" : ""}`}>
+                  <button
+                    type="button"
+                    className="page-link"
+                    onClick={() => setCheckinPage((page) => Math.min(checkinTotalPages, page + 1))}
+                  >
+                    ถัดไป
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
