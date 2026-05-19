@@ -96,7 +96,7 @@ export default function AdminLayout() {
 
             <NavLink to="/admin/development" className={linkClass}>
               <Activity size={18} />
-              <span>พัฒนาการเด็ก</span>
+              <span>พัฒนาการเด็กเล็ก</span>
             </NavLink>
           </div>
         </aside>
