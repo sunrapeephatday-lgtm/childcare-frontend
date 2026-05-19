@@ -154,7 +154,7 @@ const totalPages = Math.ceil(searchResults.length / rowsPerPage);
               <thead>
                 <tr>
                   <th>ชื่อ</th>
-                  <th>ห้อเรียนง</th>
+                  <th>ห้องเรียน</th>
                   <th>เช็คชื่อ</th>
                   <th>ดื่มนม</th>
                   <th>รับประทานอาหาร</th>
