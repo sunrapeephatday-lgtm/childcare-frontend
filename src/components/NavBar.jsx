@@ -135,7 +135,7 @@ export default function NavBar({ user, onLogout }) {
                     data-bs-toggle="dropdown"
                   >
                     <User size={16} />
-                    <span>สวัสดี, {user.username}</span>
+                    <span>{user.username}</span>
                   </a>
 
                   <ul className="dropdown-menu dropdown-menu-end">
