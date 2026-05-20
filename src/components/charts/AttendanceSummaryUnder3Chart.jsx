@@ -162,10 +162,10 @@ export default function AttendanceSummaryChart() {
 
       <div style={{ marginTop: 12, fontSize: 13 }}>
   <span style={{ color: "#3b82f6", fontWeight: 600 }}>
-    ■ ชาย
+    ■ เด็กชาย
   </span>{" "}
   <span style={{ color: "#ec4899", fontWeight: 600 }}>
-    ■ หญิง
+    ■ เด็กหญิง
   </span>
 </div>
     </div>
