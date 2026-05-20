@@ -114,7 +114,7 @@ export default function DevelopmentAssessment() {
           {items.map((it, idx) => (
             <tr key={it.item_id}>
               <td className="text-center">{idx + 1}</td>
-              <td>{it.description}</td>
+              <td className="text-start">{it.description}</td>
 
               {[3, 2, 1].map(lv => (
                 <td className="text-center" key={lv}>
