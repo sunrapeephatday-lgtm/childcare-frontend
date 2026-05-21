@@ -21,7 +21,7 @@ function todayThai() {
 }
 
 function measurementDisplay(value) {
-  // หากไม่มีข้อมูลในเดือนนั้นๆ ให้แสดงเครื่องหมายขีด
+  // หากไม่มีข้อมูลในเดือนนั้นๆ หรือโครงสร้างข้างในว่างเปล่า ให้แสดงเครื่องหมายขีด
   if (!value || 
       ((value.weight === null || value.weight === undefined || value.weight === "") && 
        (value.height === null || value.height === undefined || value.height === ""))) {
@@ -30,10 +30,10 @@ function measurementDisplay(value) {
 
   const parts = [];
   if (value.weight !== null && value.weight !== undefined && value.weight !== "") {
-    parts.push(`${Number(value.weight)} กก.`);
+    parts.push(`${value.weight} กก.`);
   }
   if (value.height !== null && value.height !== undefined && value.height !== "") {
-    parts.push(`${Number(value.height)} ซม.`);
+    parts.push(`${value.height} ซม.`);
   }
   return parts.length > 0 ? parts.join(" / ") : "-";
 }
@@ -73,7 +73,7 @@ export default function MeasurementsPage() {
       const tId = res.data.teacher_id;
       setTeacherId(tId);
       loadToday(tId);
-      loadHistory(tId); // โหลดประวัติเก็บเข้า State ไว้ล่วงหน้า
+      loadHistory(tId); 
     } catch (err) {
       console.error(err);
       setMsg({ type: "danger", text: "โหลดข้อมูลครูไม่สำเร็จ" });
@@ -152,7 +152,6 @@ export default function MeasurementsPage() {
     }
   }
 
-  // ใช้สำหรับกรอกออกรายงาน Excel รายเดือนปัจจุบัน
   const monthlyHistory = history.filter((h) => {
     const dateStr = h.measurement_date.split('T')[0];
     const d = new Date(dateStr);
@@ -210,20 +209,18 @@ export default function MeasurementsPage() {
     XLSX.writeFile(wb, `รายงานบันทึกน้ำหนักส่วนสูง_${monthName}_${exportYear + 543}.xlsx`);
   }
 
-  /* ================= 🔴 จัดการประวัติแบบ 12 เดือน 🔴 ================= */
+  /* ================= จัดการประวัติแบบ 12 เดือน ================= */
   const dateHeaderMonths = [
     "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
     "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
   ];
 
-  // 1. สร้างโครงคอลัมน์ 12 เดือนของปี พ.ศ. ที่เลือก (เช่น พ.ค. 69)
   const shortYearThai = String(exportYear + 543).slice(-2);
   const monthColumns = dateHeaderMonths.map((m, index) => ({
-    monthIndex: index, // 0 - 11
+    monthIndex: index, 
     label: `${m} ${shortYearThai}`
   }));
 
-  // 2. กรองข้อมูลประวัติของทั้งปีตามปีที่ระบุ
   const yearlyHistory = history.filter((h) => {
     const dateStr = h.measurement_date.split('T')[0];
     const d = new Date(dateStr);
@@ -238,17 +235,20 @@ export default function MeasurementsPage() {
   yearlyHistory.forEach((h) => {
     const dateStr = h.measurement_date.split('T')[0];
     const d = new Date(dateStr);
-    const monthIdx = d.getMonth(); // ได้เลข index เดือน 0 - 11
+    const monthIdx = d.getMonth(); 
     const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
 
     if (!historyStudentMap.has(name)) {
       historyStudentMap.set(name, { name, monthsValues: {} });
     }
 
-    // แมปข้อมูลลงรายเดือน (ครั้งล่าสุดของเดือนนั้นๆ จะทับอันเก่าอัตโนมัติเนื่องจากเรียง DESC)
+    // 🔴 ปรับปรุง: เก็บสัดส่วนร่างกายเป็นตัวเลข พร้อมทั้งดึงเลขวันที่ (Date) แนบไปด้วยกัน
     historyStudentMap.get(name).monthsValues[monthIdx] = {
-      weight: h.weight,
-      height: h.height
+      record: {
+        weight: h.weight ? parseFloat(h.weight) : "",
+        height: h.height ? parseFloat(h.height) : ""
+      },
+      recordDay: d.getDate() // ดึงเฉพาะตัวเลขวันที่ (1 - 31)
     };
   });
 
@@ -366,10 +366,23 @@ export default function MeasurementsPage() {
                     <td>{historyFirstRow + i + 1}</td>
                     <td className="text-start ps-3" style={{ width: "220px" }}>{h.name}</td>
                     {monthColumns.map((m) => {
-                      const monthValue = h.monthsValues[m.monthIndex];
+                      // 🔴 ปรับปรุง: ดึงน้ำหนัก ส่วนสูง และตัวเลขวันที่มา Render แสดงผลพร้อมกัน
+                      const monthData = h.monthsValues[m.monthIndex];
+                      const displayStr = monthData ? measurementDisplay(monthData.record) : "-";
+                      const dayNum = monthData ? monthData.recordDay : null;
+
                       return (
-                        <td key={m.monthIndex}>
-                          {measurementDisplay(monthValue)}
+                        <td key={m.monthIndex} style={{ padding: "6px 2px" }}>
+                          {monthData && displayStr !== "-" ? (
+                            <div>
+                              <div style={{ whiteSpace: "nowrap" }}>{displayStr}</div>
+                              <div className="text-muted small" style={{ fontSize: "10px", marginTop: "2px" }}>
+                                (วันที่ {dayNum})
+                              </div>
+                            </div>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                       );
                     })}

@@ -260,14 +260,12 @@ export default function HealthPage() {
     "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
   ];
 
-  // 1. สร้างคอลัมน์คงที่ 12 เดือนของปี พ.ศ. ที่เลือกอยู่บน UI
   const shortYearThai = String(exportYear + 543).slice(-2);
   const monthColumns = dateHeaderMonths.map((m, index) => ({
-    monthIndex: index, // 0 - 11
-    label: `${m} ${shortYearThai}` // ตัวอย่าง "พ.ค. 69"
+    monthIndex: index, 
+    label: `${m} ${shortYearThai}` 
   }));
 
-  // 2. กรองประวัติสุขภาพเฉพาะปีการศึกษา/ปีปฏิทินที่เลือก
   const yearlyHistory = history.filter((h) => {
     const d = new Date(h.evaluation_date);
     return d.getFullYear() === exportYear;
@@ -278,7 +276,7 @@ export default function HealthPage() {
   rows.forEach((r) => {
     historyStudentMap.set(r.name, {
       name: r.name,
-      monthsValues: {} // เก็บข้อมูลโดยใช้เดือน index (0-11) เป็น Key
+      monthsValues: {} 
     });
   });
 
@@ -294,12 +292,15 @@ export default function HealthPage() {
       });
     }
 
-    // เก็บข้อมูลบันทึกล่าสุดของเดือนนั้นๆ
+    // 🔴 ปรับปรุง: เก็บค่า object สุขภาพ พร้อมทั้งดึงเลขวันที่บันทึก (Date) แนบไปด้วย
     historyStudentMap.get(name).monthsValues[monthIdx] = {
-      hair_condition: h.hair_condition,
-      oral_cavity: h.oral_cavity,
-      fingernail: h.fingernail,
-      toenail: h.toenail
+      raw_data: {
+        hair_condition: h.hair_condition,
+        oral_cavity: h.oral_cavity,
+        fingernail: h.fingernail,
+        toenail: h.toenail
+      },
+      recordDay: d.getDate() // ดึงเฉพาะตัวเลขวันที่ (1 - 31)
     };
   });
 
@@ -421,10 +422,23 @@ export default function HealthPage() {
                         {h.name}
                       </td>
                       {monthColumns.map((m) => {
-                        const monthValue = h.monthsValues[m.monthIndex];
+                        // 🔴 ปรับปรุง: ดึงข้อมูลสุขภาพและวันที่ออกมา Render ลง Cell ตาราง
+                        const monthData = h.monthsValues[m.monthIndex];
+                        const summaryText = monthData ? healthSummary(monthData.raw_data) : "-";
+                        const dayNum = monthData ? monthData.recordDay : null;
+
                         return (
                           <td key={m.monthIndex}>
-                            {healthSummary(monthValue)}
+                            {monthData ? (
+                              <div>
+                                <span className="fw-bold">{summaryText}</span>
+                                <div className="text-muted small" style={{ fontSize: "10px", marginTop: "2px" }}>
+                                  (ว. {dayNum})
+                                </div>
+                              </div>
+                            ) : (
+                              "-"
+                            )}
                           </td>
                         );
                       })}
@@ -485,7 +499,7 @@ export default function HealthPage() {
           </>
         )}
 
-        {/* 🔴 ตารางวันนี้ */}
+        {/* ตารางวันนี้ */}
         <div className="health-table-wrapper mt-4">
           <table className="table table-bordered align-middle text-center">
             <thead className="table-light">
