@@ -29,8 +29,6 @@ export default function AdminDashboard() {
   const [selectedChild, setSelectedChild] = useState(null);
   const [detailData, setDetailData] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
-  
-  // 🔴 เพิ่ม State สำหรับจัดการแท็บ (Default เป็น 'daily' เสมอเมื่อกดดูรายละเอียด)
   const [activeTab, setActiveTab] = useState("daily"); 
 
   const rowsPerPage = 10;
@@ -94,7 +92,7 @@ export default function AdminDashboard() {
       });
       setSelectedChild(child);
       setDetailData(res.data);
-      setActiveTab("daily"); // 🔴 บังคับให้เปิดที่ประวัติรายวันก่อนเสมอ
+      setActiveTab("daily"); 
       setShowDetail(true);
     } catch (err) {
       console.error(err);
@@ -106,8 +104,16 @@ export default function AdminDashboard() {
   const currentRows = searchResults.slice(indexOfFirstRow, indexOfLastRow);
   const totalPages = Math.ceil(searchResults.length / rowsPerPage);
 
+  // ข้อมูลสเตตัสรายวัน (คอลัมน์ 1 - 31)
   const totalDays = getDaysInMonth(month, year - 543);
   const daysArray = Array.from({ length: totalDays }, (_, i) => i + 1);
+
+  // ข้อมูลสเตตัสรายเดือนคงที่ 12 เดือน (เช่น ม.ค. 69)
+  const shortYearThai = String(year).slice(-2);
+  const monthColumns = dateHeaderMonths.map((m, index) => ({
+    monthIndex: index,
+    label: `${m} ${shortYearThai}`
+  }));
 
   return (
     <div>
@@ -236,7 +242,7 @@ export default function AdminDashboard() {
           {/* HEADER */}
           <div className="card-header bg-success text-white d-flex justify-content-between align-items-center py-2 px-3">
             <h5 className="fw-bold mb-0 text-white" style={{ fontSize: "16px" }}>
-              ประวัติกิจกรรมประจำเดือน{thaiMonths[month - 1]} {year} : {selectedChild?.prefix}{selectedChild?.first_name} {selectedChild?.last_name} ({selectedChild?.classroom_name})
+              ประวัติกิจกรรมประจำปี พ.ศ. {year} : {selectedChild?.prefix}{selectedChild?.first_name} {selectedChild?.last_name} ({selectedChild?.classroom_name})
             </h5>
             <button
               className="btn btn-light btn-sm fw-bold text-success"
@@ -246,7 +252,7 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          {/* 🔴 SELECTION TABS MENU (ส่วนปุ่มสลับเมนู รายวัน / รายเดือน) */}
+          {/* SELECTION TABS MENU */}
           <div className="card-body bg-light border-bottom py-2 px-3">
             <ul className="nav nav-pills gap-2">
               <li className="nav-item">
@@ -254,7 +260,7 @@ export default function AdminDashboard() {
                   className={`nav-link btn-sm py-1 px-3 fw-bold ${activeTab === "daily" ? "active bg-success" : "text-success"}`}
                   onClick={() => setActiveTab("daily")}
                 >
-                  ประวัติรายวัน
+                  ประวัติรายวัน (ประจำเดือน {thaiMonths[month - 1]})
                 </button>
               </li>
               <li className="nav-item">
@@ -262,7 +268,7 @@ export default function AdminDashboard() {
                   className={`nav-link btn-sm py-1 px-3 fw-bold ${activeTab === "monthly" ? "active bg-success" : "text-success"}`}
                   onClick={() => setActiveTab("monthly")}
                 >
-                  ประวัติรายเดือน
+                  ประวัติรายเดือน (ภาพรวมทั้งปี)
                 </button>
               </li>
             </ul>
@@ -272,36 +278,48 @@ export default function AdminDashboard() {
           <div className="card-body p-0">
             <div className="milk-table-wrapper">
               <table
-                className="table table-bordered mb-0 text-center"
+                className="table table-bordered mb-0 text-center align-middle"
                 style={{
                   tableLayout: "fixed",
-                  minWidth: `${200 + daysArray.length * 86}px`,
+                  minWidth: activeTab === "daily" ? `${200 + daysArray.length * 86}px` : `${200 + monthColumns.length * 120}px`,
                   width: "max-content"
                 }}
               >
-                {/* THEAD */}
-                <thead className="table-success align-middle">
-                  <tr>
-                    <th rowSpan="2" style={{ width: "200px", verticalAlign: "middle" }}>
-                      หัวข้อประเมิน
-                    </th>
-                    <th colSpan={daysArray.length}>วันที่บันทึกข้อมูล</th>
-                  </tr>
-                  <tr>
-                    {daysArray.map((day) => (
-                      <th key={day} style={{ width: "86px", fontWeight: "normal", fontSize: "13px" }}>
-                        {day}{dateHeaderMonths[month - 1]}{String(year).slice(-2)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
+                {/* HEAD SWITCHING */}
+                {activeTab === "daily" ? (
+                  <thead className="table-success align-middle">
+                    <tr>
+                      <th rowSpan="2" style={{ width: "200px" }}>หัวข้อประเมิน</th>
+                      <th colSpan={daysArray.length}>วันที่บันทึกข้อมูล (รายวัน)</th>
+                    </tr>
+                    <tr>
+                      {daysArray.map((day) => (
+                        <th key={day} style={{ width: "86px", fontWeight: "normal", fontSize: "13px" }}>
+                          {day} {dateHeaderMonths[month - 1]}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                ) : (
+                  <thead className="table-success align-middle">
+                    <tr>
+                      <th rowSpan="2" style={{ width: "200px" }}>หัวข้อประเมิน</th>
+                      <th colSpan={monthColumns.length}>เดือนที่ทำการบันทึก (รายเดือน)</th>
+                    </tr>
+                    <tr>
+                      {monthColumns.map((m) => (
+                        <th key={m.monthIndex} style={{ width: "120px", fontWeight: "normal" }}>
+                          {m.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                )}
 
-                {/* TBODY */}
-                <tbody className="align-middle">
-                  {/* 🔴 ส่วนการกรองสลับข้อมูลตามแท็บที่เลือก */}
+                {/* BODY SWITCHING */}
+                <tbody>
                   {activeTab === "daily" ? (
                     <>
-                      {/* แท็บรายวัน: เช็คชื่อ, ดื่มนม, อาหาร, แปรงฟัน */}
                       <MonthlyDataRow
                         title="เช็คชื่อ"
                         data={detailData.attendance}
@@ -337,20 +355,15 @@ export default function AdminDashboard() {
                     </>
                   ) : (
                     <>
-                      {/* แท็บรายเดือน: สุขภาพ, น้ำหนัก/ส่วนสูง */}
-                      <MonthlyDataRow
+                      <YearlyHealthDataRow
                         title="สุขภาพ"
                         data={detailData.health}
-                        dateKey="evaluation_date"
-                        valueKey="note"
-                        month={month}
-                        year={year}
+                        monthColumns={monthColumns}
                       />
-                      <MeasurementRow
+                      <YearlyMeasurementRow
                         title="น้ำหนัก/ส่วนสูง"
                         data={detailData.measurements}
-                        month={month}
-                        year={year}
+                        monthColumns={monthColumns}
                       />
                     </>
                   )}
@@ -421,23 +434,19 @@ function displaySymbol(title, value, allData = []) {
   }
 
   if (title === "สุขภาพ") {
-    if (!allData || allData.length === 0) return strValue;
-    
-    let goodCount = 0;
-    let normalCount = 0;
-    let improveCount = 0;
-    
-    allData.forEach(item => {
-      const noteStr = String(item.note || "").trim();
-      if (noteStr.includes("ดี")) goodCount++;
-      if (noteStr.includes("ปานกลาง")) normalCount++;
-      if (noteStr.includes("ปรับปรุง")) improveCount++;
-    });
+    if (typeof value === "object") {
+      const statuses = [value.hair_condition, value.oral_cavity, value.fingernail, value.toenail].filter(Boolean);
+      if (statuses.length === 0) return "-";
+      const counts = statuses.reduce((acc, status) => {
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
 
-    if (goodCount >= 3) return "ดี";
-    if (normalCount >= 3) return "ปานกลาง";
-    if (improveCount >= 3) return "ปรับปรุง";
-    
+      if ((counts["ดี"] || 0) > 2) return "ดี";
+      if ((counts["ปานกลาง"] || 0) >= 2) return "ปานกลาง";
+      if ((counts["ปรับปรุง"] || 0) >= 2) return "ปรับปรุง";
+      return statuses[0] || "-";
+    }
     return strValue;
   }
 
@@ -460,7 +469,7 @@ function displaySymbol(title, value, allData = []) {
 }
 
 /* ==================================================
-   MONTHLY DATA ROW
+   MONTHLY DATA ROW (สำหรับแท็บรายวันทั่วไป)
 ================================================== */
 function MonthlyDataRow({ title, data, dateKey, valueKey, month, year }) {
   const totalDays = getDaysInMonth(month, year - 543);
@@ -490,28 +499,70 @@ function MonthlyDataRow({ title, data, dateKey, valueKey, month, year }) {
 }
 
 /* ==================================================
-   MEASUREMENT ROW
+   🔴 YEARLY HEALTH DATA ROW (สรุปสุขภาพราย 12 เดือน + วันที่บันทึก)
 ================================================== */
-function MeasurementRow({ title, data, month, year }) {
-  const totalDays = getDaysInMonth(month, year - 543);
-
+function YearlyHealthDataRow({ title, data, monthColumns }) {
   return (
     <tr>
       <td className="text-start fw-bold ps-3 table-light" style={{ width: "200px" }}>
         {title}
       </td>
-      {Array.from({ length: totalDays }).map((_, index) => {
-        const day = index + 1;
-        const found = data?.find((item) => {
-          const itemDate = new Date(item.measurement_date);
-          return itemDate.getDate() === day;
+      {monthColumns.map((m) => {
+        const matchInMonth = data?.filter((item) => {
+          const d = new Date(item.evaluation_date);
+          return d.getMonth() === m.monthIndex;
         });
 
+        const latestRecord = matchInMonth && matchInMonth.length > 0 ? matchInMonth[0] : null;
+        const recordDay = latestRecord ? new Date(latestRecord.evaluation_date).getDate() : null;
+
         return (
-          <td key={day} style={{ width: "86px", fontSize: "11px", whiteSpace: "nowrap" }}>
-            {found && (found.weight || found.height)
-              ? `${found.weight ? parseFloat(found.weight) + " กก." : "-"} / ${found.height ? parseFloat(found.height) + " ซม." : "-"}`
-              : "-"}
+          <td key={m.monthIndex} style={{ width: "120px" }}>
+            {latestRecord ? (
+              <div>
+                <span className="fw-bold">{displaySymbol(title, latestRecord, data)}</span>
+                <div className="text-muted" style={{ fontSize: "10px", marginTop: "2px" }}>(ว. {recordDay})</div>
+              </div>
+            ) : (
+              "-"
+            )}
+          </td>
+        );
+      })}
+    </tr>
+  );
+}
+
+/* ==================================================
+   🔴 YEARLY MEASUREMENT ROW (สรุปน้ำหนัก/ส่วนสูงราย 12 เดือน + วันที่บันทึก)
+================================================== */
+function YearlyMeasurementRow({ title, data, monthColumns }) {
+  return (
+    <tr>
+      <td className="text-start fw-bold ps-3 table-light" style={{ width: "200px" }}>
+        {title}
+      </td>
+      {monthColumns.map((m) => {
+        const matchInMonth = data?.filter((item) => {
+          const d = new Date(item.measurement_date);
+          return d.getMonth() === m.monthIndex;
+        });
+
+        const latestRecord = matchInMonth && matchInMonth.length > 0 ? matchInMonth[0] : null;
+        const recordDay = latestRecord ? new Date(latestRecord.measurement_date).getDate() : null;
+
+        return (
+          <td key={m.monthIndex} style={{ width: "120px", fontSize: "12px", padding: "6px 2px" }}>
+            {latestRecord && (latestRecord.weight || latestRecord.height) ? (
+              <div>
+                <div style={{ whiteSpace: "nowrap" }}>
+                  {latestRecord.weight ? parseFloat(latestRecord.weight) + " กก." : "-"} / {latestRecord.height ? parseFloat(latestRecord.height) + " ซม." : "-"}
+                </div>
+                <div className="text-muted" style={{ fontSize: "10px", marginTop: "2px" }}>(วันที่ {recordDay})</div>
+              </div>
+            ) : (
+              "-"
+            )}
           </td>
         );
       })}
