@@ -16,7 +16,6 @@ import HealthSummaryUnder3Chart from "../../components/charts/HealthSummaryUnder
 import HealthSummary3YearsChart from "../../components/charts/HealthSummary3YearsChart";
 
 export default function AdminDashboard() {
-
   const [rooms, setRooms] = useState([]);
   const [childrenCount, setChildrenCount] = useState(null);
 
@@ -30,6 +29,9 @@ export default function AdminDashboard() {
   const [selectedChild, setSelectedChild] = useState(null);
   const [detailData, setDetailData] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
+  
+  // 🔴 เพิ่ม State สำหรับจัดการแท็บ (Default เป็น 'daily' เสมอเมื่อกดดูรายละเอียด)
+  const [activeTab, setActiveTab] = useState("daily"); 
 
   const rowsPerPage = 10;
 
@@ -92,6 +94,7 @@ export default function AdminDashboard() {
       });
       setSelectedChild(child);
       setDetailData(res.data);
+      setActiveTab("daily"); // 🔴 บังคับให้เปิดที่ประวัติรายวันก่อนเสมอ
       setShowDetail(true);
     } catch (err) {
       console.error(err);
@@ -232,8 +235,8 @@ export default function AdminDashboard() {
         <div className="card mb-4 border-success shadow-sm">
           {/* HEADER */}
           <div className="card-header bg-success text-white d-flex justify-content-between align-items-center py-2 px-3">
-            <h5 className="fw-bold mb-0 text-white">
-              ประวัติกิจกรรมรายเดือนประจำเดือน {thaiMonths[month - 1]} {year} : {selectedChild?.prefix}{selectedChild?.first_name} {selectedChild?.last_name} ({selectedChild?.classroom_name})
+            <h5 className="fw-bold mb-0 text-white" style={{ fontSize: "16px" }}>
+              ประวัติกิจกรรมประจำเดือน{thaiMonths[month - 1]} {year} : {selectedChild?.prefix}{selectedChild?.first_name} {selectedChild?.last_name} ({selectedChild?.classroom_name})
             </h5>
             <button
               className="btn btn-light btn-sm fw-bold text-success"
@@ -241,6 +244,28 @@ export default function AdminDashboard() {
             >
               ย้อนกลับ
             </button>
+          </div>
+
+          {/* 🔴 SELECTION TABS MENU (ส่วนปุ่มสลับเมนู รายวัน / รายเดือน) */}
+          <div className="card-body bg-light border-bottom py-2 px-3">
+            <ul className="nav nav-pills gap-2">
+              <li className="nav-item">
+                <button
+                  className={`nav-link btn-sm py-1 px-3 fw-bold ${activeTab === "daily" ? "active bg-success" : "text-success"}`}
+                  onClick={() => setActiveTab("daily")}
+                >
+                  ประวัติรายวัน
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  className={`nav-link btn-sm py-1 px-3 fw-bold ${activeTab === "monthly" ? "active bg-success" : "text-success"}`}
+                  onClick={() => setActiveTab("monthly")}
+                >
+                  ประวัติรายเดือน
+                </button>
+              </li>
+            </ul>
           </div>
 
           {/* TABLE */}
@@ -258,9 +283,9 @@ export default function AdminDashboard() {
                 <thead className="table-success align-middle">
                   <tr>
                     <th rowSpan="2" style={{ width: "200px", verticalAlign: "middle" }}>
-                      หัวข้อ
+                      หัวข้อประเมิน
                     </th>
-                    <th colSpan={daysArray.length}>วันที่บันทึก</th>
+                    <th colSpan={daysArray.length}>วันที่บันทึกข้อมูล</th>
                   </tr>
                   <tr>
                     {daysArray.map((day) => (
@@ -273,63 +298,62 @@ export default function AdminDashboard() {
 
                 {/* TBODY */}
                 <tbody className="align-middle">
-                  {/* เช็คชื่อ */}
-                  <MonthlyDataRow
-                    title="เช็คชื่อ"
-                    data={detailData.attendance}
-                    dateKey="record_date"
-                    valueKey="status"
-                    month={month}
-                    year={year}
-                  />
-
-                  {/* ดื่มนม */}
-                  <MonthlyDataRow
-                    title="ดื่มนม"
-                    data={detailData.milk}
-                    dateKey="record_date"
-                    valueKey="status"
-                    month={month}
-                    year={year}
-                  />
-
-                  {/* รับประทานอาหาร */}
-                  <MonthlyDataRow
-                    title="รับประทานอาหาร"
-                    data={detailData.lunch}
-                    dateKey="record_date"
-                    valueKey="status"
-                    month={month}
-                    year={year}
-                  />
-
-                  {/* แปรงฟัน */}
-                  <MonthlyDataRow
-                    title="แปรงฟัน"
-                    data={detailData.toothbrush}
-                    dateKey="record_date"
-                    valueKey="status"
-                    month={month}
-                    year={year}
-                  />
-
-                  {/* สุขภาพ */}
-                  <MonthlyDataRow
-                    title="สุขภาพ"
-                    data={detailData.health}
-                    dateKey="evaluation_date"
-                    valueKey="note"
-                    month={month}
-                    year={year}
-                  />
-
-                  {/* น้ำหนัก/ส่วนสูง */}
-                  <MeasurementRow
-                    title="น้ำหนัก/ส่วนสูง"
-                    data={detailData.measurements}
-                    month={month}
-                    year={year}
-                  />
+                  {/* 🔴 ส่วนการกรองสลับข้อมูลตามแท็บที่เลือก */}
+                  {activeTab === "daily" ? (
+                    <>
+                      {/* แท็บรายวัน: เช็คชื่อ, ดื่มนม, อาหาร, แปรงฟัน */}
+                      <MonthlyDataRow
+                        title="เช็คชื่อ"
+                        data={detailData.attendance}
+                        dateKey="record_date"
+                        valueKey="status"
+                        month={month}
+                        year={year}
+                      />
+                      <MonthlyDataRow
+                        title="ดื่มนม"
+                        data={detailData.milk}
+                        dateKey="record_date"
+                        valueKey="status"
+                        month={month}
+                        year={year}
+                      />
+                      <MonthlyDataRow
+                        title="รับประทานอาหาร"
+                        data={detailData.lunch}
+                        dateKey="record_date"
+                        valueKey="status"
+                        month={month}
+                        year={year}
+                      />
+                      <MonthlyDataRow
+                        title="แปรงฟัน"
+                        data={detailData.toothbrush}
+                        dateKey="record_date"
+                        valueKey="status"
+                        month={month}
+                        year={year}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {/* แท็บรายเดือน: สุขภาพ, น้ำหนัก/ส่วนสูง */}
+                      <MonthlyDataRow
+                        title="สุขภาพ"
+                        data={detailData.health}
+                        dateKey="evaluation_date"
+                        valueKey="note"
+                        month={month}
+                        year={year}
+                      />
+                      <MeasurementRow
+                        title="น้ำหนัก/ส่วนสูง"
+                        data={detailData.measurements}
+                        month={month}
+                        year={year}
+                      />
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -389,7 +413,6 @@ function displaySymbol(title, value, allData = []) {
 
   const strValue = String(value).trim();
 
-  // 1. เงื่อนไขหมวดเช็คชื่อ (มา = ✓, ลา = ล, ขาด = ข)
   if (title === "เช็คชื่อ") {
     if (strValue === "มา") return "✓";
     if (strValue === "ลา") return "ล";
@@ -397,7 +420,6 @@ function displaySymbol(title, value, allData = []) {
     return strValue;
   }
 
-  // 2. เงื่อนไขหมวดสุขภาพ (ไล่เช็คความถี่ ดี > ปานกลาง > ปรับปรุง เกิน 3 วัน)
   if (title === "สุขภาพ") {
     if (!allData || allData.length === 0) return strValue;
     
@@ -419,7 +441,6 @@ function displaySymbol(title, value, allData = []) {
     return strValue;
   }
 
-  // 3. เงื่อนไขหมวดกิจกรรม ดื่มนม / รับประทานอาหาร / แปรงฟัน (เปลี่ยนคำยาว ๆ ให้เป็น ติ๊กถูก)
   if (
     strValue === "ดื่ม" || 
     strValue === "รับประทาน" || 
@@ -486,7 +507,6 @@ function MeasurementRow({ title, data, month, year }) {
           return itemDate.getDate() === day;
         });
 
-        // แสดงผลหน่วย กก. และ ซม. โดยใช้ parseFloat เพื่อลบเลขศูนย์ (.00) ท้ายทศนิยมออก
         return (
           <td key={day} style={{ width: "86px", fontSize: "11px", whiteSpace: "nowrap" }}>
             {found && (found.weight || found.height)
