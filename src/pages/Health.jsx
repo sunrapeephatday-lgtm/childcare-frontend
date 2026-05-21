@@ -30,11 +30,11 @@ function healthToNumber(v) {
   if (v === "ดี") return 3;
   if (v === "ปานกลาง") return 2;
   if (v === "ปรับปรุง") return 1;
-  return "";
+  return "-";
 }
 
 function healthSummary(value) {
-  if (!value) return "";
+  if (!value) return "-";
 
   const statuses = [
     value.hair_condition,
@@ -42,6 +42,8 @@ function healthSummary(value) {
     value.fingernail,
     value.toenail
   ].filter(Boolean);
+
+  if (statuses.length === 0) return "-";
 
   const counts = statuses.reduce((acc, status) => {
     acc[status] = (acc[status] || 0) + 1;
@@ -52,7 +54,7 @@ function healthSummary(value) {
   if ((counts["ปานกลาง"] || 0) >= 2) return "ปานกลาง";
   if ((counts["ปรับปรุง"] || 0) >= 2) return "ปรับปรุง";
 
-  return statuses[0] || "";
+  return statuses[0] || "-";
 }
 
 /* ================= component ================= */
@@ -73,49 +75,43 @@ export default function HealthPage() {
   /* ===== load ===== */
 
   useEffect(() => {
-  init();
-}, []);
+    init();
+  }, []);
 
-async function init() {
-  try {
-    const user = JSON.parse(sessionStorage.getItem("user"));
+  async function init() {
+    try {
+      const user = JSON.parse(sessionStorage.getItem("user"));
 
-    if (!user || user.role !== "teacher") {
-      setMsg({ type: "danger", text: "หน้านี้สำหรับครูเท่านั้น" });
-      return;
+      if (!user || user.role !== "teacher") {
+        setMsg({ type: "danger", text: "หน้านี้สำหรับครูเท่านั้น" });
+        return;
+      }
+
+      const res = await API.get("/health/me");
+      const tId = res.data.teacher_id;
+      setTeacherId(tId);
+      loadToday(tId);
+    } catch (err) {
+      console.error(err);
+      setMsg({ type: "danger", text: "โหลดข้อมูลครูไม่สำเร็จ" });
     }
-
-    const res = await API.get("/health/me");
-
-    const tId = res.data.teacher_id;
-
-    setTeacherId(tId);
-
-    loadToday(tId);
-    
-
-  } catch (err) {
-    console.error(err);
-    setMsg({ type: "danger", text: "โหลดข้อมูลครูไม่สำเร็จ" });
   }
-}
 
   async function loadToday(teacher_id) {
     const res = await API.get("/health/today", {
       params: { teacher_id },
     });
 
-    // 🔴 สำคัญมาก: ต้องเติมค่า default ไม่งั้นมือถือ select จะเด้ง
     const prepared = (res.data.rows || []).map((r) => ({
-  ...r,
-  evaluation: {
-    hair_condition: "ดี",
-    oral_cavity: "ดี",
-    fingernail: "ดี",
-    toenail: "ดี",
-    note: "",
-  },
-}));
+      ...r,
+      evaluation: {
+        hair_condition: "ดี",
+        oral_cavity: "ดี",
+        fingernail: "ดี",
+        toenail: "ดี",
+        note: "",
+      },
+    }));
 
     setRows(prepared);
   }
@@ -126,31 +122,26 @@ async function init() {
     });
     setHistory(res.data.rows || []);
   }
+
   async function handleReload() {
     setMsg(null);
-  const currentDate = new Date();
+    const currentDate = new Date();
 
-  setExportMonth(currentDate.getMonth() + 1);
+    setExportMonth(currentDate.getMonth() + 1);
+    setExportYear(currentDate.getFullYear());
+    setShowHistory(false);
+    setHistory([]);
+    setHistoryPage(1);
+    setCheckinPage(1);
 
-  setExportYear(currentDate.getFullYear());
-
-  setShowHistory(false);
-
-  setHistory([]);
-
-  setHistoryPage(1);
-
-  setCheckinPage(1);
-
-  if (teacherId) {
-  await loadToday(teacherId);
-}
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
-}
+    if (teacherId) {
+      await loadToday(teacherId);
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
 
   /* ===== edit ===== */
 
@@ -176,36 +167,33 @@ async function init() {
     setIsSaving(true);
     try {
       const items = rows.map((r) => ({
-  child_id: r.child_id,
-  hair_condition: r.evaluation.hair_condition,
-  oral_cavity: r.evaluation.oral_cavity,
-  fingernail: r.evaluation.fingernail,
-  toenail: r.evaluation.toenail,
-  note: r.evaluation.note || null,
-  created_by: teacherId,
-}));
+        child_id: r.child_id,
+        hair_condition: r.evaluation.hair_condition,
+        oral_cavity: r.evaluation.oral_cavity,
+        fingernail: r.evaluation.fingernail,
+        toenail: r.evaluation.toenail,
+        note: r.evaluation.note || null,
+        created_by: teacherId,
+      }));
 
-await API.post("/health", { items });
+      await API.post("/health", { items });
 
-setRows((prev) =>
-  prev.map((r) => ({
-    ...r,
-    evaluation: {
-      ...r.evaluation,
-      hair_condition: "ดี",
-      oral_cavity: "ดี",
-      fingernail: "ดี",
-      toenail: "ดี",
-      note: "",
-    },
-  }))
-);
+      setRows((prev) =>
+        prev.map((r) => ({
+          ...r,
+          evaluation: {
+            ...r.evaluation,
+            hair_condition: "ดี",
+            oral_cavity: "ดี",
+            fingernail: "ดี",
+            toenail: "ดี",
+            note: "",
+          },
+        }))
+      );
 
-
-
-loadHistory(teacherId);
-
-setMsg({ type: "success", text: "บันทึกสุขภาพเรียบร้อย" });
+      loadHistory(teacherId);
+      setMsg({ type: "success", text: "บันทึกสุขภาพเรียบร้อย" });
     } catch {
       setMsg({ type: "danger", text: "บันทึกไม่สำเร็จ" });
     } finally {
@@ -214,527 +202,381 @@ setMsg({ type: "success", text: "บันทึกสุขภาพเรี�
   }
 
   /* ================= EXPORT EXCEL ================= */
-function exportExcel() {
-  if (!history.length) return;
+  function exportExcel() {
+    if (!history.length) return;
 
-  const month = exportMonth - 1;
-  const year = exportYear;
+    const month = exportMonth - 1;
+    const year = exportYear;
 
-  const thaiMonths = [
-    "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-    "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-  ];
+    const thaiMonths = [
+      "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+      "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+    ];
 
-  const title = `รายงานสุขภาพ ประจำเดือน ${thaiMonths[month]} ${year + 543}`;
-  const subtitle = "ศูนย์พัฒนาเด็ก อบต.หนองน้ำแดง สังกัดองค์การบริหารส่วนตำบลหนองน้ำแดง";
-  const data = [
-    [title],
-    [subtitle],
-    ["วันที่", "ชื่อ", "ผม", "ช่องปาก", "เล็บมือ", "เล็บเท้า", "หมายเหตุ"]
-  ];
-  const monthHistory = history.filter((h) => {
-  const d = new Date(h.evaluation_date);
-  return d.getMonth() === month && d.getFullYear() === year;
-});
-
-  monthHistory.forEach((h) => {
-    data.push([
-      formatThaiDate(h.evaluation_date),
-      `${h.prefix}${h.first_name} ${h.last_name}`,
-      healthToNumber(h.hair_condition),
-      healthToNumber(h.oral_cavity),
-      healthToNumber(h.fingernail),
-      healthToNumber(h.toenail),
-      h.note || "",
-    ]);
-  });
-
-  const ws = XLSX.utils.aoa_to_sheet(data);
-
-  ws["!merges"] = [
-  {
-    s: { r: 0, c: 0 },
-    e: { r: 0, c: 6 }
-  },
-  {
-    s: { r: 1, c: 0 },
-    e: { r: 1, c: 6 }
-  }
-];
-
-  ws["!cols"] = [
-    { wch: 14 },
-    { wch: 30 },
-    { wch: 10 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 20 }
-  ];
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "สุขภาพ");
-
-
-XLSX.writeFile(
-  wb,
-  `รายงานบันทึกสุขภาพ_${thaiMonths[month]}_${year + 543}.xlsx`
-);
-}
-const dateHeaderMonths = [
-  "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
-  "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
-];
-
-const daysInSelectedMonth = new Date(exportYear, exportMonth, 0).getDate();
-
-const monthDateColumns = Array.from(
-  { length: daysInSelectedMonth },
-  (_, index) => ({
-    day: index + 1,
-    label: `${index + 1}${dateHeaderMonths[exportMonth - 1]}${String(exportYear + 543).slice(-2)}`
-  })
-);
-
-const monthlyHistory = history.filter((h) => {
-  const d = new Date(h.evaluation_date);
-  return d.getMonth() === exportMonth - 1 && d.getFullYear() === exportYear;
-});
-
-const historyStudentMap = new Map();
-
-rows.forEach((r) => {
-  historyStudentMap.set(r.name, {
-    name: r.name,
-    values: {}
-  });
-});
-
-monthlyHistory.forEach((h) => {
-  const d = new Date(h.evaluation_date);
-  const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
-
-  if (!historyStudentMap.has(name)) {
-    historyStudentMap.set(name, {
-      name,
-      values: {}
+    const title = `รายงานสุขภาพ ประจำเดือน ${thaiMonths[month]} ${year + 543}`;
+    const subtitle = "ศูนย์พัฒนาเด็ก อบต.หนองน้ำแดง สังกัดองค์การบริหารส่วนตำบลหนองน้ำแดง";
+    const data = [
+      [title],
+      [subtitle],
+      ["วันที่", "ชื่อ", "ผม", "ช่องปาก", "เล็บมือ", "เล็บเท้า", "หมายเหตุ"]
+    ];
+    const monthHistory = history.filter((h) => {
+      const d = new Date(h.evaluation_date);
+      return d.getMonth() === month && d.getFullYear() === year;
     });
+
+    monthHistory.forEach((h) => {
+      data.push([
+        formatThaiDate(h.evaluation_date),
+        `${h.prefix}${h.first_name} ${h.last_name}`,
+        healthToNumber(h.hair_condition),
+        healthToNumber(h.oral_cavity),
+        healthToNumber(h.fingernail),
+        healthToNumber(h.toenail),
+        h.note || "-",
+      ]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }
+    ];
+
+    ws["!cols"] = [
+      { wch: 14 }, { wch: 30 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 20 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "สุขภาพ");
+
+    XLSX.writeFile(wb, `รายงานบันทึกสุขภาพ_${thaiMonths[month]}_${year + 543}.xlsx`);
   }
 
-  historyStudentMap.get(name).values[d.getDate()] = {
-    hair_condition: h.hair_condition,
-    oral_cavity: h.oral_cavity,
-    fingernail: h.fingernail,
-    toenail: h.toenail
-  };
-});
+  /* ================= จัดการคอลัมน์ประวัติแบบ 12 เดือน ================= */
+  const dateHeaderMonths = [
+    "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+    "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+  ];
 
-const historyStudentRows = Array.from(historyStudentMap.values());
+  // 1. สร้างคอลัมน์คงที่ 12 เดือนของปี พ.ศ. ที่เลือกอยู่บน UI
+  const shortYearThai = String(exportYear + 543).slice(-2);
+  const monthColumns = dateHeaderMonths.map((m, index) => ({
+    monthIndex: index, // 0 - 11
+    label: `${m} ${shortYearThai}` // ตัวอย่าง "พ.ค. 69"
+  }));
 
-const historyLastRow = historyPage * rowsPerPage;
+  // 2. กรองประวัติสุขภาพเฉพาะปีการศึกษา/ปีปฏิทินที่เลือก
+  const yearlyHistory = history.filter((h) => {
+    const d = new Date(h.evaluation_date);
+    return d.getFullYear() === exportYear;
+  });
 
-const historyFirstRow = historyLastRow - rowsPerPage;
+  const historyStudentMap = new Map();
 
-const currentHistory = historyStudentRows.slice(
-  historyFirstRow,
-  historyLastRow
-);
+  rows.forEach((r) => {
+    historyStudentMap.set(r.name, {
+      name: r.name,
+      monthsValues: {} // เก็บข้อมูลโดยใช้เดือน index (0-11) เป็น Key
+    });
+  });
 
-const historyTotalPages = Math.ceil(
-  historyStudentRows.length / rowsPerPage
-);
+  yearlyHistory.forEach((h) => {
+    const d = new Date(h.evaluation_date);
+    const monthIdx = d.getMonth();
+    const name = `${h.prefix || ""}${h.first_name} ${h.last_name}`;
 
-const checkinLastRow = checkinPage * rowsPerPage;
+    if (!historyStudentMap.has(name)) {
+      historyStudentMap.set(name, {
+        name,
+        monthsValues: {}
+      });
+    }
 
-const checkinFirstRow = checkinLastRow - rowsPerPage;
+    // เก็บข้อมูลบันทึกล่าสุดของเดือนนั้นๆ
+    historyStudentMap.get(name).monthsValues[monthIdx] = {
+      hair_condition: h.hair_condition,
+      oral_cavity: h.oral_cavity,
+      fingernail: h.fingernail,
+      toenail: h.toenail
+    };
+  });
 
-const currentCheckins = rows.slice(
-  checkinFirstRow,
-  checkinLastRow
-);
+  const historyStudentRows = Array.from(historyStudentMap.values());
+  const historyLastRow = historyPage * rowsPerPage;
+  const historyFirstRow = historyLastRow - rowsPerPage;
+  const currentHistory = historyStudentRows.slice(historyFirstRow, historyLastRow);
+  const historyTotalPages = Math.ceil(historyStudentRows.length / rowsPerPage);
 
-const checkinTotalPages = Math.ceil(
-  rows.length / rowsPerPage
-);
-  /* ================= UI ================= */
-const historyPageNumbers = Array.from(
-  { length: historyTotalPages },
-  (_, i) => i + 1
-).filter(
-  (page) =>
-    page === 1 ||
-    page === historyTotalPages ||
-    Math.abs(page - historyPage) <= 2
-);
+  const checkinLastRow = checkinPage * rowsPerPage;
+  const checkinFirstRow = checkinLastRow - rowsPerPage;
+  const currentCheckins = rows.slice(checkinFirstRow, checkinLastRow);
+  const checkinTotalPages = Math.ceil(rows.length / rowsPerPage);
 
-const checkinPageNumbers = Array.from(
-  { length: checkinTotalPages },
-  (_, i) => i + 1
-).filter(
-  (page) =>
-    page === 1 ||
-    page === checkinTotalPages ||
-    Math.abs(page - checkinPage) <= 2
-);
+  const historyPageNumbers = Array.from({ length: historyTotalPages }, (_, i) => i + 1)
+    .filter(page => page === 1 || page === historyTotalPages || Math.abs(page - historyPage) <= 2);
+
+  const checkinPageNumbers = Array.from({ length: checkinTotalPages }, (_, i) => i + 1)
+    .filter(page => page === 1 || page === checkinTotalPages || Math.abs(page - checkinPage) <= 2);
+
   return (
-  <div className="container my-4">
-    <div className="col-md-12">
-      <h3 className="mb-3 fw-bold text-success section-title">
-        บันทึกสุขภาพ (วันที่ {todayThai()})
-      </h3>
-      {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
-      <div className="row mb-3 align-items-end">
-        <div className="col-md-3">
-          <label className="form-label">เดือน</label>
-          <select
-            className="form-select"
-            value={exportMonth}
-            onChange={(e) => setExportMonth(Number(e.target.value))}
-          >
-            {[
-              "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
-              "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
-            ].map((m, i) => (
-              <option key={i} value={i + 1}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="col-md-2">
-          <label className="form-label">ปี</label>
-          <select
-            className="form-select"
-            value={exportYear}
-            onChange={(e) => setExportYear(Number(e.target.value))}
-          >
-            {[2568, 2569, 2570].map((y) => (
-              <option key={y} value={y - 543}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </div>
- <div className="col-12 col-md-7 mt-2 mt-md-0">
-    <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
-
-  <button
-    type="button"
-    className="btn btn-outline-secondary"
-    onClick={handleReload}
-  >
-    รีโหลด
-  </button>
-
-  <button
-    type="button"
-    className="btn btn-primary"
-    onClick={async () => {
-
-      await loadHistory(teacherId);
-
-      setHistoryPage(1);
-
-      setShowHistory(true);
-
-    }}
-  >
-    ค้นหาประวัติ
-  </button>
-
-  <button
-    type="button"
-    className="btn btn-primary"
-    onClick={saveAll}
-  >
-    บันทึกทั้งหมด
-  </button>
-
-  <button
-    type="button"
-    className="btn btn-primary me-2"
-    onClick={exportExcel}
-  >
-    Export Microsoft Excel
-  </button>
-
-</div>
-        </div>
-      </div>
-{showHistory && (
-  <>
-      {/* 🔴 ประวัติ */}
-      <h5 className="mb-3 fw-bold text-success section-title">
-        ประวัติการบันทึกสุขภาพ
-      </h5>
-
-      <div className="health-table-wrapper">
-        <table
-          className="table table-bordered"
-          style={{
-            tableLayout: "fixed",
-            minWidth: `${260 + monthDateColumns.length * 130}px`,
-            width: "max-content"
-          }}
-        >
-          <thead className="table-light">
-            <tr>
-              <th rowSpan="2" style={{ width: "60px" }}>ลำดับ</th>
-              <th rowSpan="2" style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
-              <th colSpan={monthDateColumns.length}>วันที่บันทึก</th>
-            </tr>
-            <tr>
-              {monthDateColumns.map((d) => (
-                <th key={d.day} style={{ width: "130px" }}>
-                  {d.label}
-                </th>
+    <div className="container my-4">
+      <div className="col-md-12">
+        <h3 className="mb-3 fw-bold text-success section-title">
+          บันทึกสุขภาพ (วันที่ {todayThai()})
+        </h3>
+        {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
+        <div className="row mb-3 align-items-end">
+          <div className="col-md-3">
+            <label className="form-label">เดือนบันทึกปัจจุบัน</label>
+            <select
+              className="form-select"
+              value={exportMonth}
+              onChange={(e) => setExportMonth(Number(e.target.value))}
+            >
+              {[
+                "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+                "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+              ].map((m, i) => (
+                <option key={i} value={i + 1}>
+                  {m}
+                </option>
               ))}
-            </tr>
-          </thead>
+            </select>
+          </div>
 
-          <tbody>
-            {currentHistory.map((h, i) => (
-              <tr key={i}>
-                <td>{historyFirstRow + i + 1}</td>
-<td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
-  {h.name}
-</td>
-                {monthDateColumns.map((d) => {
-                  const value = h.values[d.day];
+          <div className="col-md-2">
+            <label className="form-label">ปี</label>
+            <select
+              className="form-select"
+              value={exportYear}
+              onChange={(e) => setExportYear(Number(e.target.value))}
+            >
+              {[2568, 2569, 2570].map((y) => (
+                <option key={y} value={y - 543}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-12 col-md-7 mt-2 mt-md-0">
+            <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+              <button type="button" className="btn btn-outline-secondary" onClick={handleReload}>
+                รีโหลด
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={async () => {
+                  await loadHistory(teacherId);
+                  setHistoryPage(1);
+                  setShowHistory(true);
+                }}
+              >
+                ค้นหาประวัติ
+              </button>
+              <button type="button" className="btn btn-primary" onClick={saveAll}>
+                บันทึกทั้งหมด
+              </button>
+              <button type="button" className="btn btn-primary me-2" onClick={exportExcel}>
+                Export Microsoft Excel
+              </button>
+            </div>
+          </div>
+        </div>
 
-                  return (
-                    <td key={d.day}>
-                      {healthSummary(value)}
+        {showHistory && (
+          <>
+            <h5 className="mb-3 fw-bold text-success section-title">
+              ประวัติการบันทึกสุขภาพรายเดือน (ปี พ.ศ. {exportYear + 543})
+            </h5>
+
+            <div className="health-table-wrapper">
+              <table
+                className="table table-bordered align-middle text-center"
+                style={{
+                  tableLayout: "fixed",
+                  minWidth: `${260 + monthColumns.length * 100}px`,
+                  width: "max-content"
+                }}
+              >
+                <thead className="table-light">
+                  <tr>
+                    <th style={{ width: "60px" }}>ลำดับ</th>
+                    <th style={{ width: "200px" }}>ชื่อ-นามสกุล</th>
+                    {monthColumns.map((m) => (
+                      <th key={m.monthIndex} style={{ width: "100px" }}>
+                        {m.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {currentHistory.map((h, i) => (
+                    <tr key={i}>
+                      <td>{historyFirstRow + i + 1}</td>
+                      <td style={{ textAlign: "left", paddingLeft: "16px", width: "220px" }}>
+                        {h.name}
+                      </td>
+                      {monthColumns.map((m) => {
+                        const monthValue = h.monthsValues[m.monthIndex];
+                        return (
+                          <td key={m.monthIndex}>
+                            {healthSummary(monthValue)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {historyStudentRows.length > rowsPerPage && (
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+                <div className="text-muted small">
+                  แสดง {historyFirstRow + 1}-
+                  {Math.min(historyLastRow, historyStudentRows.length)} จาก {historyStudentRows.length} รายการ
+                </div>
+                <nav>
+                  <ul className="pagination pagination-sm mb-0">
+                    <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setHistoryPage((page) => Math.max(1, page - 1))}
+                      >
+                        ก่อนหน้า
+                      </button>
+                    </li>
+                    {historyPageNumbers.map((page, index) => {
+                      const prevPage = historyPageNumbers[index - 1];
+                      const showGap = prevPage && page - prevPage > 1;
+                      return (
+                        <React.Fragment key={page}>
+                          {showGap && (
+                            <li className="page-item disabled">
+                              <span className="page-link">...</span>
+                            </li>
+                          )}
+                          <li className={`page-item ${historyPage === page ? "active" : ""}`}>
+                            <button type="button" className="page-link" onClick={() => setHistoryPage(page)}>
+                              {page}
+                            </button>
+                          </li>
+                        </React.Fragment>
+                      );
+                    })}
+                    <li className={`page-item ${historyPage === historyTotalPages ? "disabled" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setHistoryPage((page) => Math.min(historyTotalPages, page + 1))}
+                      >
+                        ถัดไป
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* 🔴 ตารางวันนี้ */}
+        <div className="health-table-wrapper mt-4">
+          <table className="table table-bordered align-middle text-center">
+            <thead className="table-light">
+              <tr>
+                <th style={{ width: "60px" }}>ลำดับ</th>
+                <th style={{ width: "220px" }}>ชื่อ</th>
+                <th style={{ width: "140px" }}>ชื่อเล่น</th>
+                <th style={{ width: "120px" }}>ผม</th>
+                <th style={{ width: "120px" }}>ช่องปาก</th>
+                <th style={{ width: "120px" }}>เล็บมือ</th>
+                <th style={{ width: "120px" }}>เล็บเท้า</th>
+                <th style={{ width: "180px" }}>หมายเหตุ</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {currentCheckins.map((r, i) => (
+                <tr key={r.child_id}>
+                  <td>{checkinFirstRow + i + 1}</td>
+                  <td className="text-start ps-3">{r.name}</td>
+                  <td className="text-start ps-3">{r.nickname || "-"}</td>
+                  {["hair_condition", "oral_cavity", "fingernail", "toenail"].map((f) => (
+                    <td key={f}>
+                      <select
+                        key={`${r.child_id}-${f}-${r.evaluation[f]}`}
+                        className="form-select form-select-sm"
+                        value={r.evaluation[f]}
+                        onChange={(e) => onChangeField(r.child_id, f, e.target.value)}
+                      >
+                        {OPTIONS.map((op) => (
+                          <option key={op} value={op}>
+                            {op}
+                          </option>
+                        ))}
+                      </select>
                     </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-{historyStudentRows.length > rowsPerPage && (
-  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
-
-    <div className="text-muted small">
-      แสดง {historyFirstRow + 1}-
-      {Math.min(historyLastRow, historyStudentRows.length)}
-      {" "}จาก {historyStudentRows.length} รายการ
-    </div>
-
-    <nav>
-      <ul className="pagination pagination-sm mb-0">
-
-        <li className={`page-item ${historyPage === 1 ? "disabled" : ""}`}>
-          <button
-            type="button"
-            className="page-link"
-            onClick={() =>
-              setHistoryPage((page) => Math.max(1, page - 1))
-            }
-          >
-            ก่อนหน้า
-          </button>
-        </li>
-
-        {historyPageNumbers.map((page, index) => {
-          const prevPage = historyPageNumbers[index - 1];
-          const showGap = prevPage && page - prevPage > 1;
-
-          return (
-            <React.Fragment key={page}>
-
-              {showGap && (
-                <li className="page-item disabled">
-                  <span className="page-link">...</span>
-                </li>
-              )}
-
-              <li
-                className={`page-item ${
-                  historyPage === page ? "active" : ""
-                }`}
-              >
-                <button
-                  type="button"
-                  className="page-link"
-                  onClick={() => setHistoryPage(page)}
-                >
-                  {page}
-                </button>
-              </li>
-
-            </React.Fragment>
-          );
-        })}
-
-        <li
-          className={`page-item ${
-            historyPage === historyTotalPages ? "disabled" : ""
-          }`}
-        >
-          <button
-            type="button"
-            className="page-link"
-            onClick={() =>
-              setHistoryPage((page) =>
-                Math.min(historyTotalPages, page + 1)
-              )
-            }
-          >
-            ถัดไป
-          </button>
-        </li>
-
-      </ul>
-    </nav>
-  </div>
-  )}
-      </>
-)}
-      {/* 🔴 ตารางวันนี้ (เลื่อนซ้ายขวาได้) */}
-      <div className="health-table-wrapper">
-        <table className="table table-bordered">
-          <thead className="table-light">
-            <tr>
-              <th style={{ width: "60px" }}>ลำดับ</th>
-              <th style={{ width: "220px" }}>ชื่อ</th>
-              <th style={{ width: "140px" }}>ชื่อเล่น</th>
-              <th style={{ width: "120px" }}>ผม</th>
-              <th style={{ width: "120px" }}>ช่องปาก</th>
-              <th style={{ width: "120px" }}>เล็บมือ</th>
-              <th style={{ width: "120px" }}>เล็บเท้า</th>
-              <th style={{ width: "180px" }}>หมายเหตุ</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {currentCheckins.map((r, i) => (
-              <tr key={r.child_id}>
-                <td>{checkinFirstRow + i + 1}</td>
-                <td className="text-start ps-3">
-                {r.name}
-                </td>
-                <td className="text-start ps-3">{r.nickname}</td>
-                {[
-                  
-                    "hair_condition",
-                    "oral_cavity",
-                    "fingernail",
-                    "toenail",
-                  
-                ].map((f) => (
-                  <td key={f}>
-                    <select
-  key={`${r.child_id}-${f}-${r.evaluation[f]}`}
-  className="form-select form-select-sm"
-  value={r.evaluation[f]}
-  onChange={(e) =>
-    onChangeField(r.child_id, f, e.target.value)
-  }
->
-                      {OPTIONS.map((op) => (
-                        <option key={op} value={op}>
-                          {op}
-                        </option>
-                      ))}
-                    </select>
+                  ))}
+                  <td>
+                    <input
+                      className="form-control form-control-sm"
+                      placeholder="-"
+                      value={r.evaluation.note}
+                      onChange={(e) => onChangeField(r.child_id, "note", e.target.value)}
+                    />
                   </td>
-                ))}
-
-                <td>
-                  <input
-                    className="form-control form-control-sm"
-                    value={r.evaluation.note}
-                    onChange={(e) =>
-                      onChangeField(r.child_id, "note", e.target.value)
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-       {rows.length > rowsPerPage && (
-  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
-
-    <div className="text-muted small">
-      แสดง {checkinFirstRow + 1}-
-      {Math.min(checkinLastRow, rows.length)}
-      {" "}จาก {rows.length} รายการ
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          
+          {rows.length > rowsPerPage && (
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-3">
+              <div className="text-muted small">
+                แสดง {checkinFirstRow + 1}-{Math.min(checkinLastRow, rows.length)} จาก {rows.length} รายการ
+              </div>
+              <nav>
+                <ul className="pagination pagination-sm mb-0">
+                  <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
+                    <button type="button" className="page-link" onClick={() => setCheckinPage((page) => Math.max(1, page - 1))}>
+                      ก่อนหน้า
+                    </button>
+                  </li>
+                  {checkinPageNumbers.map((page, index) => {
+                    const prevPage = checkinPageNumbers[index - 1];
+                    const showGap = prevPage && page - prevPage > 1;
+                    return (
+                      <React.Fragment key={page}>
+                        {showGap && (
+                          <li className="page-item disabled">
+                            <span className="page-link">...</span>
+                          </li>
+                        )}
+                        <li className={`page-item ${checkinPage === page ? "active" : ""}`}>
+                          <button type="button" className="page-link" onClick={() => setCheckinPage(page)}>
+                            {page}
+                          </button>
+                        </li>
+                      </React.Fragment>
+                    );
+                  })}
+                  <li className={`page-item ${checkinPage === checkinTotalPages ? "disabled" : ""}`}>
+                    <button type="button" className="page-link" onClick={() => setCheckinPage((page) => Math.min(checkinTotalPages, page + 1))}>
+                      ถัดไป
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-
-    <nav>
-      <ul className="pagination pagination-sm mb-0">
-
-        <li className={`page-item ${checkinPage === 1 ? "disabled" : ""}`}>
-          <button
-            type="button"
-            className="page-link"
-            onClick={() =>
-              setCheckinPage((page) => Math.max(1, page - 1))
-            }
-          >
-            ก่อนหน้า
-          </button>
-        </li>
-
-        {checkinPageNumbers.map((page, index) => {
-          const prevPage = checkinPageNumbers[index - 1];
-          const showGap = prevPage && page - prevPage > 1;
-
-          return (
-            <React.Fragment key={page}>
-
-              {showGap && (
-                <li className="page-item disabled">
-                  <span className="page-link">...</span>
-                </li>
-              )}
-
-              <li
-                className={`page-item ${
-                  checkinPage === page ? "active" : ""
-                }`}
-              >
-                <button
-                  type="button"
-                  className="page-link"
-                  onClick={() => setCheckinPage(page)}
-                >
-                  {page}
-                </button>
-              </li>
-
-            </React.Fragment>
-          );
-        })}
-
-        <li
-          className={`page-item ${
-            checkinPage === checkinTotalPages ? "disabled" : ""
-          }`}
-        >
-          <button
-            type="button"
-            className="page-link"
-            onClick={() =>
-              setCheckinPage((page) =>
-                Math.min(checkinTotalPages, page + 1)
-              )
-            }
-          >
-            ถัดไป
-          </button>
-        </li>
-
-      </ul>
-    </nav>
-  </div>
-)}
-</div>
-    </div>
-  </div>
   );
 }

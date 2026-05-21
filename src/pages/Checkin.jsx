@@ -18,7 +18,7 @@ function attendanceSymbol(status) {
   if (status === "มา") return "✓";
   if (status === "ขาด") return "✕";
   if (status === "ลา") return "ล";
-  return "";
+  return "-";
 }
 
 export default function CheckinPage() {
@@ -198,7 +198,7 @@ function exportExcel() {
       } else if (st === "ลา") {
         cells.push("ล");
       } else {
-        cells.push("");
+        cells.push("-");
       }
     }
 
@@ -592,7 +592,7 @@ const checkinPageNumbers = Array.from(
               <td>
                 <input
                   className="form-control-sm"
-                  value={r.note || ""}
+                  value={r.note || "-"}
                   onChange={e => setNote(r.child_id, e.target.value)}
                 />
               </td>

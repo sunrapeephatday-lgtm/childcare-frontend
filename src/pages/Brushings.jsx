@@ -155,7 +155,7 @@ export default function BrushingsPage(){
   const day = recordDate.getDate();
   const name = `${h.prefix}${h.first_name} ${h.last_name}`;
 
-  if (!map[name]) map[name] = Array(daysInMonth).fill("");
+  if (!map[name]) map[name] = Array(daysInMonth).fill("-");
 
   if (h.status === "แปรงฟันแล้ว") {
     map[name][day - 1] = "✓";
@@ -260,7 +260,7 @@ const monthDateColumns = Array.from(
 function brushingSymbol(status) {
   if (status === "แปรงฟันแล้ว") return "✓";
   if (status === "ยังไม่ได้แปรงฟัน") return "✕";
-  return "";
+  return "-";
 }
 
 const monthlyHistory = history.filter((h) => {
@@ -598,6 +598,7 @@ const checkinPageNumbers = Array.from(
               <td>
                 <input
                   value={r.note || ""}
+                  placeholder="-"
                   onChange={e =>
                     setRows(rs =>
                       rs.map(x =>

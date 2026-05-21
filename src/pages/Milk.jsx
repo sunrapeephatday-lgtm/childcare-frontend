@@ -155,7 +155,7 @@ const days = new Date(year, month + 1, 0).getDate();
     const day = d.getDate();
 
     if (!map[name]) {
-      map[name] = Array(days).fill("");
+      map[name] = Array(days).fill("-");
     }
 
     if (h.status === "ดื่ม") {
@@ -242,7 +242,7 @@ const monthDateColumns = Array.from(
 function milkSymbol(status) {
   if (status === "ดื่ม") return "✓";
   if (status === "ไม่ดื่ม") return "✕";
-  return "";
+  return "-";
 }
 
 const monthlyHistory = history.filter((h) => {
@@ -574,6 +574,7 @@ const checkinPageNumbers = Array.from(
               <td>
                 <input
                   className="form-control-sm"
+                  placeholder="-"
                   value={r.note || ""}
                   onChange={e =>
                     setRows(rs => rs.map(x =>

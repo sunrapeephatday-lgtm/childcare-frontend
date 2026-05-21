@@ -167,7 +167,7 @@ const days = new Date(year, month + 1, 0).getDate();
     const day = d.getDate();
 
     if (!map[name]) {
-      map[name] = Array(days).fill("");
+      map[name] = Array(days).fill("-");
     }
 
     if (h.status === "รับประทาน") {
@@ -257,7 +257,7 @@ function lunchSymbol(status) {
   if (status === "รับประทาน") return "✓";
   if (status === "ยังไม่รับประทาน") return "✕";
   if (status === "ไม่มา") return "-";
-  return "";
+  return "-";
 }
 
 const monthlyHistory = history.filter((h) => {
@@ -597,6 +597,7 @@ const checkinPageNumbers = Array.from(
                 <td>
                   <input
                     className="form-control-sm"
+                    placeholder="-"
                     value={r.note || ""}
                     onChange={e=>updateNote(r.child_id,e.target.value)}
                   />
