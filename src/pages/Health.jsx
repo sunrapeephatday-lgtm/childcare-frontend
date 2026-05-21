@@ -433,7 +433,7 @@ export default function HealthPage() {
                               <div>
                                 <span className="fw-bold">{summaryText}</span>
                                 <div className="text-muted small" style={{ fontSize: "10px", marginTop: "2px" }}>
-                                  (ว. {dayNum})
+                                  (วันที่. {dayNum})
                                 </div>
                               </div>
                             ) : (
