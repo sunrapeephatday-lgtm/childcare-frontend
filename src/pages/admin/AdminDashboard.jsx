@@ -99,16 +99,20 @@ export default function AdminDashboard() {
     }
   }
 
+  // คำนวณ Pagination สำหรับตารางค้นหาเด็ก (searchResults)
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = searchResults.slice(indexOfFirstRow, indexOfLastRow);
   const totalPages = Math.ceil(searchResults.length / rowsPerPage);
 
-  // ข้อมูลสเตตัสรายวัน (คอลัมน์ 1 - 31)
+  // สไตล์การสร้างเลขหน้าแบบ Checkin (แสดงหัว-ท้าย และช่วงใกล้เคียง)
+  const searchPageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+    (page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2
+  );
+
   const totalDays = getDaysInMonth(month, year - 543);
   const daysArray = Array.from({ length: totalDays }, (_, i) => i + 1);
 
-  // ข้อมูลสเตตัสรายเดือนคงที่ 12 เดือน (เช่น ม.ค. 69)
   const shortYearThai = String(year).slice(-2);
   const monthColumns = dateHeaderMonths.map((m, index) => ({
     monthIndex: index,
@@ -116,7 +120,7 @@ export default function AdminDashboard() {
   }));
 
   return (
-    <div>
+    <div className="container-fluid my-4">
       {/* TITLE */}
       <h5 className="mb-4 fw-bold text-success section-title">
         แดชบอร์ด
@@ -210,33 +214,66 @@ export default function AdminDashboard() {
               </table>
             </div>
 
-            {/* PAGINATION */}
-            <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
-              <button
-                className="btn btn-outline-success btn-sm"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(currentPage - 1)}
-              >
-                ก่อนหน้า
-              </button>
+            {/* 🔴 ปรับเมนูแบ่งหน้าของผลการค้นหาเด็กให้เหมือนหน้า Checkin 🔴 */}
+            {searchResults.length > rowsPerPage && (
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 mb-1">
+                <div className="text-muted small">
+                  แสดง {indexOfFirstRow + 1}-{Math.min(indexOfLastRow, searchResults.length)} จาก {searchResults.length} รายการ
+                </div>
 
-              <span className="fw-bold">
-                หน้า {currentPage} / {totalPages || 1}
-              </span>
+                <nav>
+                  <ul className="pagination pagination-sm mb-0">
+                    <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      >
+                        ก่อนหน้า
+                      </button>
+                    </li>
 
-              <button
-                className="btn btn-outline-success btn-sm"
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={() => setCurrentPage(currentPage + 1)}
-              >
-                ถัดไป
-              </button>
-            </div>
+                    {searchPageNumbers.map((page, index) => {
+                      const prevPage = searchPageNumbers[index - 1];
+                      return (
+                        <React.Fragment key={page}>
+                          {prevPage && page - prevPage > 1 && (
+                            <li className="page-item disabled">
+                              <span className="page-link">...</span>
+                            </li>
+                          )}
+                          <li className={`page-item ${currentPage === page ? "active" : ""}`}>
+                            <button
+                              type="button"
+                              className="page-link"
+                              onClick={() => setCurrentPage(page)}
+                            >
+                              {page}
+                            </button>
+                          </li>
+                        </React.Fragment>
+                      );
+                    })}
+
+                    <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      >
+                        ถัดไป
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            )}
+
           </div>
         </div>
       )}
 
-      {/* ===================== DETAIL IN-LINE SECTION ===================== */}
+      {/* ===================== DETAIL SECTION ===================== */}
       {showDetail && detailData && (
         <div className="card mb-4 border-success shadow-sm">
           {/* HEADER */}
